@@ -28,8 +28,8 @@ export async function renderDecksScreen(container, params = {}) {
   }
 
   function getDeckEmoji(deck) {
-    if (deck.deckId === 'practicing') return '⚡';
-    if (deck.deckId === 'mastered') return '🏆';
+    if (deck.deckId === 'practicing') return '🌱';
+    if (deck.deckId === 'mastered') return '✨';
     if (deck.deckId === 'all') return '📚';
     return '📁';
   }
@@ -79,7 +79,7 @@ export async function renderDecksScreen(container, params = {}) {
                           data-hidden="${deck.hidden ? 'true' : 'false'}" 
                           title="${deck.hidden ? t('unhide') : t('hide')}"
                           onclick="event.stopPropagation();">
-                    ${deck.hidden ? '👁️' : '🙈'}
+                    ${deck.hidden ? '👁️' : '👁️‍🗨️'}
                   </button>
                   ${!isDefault ? `
                     <button class="tile-action-btn delete-hover delete-deck-btn" 
@@ -122,7 +122,6 @@ export async function renderDecksScreen(container, params = {}) {
       });
     }
 
-    // Tile Click (Navigate to Deck Words)
     container.querySelectorAll('.tile[data-deck-id]').forEach(tile => {
       tile.addEventListener('click', () => {
         const deckId = tile.getAttribute('data-deck-id');
@@ -130,7 +129,6 @@ export async function renderDecksScreen(container, params = {}) {
       });
     });
 
-    // Hide / Unhide Deck
     container.querySelectorAll('.hide-toggle-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -145,7 +143,6 @@ export async function renderDecksScreen(container, params = {}) {
       });
     });
 
-    // Delete Deck with Confirmation Modal
     container.querySelectorAll('.delete-deck-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -166,7 +163,6 @@ export async function renderDecksScreen(container, params = {}) {
       });
     });
 
-    // Drag and Drop
     setupDragAndDrop();
   }
 
@@ -234,7 +230,7 @@ export async function renderDecksScreen(container, params = {}) {
     const contentHtml = `
       <div class="form-group">
         <label class="form-label">${t('deckName')}</label>
-        <input type="text" class="form-input" id="new-deck-name-input" placeholder="e.g. Travel, Business, Food..." autofocus />
+        <input type="text" class="form-input" id="new-deck-name-input" placeholder="e.g. Travel, Food, Expressions..." autofocus />
       </div>
     `;
 

@@ -57,7 +57,7 @@ export async function renderStudyLanguagesScreen(container) {
                           data-hidden="${lang.hidden ? 'true' : 'false'}" 
                           title="${lang.hidden ? t('unhide') : t('hide')}"
                           onclick="event.stopPropagation();">
-                    ${lang.hidden ? '👁️' : '🙈'}
+                    ${lang.hidden ? '👁️' : '👁️‍🗨️'}
                   </button>
                 </div>
               </div>
@@ -98,7 +98,7 @@ export async function renderStudyLanguagesScreen(container) {
       });
     }
 
-    // Tile Click (Navigate to Decks)
+    // Tile Click
     container.querySelectorAll('.tile[data-code]').forEach(tile => {
       tile.addEventListener('click', () => {
         const code = tile.getAttribute('data-code');
@@ -121,7 +121,6 @@ export async function renderStudyLanguagesScreen(container) {
       });
     });
 
-    // Drag and Drop Reordering
     setupDragAndDrop();
   }
 
@@ -172,7 +171,6 @@ export async function renderStudyLanguagesScreen(container) {
           const [moved] = languages.splice(fromIdx, 1);
           languages.splice(toIdx, 0, moved);
 
-          // Update order fields
           const orderList = languages.map((l, idx) => ({ code: l.code, order: idx }));
           render();
 
@@ -202,7 +200,7 @@ export async function renderStudyLanguagesScreen(container) {
               <div style="font-weight: 600; color: var(--text-primary);">${l.name}</div>
               <div style="font-size: 0.8rem; color: var(--text-muted);">${l.nativeName} (${l.code})</div>
             </div>
-            <button class="btn btn-primary btn-sm">+ Select</button>
+            <button class="btn btn-secondary btn-sm">+ Select</button>
           </div>
         `).join('')}
       </div>
@@ -231,7 +229,7 @@ export async function renderStudyLanguagesScreen(container) {
             <div style="font-weight: 600; color: var(--text-primary);">${l.name}</div>
             <div style="font-size: 0.8rem; color: var(--text-muted);">${l.nativeName} (${l.code})</div>
           </div>
-          <button class="btn btn-primary btn-sm">+ Select</button>
+          <button class="btn btn-secondary btn-sm">+ Select</button>
         </div>
       `).join('');
 

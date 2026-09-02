@@ -1,12 +1,29 @@
 import { CONFIG } from './config.js';
+import { getI18nBaseLang } from './i18n.js';
 
-// Local storage keys
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
 const USER_KEY = `${STORAGE_PREFIX}user`;
 const LOCAL_DATA_KEY = `${STORAGE_PREFIX}local_data`;
 
-// Initialize local fallback store
+// Auto-translate helper for local offline/fallback mode
+async function clientAutoTranslate(text, fromLang, toLang) {
+  if (!text) return '';
+  const cleanFrom = (fromLang || 'auto').toLowerCase().split('-')[0];
+  const cleanTo = (toLang || 'en').toLowerCase().split('-')[0];
+  if (cleanFrom === cleanTo) return text;
+
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(cleanFrom)}&tl=${encodeURIComponent(cleanTo)}&dt=t&q=${encodeURIComponent(text.trim())}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data[0]) {
+      return data[0].map(item => item[0]).join('');
+    }
+  } catch (e) {}
+  return text;
+}
+
 function getLocalStore() {
   const raw = localStorage.getItem(LOCAL_DATA_KEY);
   if (raw) {
@@ -37,17 +54,17 @@ function getLocalStore() {
     },
     words: {
       'ja': [
-        { wordId: 'w1', studyWord: 'こんにちは (Konnichiwa)', baseWord: 'Hello', langCode: 'ja', deckId: 'practicing', order: 0, createdAt: new Date(Date.now() - 3000000).toISOString() },
-        { wordId: 'w2', studyWord: 'ありがとう (Arigatou)', baseWord: 'Thank you', langCode: 'ja', deckId: 'practicing', order: 1, createdAt: new Date(Date.now() - 2000000).toISOString() },
-        { wordId: 'w3', studyWord: 'さようなら (Sayounara)', baseWord: 'Goodbye', langCode: 'ja', deckId: 'mastered', order: 0, createdAt: new Date(Date.now() - 1000000).toISOString() }
+        { wordId: 'w1', studyWord: 'こんにちは', baseWord: 'Hello', pronunciation: 'Konnichiwa', langCode: 'ja', deckId: 'practicing', order: 0, createdAt: new Date(Date.now() - 3000000).toISOString() },
+        { wordId: 'w2', studyWord: 'ありがとう', baseWord: 'Thank you', pronunciation: 'Arigatou', langCode: 'ja', deckId: 'practicing', order: 1, createdAt: new Date(Date.now() - 2000000).toISOString() },
+        { wordId: 'w3', studyWord: 'さようなら', baseWord: 'Goodbye', pronunciation: 'Sayounara', langCode: 'ja', deckId: 'mastered', order: 0, createdAt: new Date(Date.now() - 1000000).toISOString() }
       ],
       'es': [
-        { wordId: 'w4', studyWord: 'Hola', baseWord: 'Hello', langCode: 'es', deckId: 'practicing', order: 0, createdAt: new Date().toISOString() },
-        { wordId: 'w5', studyWord: 'Gracias', baseWord: 'Thank you', langCode: 'es', deckId: 'mastered', order: 0, createdAt: new Date().toISOString() }
+        { wordId: 'w4', studyWord: 'Hola', baseWord: 'Hello', pronunciation: 'OH-lah', langCode: 'es', deckId: 'practicing', order: 0, createdAt: new Date().toISOString() },
+        { wordId: 'w5', studyWord: 'Gracias', baseWord: 'Thank you', pronunciation: 'GRAH-syahs', langCode: 'es', deckId: 'mastered', order: 0, createdAt: new Date().toISOString() }
       ],
       'ka': [
-        { wordId: 'w6', studyWord: 'გამარჯობა (Gamarjoba)', baseWord: 'Hello', langCode: 'ka', deckId: 'practicing', order: 0, createdAt: new Date().toISOString() },
-        { wordId: 'w7', studyWord: 'მადლობა (Madloba)', baseWord: 'Thank you', langCode: 'ka', deckId: 'practicing', order: 1, createdAt: new Date().toISOString() }
+        { wordId: 'w6', studyWord: 'გამარჯობა', baseWord: 'Hello', pronunciation: 'Gamarjoba', langCode: 'ka', deckId: 'practicing', order: 0, createdAt: new Date().toISOString() },
+        { wordId: 'w7', studyWord: 'მადლობა', baseWord: 'Thank you', pronunciation: 'Madloba', langCode: 'ka', deckId: 'practicing', order: 1, createdAt: new Date().toISOString() }
       ]
     }
   };
@@ -109,7 +126,6 @@ async function fetchWithAuth(url, options = {}) {
   return response.json();
 }
 
-// API methods with cloud/local fallback
 export const Api = {
   async getProfile() {
     if (CONFIG.API_ENDPOINTS.profile) {
@@ -293,7 +309,6 @@ export const Api = {
       throw new Error('Default decks cannot be deleted');
     }
     store.decks[langCode] = (store.decks[langCode] || []).filter(d => d.deckId !== deckId);
-    // Reassign words to practicing
     const words = store.words[langCode] || [];
     for (const w of words) {
       if (w.deckId === deckId) w.deckId = 'practicing';
@@ -321,20 +336,30 @@ export const Api = {
     return { words };
   },
 
-  async addWord(langCode, deckId, studyWord, baseWord) {
+  async addWord(langCode, deckId, studyWord, pronunciation = '') {
+    const baseLang = getI18nBaseLang();
     if (CONFIG.API_ENDPOINTS.words) {
       return fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
         method: 'POST',
-        body: JSON.stringify({ action: 'add', langCode, deckId, studyWord, baseWord })
+        body: JSON.stringify({
+          action: 'add',
+          langCode,
+          deckId,
+          studyWord,
+          pronunciation,
+          baseLang
+        })
       });
     }
     const store = getLocalStore();
     if (!store.words[langCode]) store.words[langCode] = [];
+    const autoTranslated = await clientAutoTranslate(studyWord, langCode, baseLang);
     const wordId = 'w_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
     const newWord = {
       wordId,
       studyWord: studyWord.trim(),
-      baseWord: baseWord.trim(),
+      baseWord: autoTranslated,
+      pronunciation: (pronunciation || '').trim(),
       langCode,
       deckId,
       order: store.words[langCode].length,

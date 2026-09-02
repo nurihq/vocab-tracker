@@ -1,6 +1,6 @@
-// Localization dictionary with full multi-language UI support
+// Multi-language UI localization with dynamic auto-translation for all world languages
 
-const TRANSLATIONS = {
+const STATIC_TRANSLATIONS = {
   en: {
     appTitle: 'Vocab Tracker',
     tagline: 'Master any language, one card at a time.',
@@ -39,7 +39,9 @@ const TRANSLATIONS = {
     word: 'word',
     addWord: 'Add Word',
     studyWord: 'Word in study language',
-    baseWord: 'Translation in base language',
+    pronunciationNotes: 'Pronunciation notes (optional)',
+    pronunciationPlaceholder: 'e.g. Romaji, Pinyin, IPA, or phonetic notes',
+    translationAuto: 'Translation is automatically generated in your base language',
     editWord: 'Edit Word',
     moveWord: 'Move to deck',
     sortBy: 'Sort by',
@@ -105,7 +107,9 @@ const TRANSLATIONS = {
     word: 'სიტყვა',
     addWord: 'სიტყვის დამატება',
     studyWord: 'სიტყვა შესასწავლ ენაზე',
-    baseWord: 'თარგმანი ძირითად ენაზე',
+    pronunciationNotes: 'გამოთქმის ჩანაწერი (არასავალდებულო)',
+    pronunciationPlaceholder: 'მაგ. ფონეტიკური ჩანაწერი ან ტრანსკრიფცია',
+    translationAuto: 'თარგმანი ავტომატურად შეიქმნება თქვენს ძირითად ენაზე',
     editWord: 'სიტყვის რედაქტირება',
     moveWord: 'გადატანა დასტაში',
     sortBy: 'დალაგება',
@@ -170,7 +174,9 @@ const TRANSLATIONS = {
     word: 'palabra',
     addWord: 'Añadir palabra',
     studyWord: 'Palabra en idioma de estudio',
-    baseWord: 'Traducción en idioma base',
+    pronunciationNotes: 'Notas de pronunciación (opcional)',
+    pronunciationPlaceholder: 'ej. Romaji, Pinyin, AFI o notas fonéticas',
+    translationAuto: 'La traducción se genera automáticamente en tu idioma base',
     editWord: 'Editar palabra',
     moveWord: 'Mover a mazo',
     sortBy: 'Ordenar por',
@@ -196,6 +202,140 @@ const TRANSLATIONS = {
     lightMode: 'Modo claro',
     darkMode: 'Modo oscuro',
     dragToReorder: 'Arrastra los bloques para reordenar'
+  },
+  fr: {
+    appTitle: 'Vocab Tracker',
+    tagline: 'Maîtrisez n’importe quelle langue, une carte à la fois.',
+    subtitle: 'Des cartes mémoire élégantes et personnalisables adaptées à votre rythme.',
+    startLearning: 'Commencer',
+    signInWithGoogle: 'Se connecter avec Google',
+    signInTitle: 'Bienvenue sur Vocab Tracker',
+    signInSubtitle: 'Connectez-vous pour synchroniser votre vocabulaire et vos listes.',
+    signOut: 'Déconnexion',
+    baseLanguage: 'Langue de base',
+    studyLanguages: 'Langues étudiées',
+    addLanguage: 'Ajouter une langue',
+    searchLanguages: 'Rechercher une langue...',
+    selectLanguage: 'Choisir une langue',
+    hide: 'Masquer',
+    unhide: 'Afficher',
+    showHidden: 'Afficher les masqués',
+    hideHidden: 'Cacher les masqués',
+    noLanguagesYet: 'Aucune langue ajoutée. Cliquez sur "Ajouter une langue" !',
+    decks: 'Paquets',
+    addDeck: 'Nouveau paquet',
+    deckName: 'Nom du paquet',
+    createDeck: 'Créer le paquet',
+    deleteDeck: 'Supprimer le paquet',
+    deleteConfirmTitle: 'Confirmer la suppression',
+    deleteConfirmWarning: 'Cette action est irréversible. Tapez le nom du paquet pour confirmer :',
+    typeToConfirm: 'Tapez "{name}" pour confirmer',
+    delete: 'Supprimer',
+    cancel: 'Annuler',
+    save: 'Enregistrer',
+    back: 'Retour',
+    practicing: 'En cours',
+    mastered: 'Maîtrisé',
+    all: 'Tous',
+    words: 'mots',
+    word: 'mot',
+    addWord: 'Ajouter un mot',
+    studyWord: 'Mot dans la langue étudiée',
+    pronunciationNotes: 'Notes de prononciation (optionnel)',
+    pronunciationPlaceholder: 'ex. Pinyin, Romaji, API ou prononciation phonétique',
+    translationAuto: 'La traduction est générée automatiquement dans votre langue de base',
+    editWord: 'Modifier le mot',
+    moveWord: 'Déplacer vers',
+    sortBy: 'Trier par',
+    sortNewest: 'Plus récents',
+    sortAlpha: 'Alphabétique',
+    sortCustom: 'Personnalisé',
+    studyDeck: 'Étudier ce paquet',
+    noWordsYet: 'Aucun mot dans ce paquet pour le moment.',
+    allDeckNotice: 'Le paquet "Tous" regroupe automatiquement tous vos mots.',
+    flashcards: 'Cartes mémoire',
+    showFirst: 'Afficher en premier',
+    studyFirst: 'Langue étudiée',
+    baseFirst: 'Langue de base',
+    flipCard: 'Retourner la carte',
+    nextCard: 'Suivant',
+    prevCard: 'Précédent',
+    shuffle: 'Mélanger',
+    cardCount: 'Carte {current} sur {total}',
+    deckFinished: 'Paquet terminé ! Excellent travail 🎉',
+    studyAgain: 'Recommencer',
+    backToDeck: 'Retour au paquet',
+    keyboardTips: 'Raccourcis : [Espace] retourner • [→] suivant • [←] précédent',
+    lightMode: 'Mode clair',
+    darkMode: 'Mode sombre',
+    dragToReorder: 'Glissez les tuiles pour réorganiser'
+  },
+  de: {
+    appTitle: 'Vocab Tracker',
+    tagline: 'Meistern Sie jede Sprache, Karte für Karte.',
+    subtitle: 'Anpassbare, elegante Karteikarten und Vokabeldecks für Ihren Lernfortschritt.',
+    startLearning: 'Jetzt lernen',
+    signInWithGoogle: 'Mit Google anmelden',
+    signInTitle: 'Willkommen bei Vocab Tracker',
+    signInSubtitle: 'Melden Sie sich an, um Ihren Lernfortschritt zu synchronisieren.',
+    signOut: 'Abmelden',
+    baseLanguage: 'Ausgangssprache',
+    studyLanguages: 'Lernsprachen',
+    addLanguage: 'Sprache hinzufügen',
+    searchLanguages: 'Sprachen suchen...',
+    selectLanguage: 'Lernsprache wählen',
+    hide: 'Ausblenden',
+    unhide: 'Einblenden',
+    showHidden: 'Versteckte anzeigen',
+    hideHidden: 'Versteckte verbergen',
+    noLanguagesYet: 'Noch keine Sprachen hinzugefügt.',
+    decks: 'Stapel',
+    addDeck: 'Neuer Stapel',
+    deckName: 'Stapelname',
+    createDeck: 'Stapel erstellen',
+    deleteDeck: 'Stapel löschen',
+    deleteConfirmTitle: 'Löschen bestätigen',
+    deleteConfirmWarning: 'Geben Sie zur Bestätigung den Stapelnamen ein:',
+    typeToConfirm: 'Tippen Sie "{name}"',
+    delete: 'Löschen',
+    cancel: 'Abbrechen',
+    save: 'Speichern',
+    back: 'Zurück',
+    practicing: 'In Übung',
+    mastered: 'Gemeistert',
+    all: 'Alle',
+    words: 'Wörter',
+    word: 'Wort',
+    addWord: 'Wort hinzufügen',
+    studyWord: 'Wort in der Lernsprache',
+    pronunciationNotes: 'Aussprachehinweis (optional)',
+    pronunciationPlaceholder: 'z.B. Romaji, Pinyin oder Lautschrift',
+    translationAuto: 'Die Übersetzung wird automatisch in Ihrer Ausgangssprache generiert',
+    editWord: 'Wort bearbeiten',
+    moveWord: 'In Stapel verschieben',
+    sortBy: 'Sortieren nach',
+    sortNewest: 'Neueste zuerst',
+    sortAlpha: 'Alphabetisch',
+    sortCustom: 'Benutzerdefiniert',
+    studyDeck: 'Stapel lernen',
+    noWordsYet: 'Noch keine Wörter in diesem Stapel.',
+    allDeckNotice: 'Der "Alle" Stapel fasst alle Wörter zusammen.',
+    flashcards: 'Karteikarten',
+    showFirst: 'Zuerst anzeigen',
+    studyFirst: 'Lernsprache',
+    baseFirst: 'Ausgangssprache',
+    flipCard: 'Umdrehen',
+    nextCard: 'Weiter',
+    prevCard: 'Zurück',
+    shuffle: 'Mischen',
+    cardCount: 'Karte {current} von {total}',
+    deckFinished: 'Stapel abgeschlossen! Super gemacht 🎉',
+    studyAgain: 'Nochmal lernen',
+    backToDeck: 'Zurück zum Stapel',
+    keyboardTips: 'Tastenkürzel: [Leertaste] drehen • [→] weiter • [←] zurück',
+    lightMode: 'Heller Modus',
+    darkMode: 'Dunkler Modus',
+    dragToReorder: 'Kacheln zum Sortieren ziehen'
   },
   ja: {
     appTitle: 'Vocab Tracker',
@@ -235,7 +375,9 @@ const TRANSLATIONS = {
     word: '単語',
     addWord: '単語を追加',
     studyWord: '学習言語の単語',
-    baseWord: 'ベース言語の訳',
+    pronunciationNotes: '発音メモ（任意）',
+    pronunciationPlaceholder: '例: ローマ字、ピンイン、IPAなど',
+    translationAuto: '訳はベース言語で自動生成されます',
     editWord: '単語を編集',
     moveWord: 'デッキを移動',
     sortBy: '並び順',
@@ -265,6 +407,25 @@ const TRANSLATIONS = {
 };
 
 let currentBaseLang = 'en';
+const dynamicCache = {};
+
+export async function fetchLiveTranslation(text, targetLang) {
+  if (!text || !targetLang || targetLang === 'en') return text;
+  const cacheKey = `${targetLang}:${text}`;
+  if (dynamicCache[cacheKey]) return dynamicCache[cacheKey];
+
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(targetLang)}&dt=t&q=${encodeURIComponent(text)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data[0] && data[0][0] && data[0][0][0]) {
+      const translated = data[0].map(s => s[0]).join('');
+      dynamicCache[cacheKey] = translated;
+      return translated;
+    }
+  } catch (e) {}
+  return text;
+}
 
 export function setI18nBaseLang(langCode) {
   currentBaseLang = langCode || 'en';
@@ -275,8 +436,9 @@ export function getI18nBaseLang() {
 }
 
 export function t(key, params = {}) {
-  const langDict = TRANSLATIONS[currentBaseLang] || TRANSLATIONS[currentBaseLang.split('-')[0]] || TRANSLATIONS['en'];
-  let text = langDict[key] || TRANSLATIONS['en'][key] || key;
+  const shortCode = currentBaseLang.toLowerCase().split('-')[0];
+  const langDict = STATIC_TRANSLATIONS[currentBaseLang] || STATIC_TRANSLATIONS[shortCode] || STATIC_TRANSLATIONS['en'];
+  let text = langDict[key] || STATIC_TRANSLATIONS['en'][key] || key;
 
   for (const [k, v] of Object.entries(params)) {
     text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), v);

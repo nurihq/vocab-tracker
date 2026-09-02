@@ -1,4 +1,4 @@
-import { t, getI18nBaseLang } from '../i18n.js';
+import { t, getI18nBaseLang, fetchLiveTranslation } from '../i18n.js';
 import { getLanguageByCode } from '../languages.js';
 import { Api } from '../api.js';
 
@@ -6,13 +6,14 @@ export async function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
   const deckId = params.deckId || 'practicing';
   const langInfo = getLanguageByCode(langCode);
-  const baseLangInfo = getLanguageByCode(getI18nBaseLang());
+  const currentBase = getI18nBaseLang();
+  const baseLangInfo = getLanguageByCode(currentBase);
 
   let words = [];
   let allDecks = [];
   let currentIndex = 0;
   let isFlipped = false;
-  let showStudyFirst = true; // true = study language front, false = base language front
+  let showStudyFirst = true;
   let keydownHandler = null;
 
   async function loadData() {
@@ -25,6 +26,18 @@ export async function renderFlashcardsScreen(container, params = {}) {
       allDecks = decksRes.decks || [];
       currentIndex = 0;
       isFlipped = false;
+
+      // Translate words into active base language
+      for (const w of words) {
+        fetchLiveTranslation(w.studyWord, currentBase).then(trans => {
+          if (trans && trans !== w.studyWord) {
+            w.baseWord = trans;
+            const el = container.querySelector(`[data-card-base-id="${w.wordId}"]`);
+            if (el) el.textContent = trans;
+          }
+        });
+      }
+
       render();
     } catch (err) {
       console.error('Failed to load flashcards:', err);
@@ -40,7 +53,6 @@ export async function renderFlashcardsScreen(container, params = {}) {
   }
 
   function render() {
-    // Cleanup old key listener if re-rendering
     if (keydownHandler) {
       window.removeEventListener('keydown', keydownHandler);
       keydownHandler = null;
@@ -69,7 +81,7 @@ export async function renderFlashcardsScreen(container, params = {}) {
       container.innerHTML = `
         <div class="empty-state" style="margin-top: 3rem;">
           <div class="empty-icon">🎉</div>
-          <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">${t('deckFinished')}</h2>
+          <h2 style="font-family: var(--font-serif); font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">${t('deckFinished')}</h2>
           <p style="margin-bottom: 2rem; color: var(--text-secondary);">
             You have reviewed all ${words.length} cards in this deck.
           </p>
@@ -88,8 +100,12 @@ export async function renderFlashcardsScreen(container, params = {}) {
       return;
     }
 
-    const frontText = showStudyFirst ? currentWord.studyWord : currentWord.baseWord;
-    const backText = showStudyFirst ? currentWord.baseWord : currentWord.studyWord;
+    const frontMain = showStudyFirst ? currentWord.studyWord : currentWord.baseWord;
+    const frontSub = showStudyFirst ? currentWord.pronunciation : '';
+
+    const backMain = showStudyFirst ? currentWord.baseWord : currentWord.studyWord;
+    const backSub = showStudyFirst ? '' : currentWord.pronunciation;
+
     const frontLangLabel = showStudyFirst ? `${langInfo.flag} ${langInfo.name}` : `${baseLangInfo?.flag || '🌐'} ${t('baseLanguage')}`;
     const backLangLabel = showStudyFirst ? `${baseLangInfo?.flag || '🌐'} ${t('baseLanguage')}` : `${langInfo.flag} ${langInfo.name}`;
 
@@ -125,7 +141,10 @@ export async function renderFlashcardsScreen(container, params = {}) {
             <div class="card-face card-face-front">
               <span class="card-lang-indicator">${frontLangLabel}</span>
               <span class="card-deck-badge">${getDeckDisplayName(currentWord.deckId)}</span>
-              <div class="card-text-main">${frontText}</div>
+              
+              <div class="card-text-main">${frontMain}</div>
+              ${frontSub ? `<div class="card-pronunciation-sub">${frontSub}</div>` : ''}
+
               <span class="card-hint">Tap card or press [Space] to flip</span>
             </div>
 
@@ -133,7 +152,10 @@ export async function renderFlashcardsScreen(container, params = {}) {
             <div class="card-face card-face-back">
               <span class="card-lang-indicator">${backLangLabel}</span>
               <span class="card-deck-badge">${getDeckDisplayName(currentWord.deckId)}</span>
-              <div class="card-text-main">${backText}</div>
+              
+              <div class="card-text-main" data-card-base-id="${currentWord.wordId}">${backMain}</div>
+              ${backSub ? `<div class="card-pronunciation-sub">${backSub}</div>` : ''}
+
               <span class="card-hint">Tap card to flip back</span>
             </div>
           </div>
@@ -150,7 +172,6 @@ export async function renderFlashcardsScreen(container, params = {}) {
               🔄 ${t('flipCard')}
             </button>
 
-            <!-- Move Word to another Deck -->
             <select class="move-select" id="card-move-dropdown" style="padding: 0.65rem 0.85rem;" title="${t('moveWord')}">
               <option value="" disabled selected>${t('moveWord')}...</option>
               ${allDecks.filter(d => d.deckId !== 'all').map(d => `
@@ -177,7 +198,6 @@ export async function renderFlashcardsScreen(container, params = {}) {
       </div>
     `;
 
-    // Event Bindings
     const cardEl = container.querySelector('#flashcard-el');
     const stageEl = container.querySelector('#card-stage');
     const flipBtn = container.querySelector('#flip-card-btn');
@@ -218,7 +238,6 @@ export async function renderFlashcardsScreen(container, params = {}) {
       });
     }
 
-    // Toggle Study Language vs Base Language front
     container.querySelector('#toggle-study-first').addEventListener('click', () => {
       showStudyFirst = true;
       isFlipped = false;
@@ -230,7 +249,6 @@ export async function renderFlashcardsScreen(container, params = {}) {
       render();
     });
 
-    // Shuffle
     container.querySelector('#shuffle-cards-btn').addEventListener('click', () => {
       for (let i = words.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -241,7 +259,6 @@ export async function renderFlashcardsScreen(container, params = {}) {
       render();
     });
 
-    // Move to another deck
     const moveDropdown = container.querySelector('#card-move-dropdown');
     if (moveDropdown) {
       moveDropdown.addEventListener('change', async (e) => {
@@ -251,7 +268,6 @@ export async function renderFlashcardsScreen(container, params = {}) {
         try {
           await Api.moveWord(langCode, currentWord.wordId, currentWord.deckId, targetDeck);
           currentWord.deckId = targetDeck;
-          // Advance to next word or re-render
           currentIndex = Math.min(currentIndex, words.length - 1);
           render();
         } catch (err) {
@@ -260,9 +276,7 @@ export async function renderFlashcardsScreen(container, params = {}) {
       });
     }
 
-    // Keyboard Shortcuts
     keydownHandler = (e) => {
-      // Ignore if user is typing in a select or input
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
 
       if (e.code === 'Space') {

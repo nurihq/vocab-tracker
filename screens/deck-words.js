@@ -1,4 +1,4 @@
-import { t } from '../i18n.js';
+import { t, getI18nBaseLang, fetchLiveTranslation } from '../i18n.js';
 import { getLanguageByCode } from '../languages.js';
 import { Api } from '../api.js';
 import { Modal } from '../components/modal.js';
@@ -7,6 +7,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
   const deckId = params.deckId || 'practicing';
   const langInfo = getLanguageByCode(langCode);
+  const currentBase = getI18nBaseLang();
 
   let words = [];
   let allDecks = [];
@@ -20,6 +21,20 @@ export async function renderDeckWordsScreen(container, params = {}) {
       ]);
       words = wordsRes.words || [];
       allDecks = decksRes.decks || [];
+
+      // Ensure translations are displayed in current base language
+      for (const w of words) {
+        if (!w.baseWord || w.baseWord === w.studyWord) {
+          fetchLiveTranslation(w.studyWord, currentBase).then(trans => {
+            if (trans && trans !== w.studyWord) {
+              w.baseWord = trans;
+              const el = container.querySelector(`[data-word-base-id="${w.wordId}"]`);
+              if (el) el.textContent = trans;
+            }
+          });
+        }
+      }
+
       render();
     } catch (err) {
       console.error('Failed to load words:', err);
@@ -87,13 +102,15 @@ export async function renderDeckWordsScreen(container, params = {}) {
                    data-word-id="${w.wordId}" 
                    data-index="${index}">
                 <div class="word-content">
-                  <div class="word-study">${w.studyWord}</div>
-                  <div class="word-base">${w.baseWord}</div>
+                  <div class="word-study-row">
+                    <span class="word-study">${w.studyWord}</span>
+                    ${w.pronunciation ? `<span class="word-pronunciation">${w.pronunciation}</span>` : ''}
+                  </div>
+                  <div class="word-base" data-word-base-id="${w.wordId}">${w.baseWord || '...'}</div>
                   ${dateStr ? `<div class="word-date">${dateStr}</div>` : ''}
                 </div>
 
                 <div class="word-actions">
-                  <!-- Move to Deck -->
                   <select class="move-select word-move-dropdown" data-word-id="${w.wordId}" title="${t('moveWord')}">
                     <option value="" disabled selected>${t('moveWord')}...</option>
                     ${allDecks.filter(d => d.deckId !== 'all' && d.deckId !== w.deckId).map(d => `
@@ -123,7 +140,6 @@ export async function renderDeckWordsScreen(container, params = {}) {
       </div>
     `;
 
-    // Event Bindings
     const addWordBtn = container.querySelector('#add-word-btn');
     if (addWordBtn) addWordBtn.addEventListener('click', openAddWordModal);
 
@@ -135,7 +151,6 @@ export async function renderDeckWordsScreen(container, params = {}) {
       });
     }
 
-    // Move Word
     container.querySelectorAll('.word-move-dropdown').forEach(select => {
       select.addEventListener('change', async (e) => {
         const wordId = select.getAttribute('data-word-id');
@@ -151,7 +166,6 @@ export async function renderDeckWordsScreen(container, params = {}) {
       });
     });
 
-    // Delete Word
     container.querySelectorAll('.delete-word-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const wordId = btn.getAttribute('data-word-id');
@@ -164,7 +178,6 @@ export async function renderDeckWordsScreen(container, params = {}) {
       });
     });
 
-    // Custom Drag-and-drop Reordering
     if (currentSort === 'custom' && !isAllDeck) {
       setupWordDragAndDrop();
     }
@@ -234,11 +247,12 @@ export async function renderDeckWordsScreen(container, params = {}) {
     const contentHtml = `
       <div class="form-group">
         <label class="form-label">${t('studyWord')} (${langInfo.name})</label>
-        <input type="text" class="form-input" id="new-study-word-input" placeholder="e.g. ありがとう" autofocus />
+        <input type="text" class="form-input" id="new-study-word-input" placeholder="e.g. ありがとう or Gamarjoba" autofocus />
       </div>
       <div class="form-group">
-        <label class="form-label">${t('baseWord')}</label>
-        <input type="text" class="form-input" id="new-base-word-input" placeholder="e.g. Thank you" />
+        <label class="form-label">${t('pronunciationNotes')}</label>
+        <input type="text" class="form-input" id="new-pronunciation-input" placeholder="${t('pronunciationPlaceholder')}" />
+        <span class="form-hint">✨ ${t('translationAuto')}</span>
       </div>
     `;
 
@@ -248,14 +262,14 @@ export async function renderDeckWordsScreen(container, params = {}) {
       confirmText: t('save'),
       onConfirm: async (modalEl) => {
         const studyInput = modalEl.querySelector('#new-study-word-input');
-        const baseInput = modalEl.querySelector('#new-base-word-input');
+        const pronInput = modalEl.querySelector('#new-pronunciation-input');
         const studyWord = studyInput ? studyInput.value.trim() : '';
-        const baseWord = baseInput ? baseInput.value.trim() : '';
+        const pronunciation = pronInput ? pronInput.value.trim() : '';
 
-        if (!studyWord || !baseWord) return false;
+        if (!studyWord) return false;
 
         try {
-          await Api.addWord(langCode, deckId, studyWord, baseWord);
+          await Api.addWord(langCode, deckId, studyWord, pronunciation);
           await loadData();
           return true;
         } catch (err) {
