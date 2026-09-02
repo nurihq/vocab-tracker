@@ -1,4 +1,4 @@
-import { t, getI18nBaseLang } from '../i18n.js';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api } from '../api.js';
 import { Modal } from '../components/modal.js';
@@ -48,7 +48,7 @@ export async function renderDecksScreen(container, params = {}) {
             <span>${langInfo.flag}</span>
             <span>${localizedLangName}</span>
           </div>
-          <h2 class="screen-title">${t('decks')}</h2>
+          <h2 class="screen-title" data-i18n="decks">${t('decks')}</h2>
         </div>
         <div class="screen-actions">
           ${hasHidden ? `
@@ -57,7 +57,7 @@ export async function renderDecksScreen(container, params = {}) {
             </button>
           ` : ''}
           <button class="btn btn-primary" id="add-deck-btn">
-            + ${t('addDeck')}
+            + <span data-i18n="addDeck">${t('addDeck')}</span>
           </button>
         </div>
       </div>
@@ -106,10 +106,12 @@ export async function renderDecksScreen(container, params = {}) {
 
         <div class="tile-add" id="tile-add-deck-card">
           <span class="tile-add-icon">+</span>
-          <span class="tile-add-text">${t('addDeck')}</span>
+          <span class="tile-add-text" data-i18n="addDeck">${t('addDeck')}</span>
         </div>
       </div>
     `;
+
+    autoTranslateUi(container);
 
     // Event Bindings
     const addBtn = container.querySelector('#add-deck-btn');
@@ -237,7 +239,7 @@ export async function renderDecksScreen(container, params = {}) {
   function openAddDeckModal() {
     const contentHtml = `
       <div class="form-group">
-        <label class="form-label">${t('deckName')}</label>
+        <label class="form-label" data-i18n="deckName">${t('deckName')}</label>
         <input type="text" class="form-input" id="new-deck-name-input" placeholder="e.g. Travel, Food, Expressions..." autofocus />
       </div>
     `;

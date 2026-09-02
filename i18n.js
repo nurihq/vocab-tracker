@@ -73,6 +73,78 @@ export const STATIC_TRANSLATIONS = {
     darkMode: 'Dark Mode',
     dragToReorder: 'Drag tiles to reorder your priority list'
   },
+  ko: {
+    appTitle: 'monogenesis',
+    tagline: '다양한 언어의 어휘를 기록하고 실력을 키워보세요',
+    subtitle: '모든 언어에서 자신의 속도에 맞춰 맞춤 설정할 수 있는 단어장과 플래시 카드.',
+    startLearning: '학습 시작하기',
+    signInWithGoogle: 'Google로 로그인',
+    signInTitle: '로그인',
+    signInSubtitle: '모든 기기에서 언어, 단어장 및 어휘를 동기화하세요.',
+    signOut: '로그아웃',
+    baseLanguage: '기본 언어',
+    studyLanguages: '학습 언어',
+    languages: '언어',
+    language: '언어',
+    addLanguage: '언어 추가',
+    searchLanguages: '언어 검색...',
+    selectLanguage: '학습할 언어 선택',
+    hide: '숨기기',
+    unhide: '표시하기',
+    showHidden: '숨긴 항목 보기',
+    hideHidden: '숨긴 항목 감추기',
+    noLanguagesYet: '아직 추가된 학습 언어가 없습니다.',
+    decks: '단어장',
+    deck: '단어장',
+    addDeck: '새 단어장',
+    deckName: '단어장 이름',
+    createDeck: '단어장 생성',
+    deleteDeck: '단어장 삭제',
+    deleteConfirmTitle: '단어장 삭제 확인',
+    deleteConfirmWarning: '이 작업은 되돌릴 수 없습니다. 확인하려면 단어장 이름을 입력하세요:',
+    typeToConfirm: '"{name}" 입력',
+    delete: '삭제',
+    cancel: '취소',
+    save: '저장',
+    back: '뒤로',
+    home: '홈',
+    practicing: '학습 중',
+    mastered: '완료됨',
+    all: '전체',
+    words: '단어',
+    word: '단어',
+    wordInBase: '{lang} 단어',
+    addWord: '단어 추가',
+    studyWord: '학습 언어 단어',
+    pronunciationNotes: '발음 메모 (선택사항)',
+    pronunciationPlaceholder: '예: 로마자 표기, 발음 힌트 등',
+    translationAuto: '기본 언어로 번역이 자동 생성됩니다',
+    editWord: '단어 수정',
+    moveWord: '단어장 이동',
+    sortBy: '정렬 기준',
+    sortNewest: '최신순',
+    sortAlpha: '가나다순',
+    sortCustom: '사용자 지정',
+    studyDeck: '단어장 학습',
+    noWordsYet: '이 단어장에 아직 단어가 없습니다.',
+    allDeckNotice: '"전체" 단어장은 모든 단어를 모아 보여줍니다.',
+    flashcards: '플래시 카드',
+    showFirst: '먼저 표시',
+    studyFirst: '학습 언어',
+    baseFirst: '기본 언어',
+    flipCard: '카드 뒤집기',
+    nextCard: '다음',
+    prevCard: '이전',
+    shuffle: '섞기',
+    cardCount: '카드 {current} / {total}',
+    deckFinished: '단어장 학습 완료! 수고하셨습니다 🎉',
+    studyAgain: '다시 학습',
+    backToDeck: '단어장으로 돌아가기',
+    keyboardTips: '단축키: [스페이스바] 뒤집기 • [→] 다음 • [←] 이전',
+    lightMode: '라이트 모드',
+    darkMode: '다크 모드',
+    dragToReorder: '타일을 드래그하여 순서를 변경하세요'
+  },
   hi: {
     appTitle: 'monogenesis',
     tagline: 'विभिन्न भाषाओं में अपनी शब्दावली ट्रैक करें और सुधारें',
@@ -822,13 +894,21 @@ export async function autoTranslateUi(container) {
 
     const langDict = STATIC_TRANSLATIONS[currentBaseLang] || STATIC_TRANSLATIONS[shortCode];
     if (langDict && langDict[key]) {
-      el.textContent = langDict[key];
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        if (el.placeholder) el.placeholder = langDict[key];
+      } else {
+        el.textContent = langDict[key];
+      }
       continue;
     }
 
     fetchLiveTranslation(englishText, shortCode).then(translated => {
       if (translated && translated !== englishText) {
-        el.textContent = translated;
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+          if (el.placeholder) el.placeholder = translated;
+        } else {
+          el.textContent = translated;
+        }
       }
     });
   }

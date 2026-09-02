@@ -1,4 +1,4 @@
-import { t, getI18nBaseLang, fetchLiveTranslation } from '../i18n.js';
+import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api } from '../api.js';
 import { Modal } from '../components/modal.js';
@@ -66,12 +66,12 @@ export async function renderDeckWordsScreen(container, params = {}) {
         </div>
         <div class="screen-actions">
           ${words.length > 0 ? `
-            <a href="#/languages/${langCode}/decks/${deckId}/study" class="btn btn-primary" id="study-deck-btn">
+            <a href="#/languages/${langCode}/decks/${deckId}/study" class="btn btn-primary" id="study-deck-btn" data-i18n="studyDeck">
               ${t('studyDeck')}
             </a>
           ` : ''}
           <button class="btn btn-secondary" id="add-word-btn">
-            + ${t('addWord')}
+            + <span data-i18n="addWord">${t('addWord')}</span>
           </button>
         </div>
       </div>
@@ -79,7 +79,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
       <div class="word-list-container">
         <div class="word-list-toolbar">
           <div class="sort-select-wrapper">
-            <span>${t('sortBy')}:</span>
+            <span data-i18n="sortBy">${t('sortBy')}</span>:
             <select class="sort-select" id="sort-dropdown">
               <option value="newest" ${currentSort === 'newest' ? 'selected' : ''}>${t('sortNewest')}</option>
               <option value="alpha" ${currentSort === 'alpha' ? 'selected' : ''}>${t('sortAlpha')}</option>
@@ -128,11 +128,13 @@ export async function renderDeckWordsScreen(container, params = {}) {
 
         ${words.length === 0 ? `
           <div class="empty-state">
-            <p>${t('noWordsYet')}</p>
+            <p data-i18n="noWordsYet">${t('noWordsYet')}</p>
           </div>
         ` : ''}
       </div>
     `;
+
+    autoTranslateUi(container);
 
     const addWordBtn = container.querySelector('#add-word-btn');
     if (addWordBtn) addWordBtn.addEventListener('click', openAddWordModal);
@@ -251,6 +253,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
 
   function getBaseExample() {
     const code = currentBase.toLowerCase().split('-')[0];
+    if (code === 'ko') return '예: 감사합니다';
     if (code === 'ru') return 'например, Спасибо';
     if (code === 'es') return 'ej. Gracias';
     if (code === 'fr') return 'ex. Merci';
@@ -258,6 +261,8 @@ export async function renderDeckWordsScreen(container, params = {}) {
     if (code === 'ja') return '例: ありがとう';
     if (code === 'zh') return '例如：谢谢';
     if (code === 'id') return 'misal: Terima kasih';
+    if (code === 'hi') return 'उदा. धन्यवाद';
+    if (code === 'pa') return 'ਜਿਵੇਂ: ਧੰਨਵਾਦ';
     return 'e.g. Thank you';
   }
 
