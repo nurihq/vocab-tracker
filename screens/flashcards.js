@@ -108,7 +108,7 @@ export function renderFlashcardsScreen(container, params = {}) {
       container.innerHTML = `
         <div class="empty-state">
           <p data-i18n="noWordsYet">${t('noWordsYet')}</p>
-          <a href="/languages/${langCode}/decks/${deckId}" class="btn btn-secondary" style="margin-top: 1rem;" data-i18n="backToDeck">
+          <a href="#/languages/${langCode}/decks/${deckId}" class="btn btn-secondary" style="margin-top: 1rem;" data-i18n="backToDeck">
             ${t('backToDeck')}
           </a>
         </div>
@@ -131,7 +131,7 @@ export function renderFlashcardsScreen(container, params = {}) {
             <button class="btn btn-primary" id="study-again-btn" data-i18n="studyAgain">
               ${t('studyAgain')}
             </button>
-            <a href="/languages/${langCode}/decks/${deckId}" class="btn btn-secondary" data-i18n="backToDeck">
+            <a href="#/languages/${langCode}/decks/${deckId}" class="btn btn-secondary" data-i18n="backToDeck">
               ${t('backToDeck')}
             </a>
           </div>

@@ -2,7 +2,7 @@ import { LANGUAGES } from '../languages.js';
 import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js';
 import { Auth, Api } from '../api.js';
 import { trackEvent } from '../analytics.js';
-import { navigate, getBasePath } from '../app.js';
+import { navigate } from '../app.js';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {
@@ -20,7 +20,7 @@ export class Navbar {
     if (studyMatch) {
       return {
         label: t('deck'),
-        target: `/languages/${studyMatch[1]}/decks/${studyMatch[2]}`
+        target: `#/languages/${studyMatch[1]}/decks/${studyMatch[2]}`
       };
     }
 
@@ -28,7 +28,7 @@ export class Navbar {
     if (deckWordsMatch) {
       return {
         label: t('decks'),
-        target: `/languages/${deckWordsMatch[1]}/decks`
+        target: `#/languages/${deckWordsMatch[1]}/decks`
       };
     }
 
@@ -36,21 +36,21 @@ export class Navbar {
     if (decksMatch) {
       return {
         label: t('languages'),
-        target: '/languages'
+        target: '#/languages'
       };
     }
 
     if (cleanRoute === '/languages') {
       return {
         label: t('home'),
-        target: '/'
+        target: '#/'
       };
     }
 
     if (cleanRoute === '/signin') {
       return {
         label: t('home'),
-        target: '/'
+        target: '#/'
       };
     }
 
@@ -71,7 +71,7 @@ export class Navbar {
             </button>
           ` : ''}
           
-          <a href="${getBasePath()}/" class="nav-brand" title="monogenesis">
+          <a href="#/" class="nav-brand" title="monogenesis">
             <svg class="nav-home-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
               <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
               <polyline points="9 22 9 12 15 12 15 22"/>
@@ -152,7 +152,7 @@ export class Navbar {
         trackEvent('sign_out');
         Auth.signOut();
         if (this.onSignOut) this.onSignOut();
-        navigate('/');
+        navigate('#/');
       });
     }
   }

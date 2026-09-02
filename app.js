@@ -11,38 +11,16 @@ import { renderDecksScreen } from './screens/decks.js';
 import { renderDeckWordsScreen } from './screens/deck-words.js';
 import { renderFlashcardsScreen } from './screens/flashcards.js';
 
-export function getBasePath() {
-  const isSubdir = window.location.pathname.indexOf('/vocab-tracker') === 0;
-  return isSubdir ? '/vocab-tracker' : '';
-}
-
-export function getCurrentRoute() {
-  const basePath = getBasePath();
-  let pathname = window.location.pathname;
-  if (basePath && pathname.startsWith(basePath)) {
-    pathname = pathname.slice(basePath.length);
-  }
-  if (!pathname || pathname === '') pathname = '/';
-
-  // If hash exists, migrate from hash to clean path
-  const hash = window.location.hash.replace(/^#/, '');
-  if (hash && hash !== '/' && hash !== '') {
-    return hash.startsWith('/') ? hash : '/' + hash;
-  }
-  return pathname;
-}
-
 export function navigate(to) {
-  const basePath = getBasePath();
   let cleanTo = to;
-  if (cleanTo.startsWith('#')) cleanTo = cleanTo.replace(/^#/, '');
-  if (!cleanTo.startsWith('/')) cleanTo = '/' + cleanTo;
-
-  const targetUrl = basePath + cleanTo;
-  if (window.location.pathname + window.location.hash !== targetUrl) {
-    window.history.pushState({}, '', targetUrl);
+  if (!cleanTo.startsWith('#')) {
+    cleanTo = '#' + (cleanTo.startsWith('/') ? cleanTo : '/' + cleanTo);
   }
-  window.dispatchEvent(new CustomEvent('app-route-change', { detail: { path: cleanTo } }));
+  if (window.location.hash !== cleanTo) {
+    window.location.hash = cleanTo;
+  } else {
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  }
 }
 
 class App {
@@ -62,16 +40,15 @@ class App {
       () => this.handleSignOut()
     );
 
-    window.addEventListener('popstate', () => this.handleRoute());
     window.addEventListener('hashchange', () => this.handleRoute());
-    window.addEventListener('app-route-change', () => this.handleRoute());
+    window.addEventListener('popstate', () => this.handleRoute());
 
-    // Intercept clicks on internal links for fast SPA clean navigation
+    // Intercept any internal links for instant SPA navigation
     document.addEventListener('click', (e) => {
       const link = e.target.closest('a');
       if (link && link.getAttribute('href')) {
         const href = link.getAttribute('href');
-        if (href.startsWith('#/') || href.startsWith('/')) {
+        if (href.startsWith('#/')) {
           e.preventDefault();
           navigate(href);
         }
@@ -93,22 +70,23 @@ class App {
   handleThemeChange() {}
 
   handleSignOut() {
-    navigate('/');
+    navigate('#/');
   }
 
   handleRoute() {
-    const path = getCurrentRoute();
+    const hash = window.location.hash || '#/';
+    const path = hash.replace(/^#/, '') || '/';
 
-    // Track Clean Page View in GA4
+    // Track SPA Page View in GA4
     trackPageView(path);
 
     // Re-render navbar with updated active state
-    this.navbar.render(this.navContainer, path);
+    this.navbar.render(this.navContainer, hash);
 
     // Protected Route Check
-    const isPublic = path === '/' || path === '/signin';
+    const isPublic = path === '/' || path === '' || path === '/signin';
     if (!isPublic && !Auth.isAuthenticated()) {
-      navigate('/signin');
+      navigate('#/signin');
       return;
     }
 
@@ -117,7 +95,7 @@ class App {
       renderHomeScreen(this.mainContainer);
     } else if (path === '/signin') {
       if (Auth.isAuthenticated()) {
-        navigate('/languages');
+        navigate('#/languages');
       } else {
         renderSignInScreen(this.mainContainer);
       }

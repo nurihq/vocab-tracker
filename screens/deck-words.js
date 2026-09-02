@@ -79,7 +79,7 @@ export function renderDeckWordsScreen(container, params = {}) {
         </div>
         <div class="screen-actions">
           ${words.length > 0 ? `
-            <a href="/languages/${langCode}/decks/${deckId}/study" class="btn btn-primary" id="study-deck-btn" data-i18n="studyDeck">
+            <a href="#/languages/${langCode}/decks/${deckId}/study" class="btn btn-primary" id="study-deck-btn" data-i18n="studyDeck">
               ${t('studyDeck')}
             </a>
           ` : ''}
