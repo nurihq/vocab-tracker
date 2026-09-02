@@ -1138,3 +1138,12 @@ body {
   color: var(--primary);
   transform: translateY(-1px);
 }
+
+.nav-brand-text {
+  font-family: var(--font-serif);
+  font-size: 1.18rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  line-height: 1;
+}

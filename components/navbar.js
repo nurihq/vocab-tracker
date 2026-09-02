@@ -61,14 +61,15 @@ export class Navbar {
             <button class="nav-back-btn" id="nav-back-btn" data-target="${backInfo.target}">
               ← <span>${backInfo.label}</span>
             </button>
-          ` : `
-            <a href="#/" class="nav-brand" title="Home">
-              <svg class="nav-home-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
-            </a>
-          `}
+          ` : ''}
+          
+          <a href="#/" class="nav-brand" title="monogenesis">
+            <svg class="nav-home-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span class="nav-brand-text">monogenesis</span>
+          </a>
         </div>
 
         <div class="nav-right">

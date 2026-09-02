@@ -35,7 +35,7 @@ export function renderSignInScreen(container) {
   container.innerHTML = `
     <div style="max-width: 440px; margin: 3.5rem auto; padding: 2.75rem 2rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); text-align: center;">
       ${leafLogoSvg}
-      <h2 style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.01em; color: var(--text-primary);">Monogenesis</h2>
+      <h2 style="font-family: var(--font-serif); font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; color: var(--text-primary);">monogenesis</h2>
       <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 2rem; line-height: 1.55;" data-i18n="signInSubtitle">${t('signInSubtitle')}</p>
 
       <!-- Google Identity Services Container -->
