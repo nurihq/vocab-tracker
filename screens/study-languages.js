@@ -26,18 +26,26 @@ export function renderStudyLanguagesScreen(container) {
     try {
       const res = await Api.getLanguages();
       if (!isStillMounted()) return;
-      languages = res.languages || [];
-      const countPromises = languages.map(async (l) => {
-        try {
-          const wordsRes = await Api.getWords(l.code, 'all');
-          vocabCounts[l.code] = (wordsRes.words || []).length;
-        } catch (e) {
-          vocabCounts[l.code] = (store.words[l.code] || []).length;
+      if (res.languages) {
+        const countPromises = res.languages.map(async (l) => {
+          try {
+            const wordsRes = await Api.getWords(l.code, 'all');
+            vocabCounts[l.code] = (wordsRes.words || []).length;
+          } catch (e) {
+            vocabCounts[l.code] = (store.words[l.code] || []).length;
+          }
+        });
+        await Promise.all(countPromises);
+        if (!isStillMounted()) return;
+
+        // Check if data actually changed before re-rendering
+        const currentDataStr = JSON.stringify(languages.map(l => ({ code: l.code, count: vocabCounts[l.code], hidden: l.hidden })));
+        const newDataStr = JSON.stringify(res.languages.map(l => ({ code: l.code, count: vocabCounts[l.code], hidden: l.hidden })));
+        if (currentDataStr !== newDataStr) {
+          languages = res.languages;
+          render();
         }
-      });
-      await Promise.all(countPromises);
-      if (!isStillMounted()) return;
-      render();
+      }
     } catch (err) {
       console.warn('Background language refresh:', err);
     }
@@ -76,19 +84,19 @@ export function renderStudyLanguagesScreen(container) {
           const totalWords = vocabCounts[lang.code] || 0;
 
           return `
-            <div class="tile ${lang.hidden ? 'is-hidden-item' : ''}" 
-                 draggable="true" 
-                 data-code="${lang.code}" 
-                 data-index="${index}">
+            <a href="#/languages/${lang.code}/decks" 
+               class="tile ${lang.hidden ? 'is-hidden-item' : ''}" 
+               data-code="${lang.code}" 
+               data-index="${index}">
               <div class="tile-top">
                 <span class="tile-flag">${langInfo.flag || lang.flag || '🌐'}</span>
-                <div class="tile-actions">
+                <div class="tile-actions" onclick="event.stopPropagation();">
                   <span class="tile-badge">${totalWords} ${totalWords === 1 ? t('word') : t('words')}</span>
                   <button class="tile-action-btn hide-toggle-btn" 
                           data-code="${lang.code}" 
                           data-hidden="${lang.hidden ? 'true' : 'false'}" 
                           title="${lang.hidden ? t('unhide') : t('hide')}"
-                          onclick="event.stopPropagation();">
+                          onclick="event.preventDefault(); event.stopPropagation();">
                     ${lang.hidden ? `
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
                     ` : `
@@ -101,8 +109,8 @@ export function renderStudyLanguagesScreen(container) {
                 <div class="tile-title">${localizedTitle}</div>
                 <div class="tile-subtitle">${langInfo.nativeName || lang.code.toUpperCase()}</div>
               </div>
-              <div class="tile-drag-handle" title="Drag to reorder">⋮⋮</div>
-            </div>
+              <div class="tile-drag-handle" draggable="true" title="Drag to reorder" onclick="event.preventDefault(); event.stopPropagation();">⋮⋮</div>
+            </a>
           `;
         }).join('')}
 
@@ -137,15 +145,16 @@ export function renderStudyLanguagesScreen(container) {
     }
 
     container.querySelectorAll('.tile[data-code]').forEach(tile => {
-      tile.addEventListener('click', () => {
+      tile.addEventListener('click', (e) => {
+        if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
         const code = tile.getAttribute('data-code');
         trackEvent('select_study_language', { langCode: code });
-        navigate(`#/languages/${code}/decks`);
       });
     });
 
     container.querySelectorAll('.hide-toggle-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
+        e.preventDefault();
         e.stopPropagation();
         const code = btn.getAttribute('data-code');
         const isCurrentlyHidden = btn.getAttribute('data-hidden') === 'true';
@@ -168,20 +177,25 @@ export function renderStudyLanguagesScreen(container) {
 
     let draggedTile = null;
 
-    grid.querySelectorAll('.tile[data-code]').forEach(tile => {
-      tile.addEventListener('dragstart', (e) => {
+    grid.querySelectorAll('.tile-drag-handle').forEach(handle => {
+      const tile = handle.closest('.tile');
+      if (!tile) return;
+
+      handle.addEventListener('dragstart', (e) => {
         draggedTile = tile;
         tile.classList.add('is-dragging');
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', tile.getAttribute('data-code'));
       });
 
-      tile.addEventListener('dragend', () => {
+      handle.addEventListener('dragend', () => {
         if (draggedTile) draggedTile.classList.remove('is-dragging');
         grid.querySelectorAll('.tile').forEach(t => t.classList.remove('drag-over'));
         draggedTile = null;
       });
+    });
 
+    grid.querySelectorAll('.tile[data-code]').forEach(tile => {
       tile.addEventListener('dragover', (e) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';

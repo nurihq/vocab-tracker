@@ -40,9 +40,15 @@ export function renderDecksScreen(container, params = {}) {
     if (!isStillMounted()) return;
     try {
       const res = await Api.getDecks(langCode);
+      if (!isStillMounted()) return;
       if (res.decks) {
-        decks = res.decks;
-        render();
+        // Only re-render if data actually changed to avoid interrupting clicks
+        const currentDataStr = JSON.stringify(decks.map(d => ({ id: d.deckId, count: d.wordCount, hidden: d.hidden })));
+        const newDataStr = JSON.stringify(res.decks.map(d => ({ id: d.deckId, count: d.wordCount, hidden: d.hidden })));
+        if (currentDataStr !== newDataStr) {
+          decks = res.decks;
+          render();
+        }
       }
     } catch (err) {
       console.warn('Background deck refresh:', err);
@@ -66,6 +72,7 @@ export function renderDecksScreen(container, params = {}) {
 
   function render() {
     if (!isStillMounted()) return;
+
     const visibleDecks = showHidden ? decks : decks.filter(d => !d.hidden);
     const hasHidden = decks.some(d => d.hidden);
 
@@ -97,31 +104,31 @@ export function renderDecksScreen(container, params = {}) {
           const emoji = getDeckEmoji(deck);
 
           return `
-            <div class="tile ${deck.hidden ? 'is-hidden-item' : ''}" 
-                 draggable="true" 
-                 data-deck-id="${deck.deckId}" 
-                 data-index="${index}">
+            <a href="#/languages/${langCode}/decks/${deck.deckId}" 
+               class="tile ${deck.hidden ? 'is-hidden-item' : ''}" 
+               data-deck-id="${deck.deckId}" 
+               data-index="${index}">
               <div class="tile-top">
                 <span class="tile-flag">${emoji}</span>
-                <div class="tile-actions">
+                <div class="tile-actions" onclick="event.stopPropagation();">
                   <span class="tile-badge">${deck.wordCount ?? 0} ${t('words')}</span>
                   <button class="tile-action-btn hide-toggle-btn" 
                           data-deck-id="${deck.deckId}" 
                           data-hidden="${deck.hidden ? 'true' : 'false'}" 
                           title="${deck.hidden ? t('unhide') : t('hide')}"
-                          onclick="event.stopPropagation();">
+                          onclick="event.preventDefault(); event.stopPropagation();">
                     ${deck.hidden ? `
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
-  ` : `
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-  `}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                    ` : `
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    `}
                   </button>
                   ${!isDefault ? `
                     <button class="tile-action-btn delete-hover delete-deck-btn" 
                             data-deck-id="${deck.deckId}" 
                             data-name="${deck.name}"
                             title="${t('deleteDeck')}"
-                            onclick="event.stopPropagation();">
+                            onclick="event.preventDefault(); event.stopPropagation();">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                     </button>
                   ` : ''}
@@ -131,8 +138,8 @@ export function renderDecksScreen(container, params = {}) {
                 <div class="tile-title">${displayName}</div>
                 <div class="tile-subtitle">${isDefault ? '' : 'Custom'}</div>
               </div>
-              <div class="tile-drag-handle" title="Drag to reorder">⋮⋮</div>
-            </div>
+              <div class="tile-drag-handle" draggable="true" title="Drag to reorder" onclick="event.preventDefault(); event.stopPropagation();">⋮⋮</div>
+            </a>
           `;
         }).join('')}
 
@@ -161,15 +168,16 @@ export function renderDecksScreen(container, params = {}) {
     }
 
     container.querySelectorAll('.tile[data-deck-id]').forEach(tile => {
-      tile.addEventListener('click', () => {
+      tile.addEventListener('click', (e) => {
+        if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
         const deckId = tile.getAttribute('data-deck-id');
         trackEvent('select_deck', { langCode, deckId });
-        navigate(`#/languages/${langCode}/decks/${deckId}`);
       });
     });
 
     container.querySelectorAll('.hide-toggle-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
+        e.preventDefault();
         e.stopPropagation();
         const deckId = btn.getAttribute('data-deck-id');
         const isCurrentlyHidden = btn.getAttribute('data-hidden') === 'true';
@@ -185,6 +193,7 @@ export function renderDecksScreen(container, params = {}) {
 
     container.querySelectorAll('.delete-deck-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        e.preventDefault();
         e.stopPropagation();
         const deckId = btn.getAttribute('data-deck-id');
         const name = btn.getAttribute('data-name');
@@ -213,20 +222,25 @@ export function renderDecksScreen(container, params = {}) {
 
     let draggedTile = null;
 
-    grid.querySelectorAll('.tile[data-deck-id]').forEach(tile => {
-      tile.addEventListener('dragstart', (e) => {
+    grid.querySelectorAll('.tile-drag-handle').forEach(handle => {
+      const tile = handle.closest('.tile');
+      if (!tile) return;
+
+      handle.addEventListener('dragstart', (e) => {
         draggedTile = tile;
         tile.classList.add('is-dragging');
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', tile.getAttribute('data-deck-id'));
       });
 
-      tile.addEventListener('dragend', () => {
+      handle.addEventListener('dragend', () => {
         if (draggedTile) draggedTile.classList.remove('is-dragging');
         grid.querySelectorAll('.tile').forEach(t => t.classList.remove('drag-over'));
         draggedTile = null;
       });
+    });
 
+    grid.querySelectorAll('.tile[data-deck-id]').forEach(tile => {
       tile.addEventListener('dragover', (e) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
