@@ -3,7 +3,7 @@
 export const CONFIG = {
   // Google OAuth 2.0 Web Client ID
   // Replace with your generated Google Web Client ID from Google Cloud Console
-  GOOGLE_CLIENT_ID: '719377736713-0onfq9i7m3i0nkbbmmb4719mjp0evpj6.apps.googleusercontent.com',
+  GOOGLE_CLIENT_ID: '719377736713-p1u6fp5epck9hjhhh9jeuopt9t8q1ebl.apps.googleusercontent.com',
 
   // AWS Lambda Function URLs (populated upon SAM deployment)
   API_ENDPOINTS: {
