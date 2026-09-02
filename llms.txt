@@ -1,0 +1,25 @@
+# monogenesis
+
+> Track and improve your vocabulary in multiple languages with customizable decks and interactive 3D flash cards.
+
+## Overview
+monogenesis is a minimalist, zen-inspired multi-language vocabulary acquisition and flash card platform. It allows learners to track study languages, organize vocabulary into custom and automated decks (Practicing, Mastered, All), record pronunciation notes, and study with interactive flippable flash cards translated dynamically into their fluent base language.
+
+## Key Features
+- **Multi-Language Architecture**: Independent vocabulary tracking across 100+ global languages.
+- **Base vs. Study Language**: Dynamic translations in any chosen native/base language while learning target study languages.
+- **Minimalist Zen Design**: Serene light lavender-grey and matte charcoal aesthetics crafted for deep focus and zero distraction.
+- **Serverless Cloud Sync**: Google OAuth authentication backed by AWS Lambda and DynamoDB with seamless offline-first local storage.
+- **Flippable 3D Flashcards**: Keyboard-friendly, touch-optimized flash cards with custom ordering, shuffle, and deck management.
+
+## System URLs & Routes
+- Home / Entry: `https://monogenesis.org/#/`
+- Study Languages: `https://monogenesis.org/#/languages`
+- Decks Overview: `https://monogenesis.org/#/languages/{langCode}/decks`
+- Word Manager: `https://monogenesis.org/#/languages/{langCode}/decks/{deckId}`
+- Flashcard Study Mode: `https://monogenesis.org/#/languages/{langCode}/decks/{deckId}/study`
+- Sign In / Sync: `https://monogenesis.org/#/signin`
+
+## Machine-Readable Endpoints
+- Full Agent Documentation: `https://monogenesis.org/llms-full.txt`
+- Sitemap: `https://monogenesis.org/sitemap.xml`

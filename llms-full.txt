@@ -1,0 +1,45 @@
+# monogenesis — Comprehensive AI & Agent Documentation
+
+monogenesis (https://monogenesis.org) is an elegant, multi-language vocabulary learning system and flash card platform.
+
+## Architecture & Data Model
+
+### Entities
+1. **Study Language**:
+   - `code`: ISO 639-1 language code (e.g., `ja`, `es`, `ka`, `id`, `fr`, `de`, `ru`, `zh`).
+   - `name`: English display name.
+   - `flag`: Flag emoji or visual icon.
+   - `order`: Numeric sort index for drag-and-drop customization.
+   - `hidden`: Boolean visibility toggle.
+
+2. **Deck**:
+   - `deckId`: Unique identifier (Default system decks: `practicing`, `mastered`, `all`; or custom `deck_*`).
+   - `name`: Localized display name.
+   - `langCode`: Associated study language code.
+   - `order`: Position index.
+   - `hidden`: Visibility toggle.
+
+3. **Word**:
+   - `wordId`: Unique word identifier.
+   - `baseWord`: Word/phrase in the user's native or base language (e.g. "Hello").
+   - `studyWord`: Multiline word representation in target script (e.g. "こんにちは\nkonnichiwa").
+   - `pronunciation`: Phonetic notes, pitch accent, tonal guidance, or transliteration.
+   - `deckId`: Current deck allocation (`practicing`, `mastered`, or custom deck).
+   - `order`: Sort position within deck.
+   - `createdAt`: ISO 8601 timestamp.
+
+## Base Language Localization System
+monogenesis supports dynamic on-the-fly translation across 100+ native languages:
+- Built-in static UI dictionaries for instant zero-latency localization (English, Russian, Spanish, Georgian, French, German, Japanese, Chinese, Indonesian, etc.).
+- `Intl.DisplayNames` browser-native language name translation.
+- Client and server-side automated translation integration for word definitions.
+
+## Cloud API Specifications
+- **Authentication**: Google OAuth 2.0 Bearer JWT tokens.
+- **Profile Endpoint**: `https://u5tqayw4k5zkibq55bubr7oxuq0riljr.lambda-url.us-east-1.on.aws/`
+- **Languages Endpoint**: `https://7cz2cnzcmdzowalvrfg76b2geu0gqmre.lambda-url.us-east-1.on.aws/`
+- **Decks Endpoint**: `https://5rd6ogkgak4e6335w6sm46aw4e0gkciz.lambda-url.us-east-1.on.aws/`
+- **Words Endpoint**: `https://q7aojvvzptfhse6ortbt2uh2ia0afszl.lambda-url.us-east-1.on.aws/`
+
+## Offline-First Capabilities
+All vocabulary and deck modifications persist to browser `localStorage` in guest mode and automatically reconcile with the AWS DynamoDB cloud store upon signing in.
