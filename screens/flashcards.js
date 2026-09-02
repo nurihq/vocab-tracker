@@ -196,7 +196,7 @@ export function renderFlashcardsScreen(container, params = {}) {
             <div class="card-face">
               <div class="card-lang-indicator">${frontTag}</div>
               <div class="card-deck-badge">${currentIndex + 1} / ${words.length}</div>
-              <div class="card-text-main" ${isStudyFront ? '' : 'data-card-base-text="true"'}>${frontWord}</div>
+              <div class="card-text-main" id="front-card-text" ${isStudyFront ? '' : 'data-card-base-text="true"'}>${frontWord}</div>
               ${frontPronunciation ? `<div class="card-pronunciation-sub">${frontPronunciation}</div>` : ''}
               <div class="card-hint" data-i18n="tapToFlip">${t('tapToFlip')}</div>
             </div>
@@ -205,7 +205,7 @@ export function renderFlashcardsScreen(container, params = {}) {
             <div class="card-face card-face-back">
               <div class="card-lang-indicator">${backTag}</div>
               <div class="card-deck-badge">${currentIndex + 1} / ${words.length}</div>
-              <div class="card-text-main" ${!isStudyFront ? '' : 'data-card-base-text="true"'}>${backWord}</div>
+              <div class="card-text-main" id="back-card-text" ${!isStudyFront ? '' : 'data-card-base-text="true"'}>${backWord}</div>
               ${backPronunciation ? `<div class="card-pronunciation-sub">${backPronunciation}</div>` : ''}
               <div class="card-hint" data-i18n="tapToFlipBack">${t('tapToFlipBack')}</div>
             </div>
@@ -243,7 +243,7 @@ export function renderFlashcardsScreen(container, params = {}) {
       if (!isStillMounted()) return;
       if (trans) {
         const baseEl = container.querySelector('[data-card-base-text="true"]');
-        if (baseEl && baseEl.textContent !== trans) {
+        if (baseEl) {
           baseEl.textContent = trans;
         }
       }

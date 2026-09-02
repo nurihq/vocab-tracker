@@ -7669,6 +7669,8 @@ export async function fetchLiveTranslation(text, targetLang) {
   if (!text || !targetLang) return text;
   const shortTarget = targetLang.toLowerCase().split('-')[0];
   if (shortTarget === 'en') return text;
+
+  // 1. Try Google Translate
   try {
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(shortTarget)}&dt=t&q=${encodeURIComponent(text.trim())}`;
     const res = await fetch(url);
@@ -7677,14 +7679,28 @@ export async function fetchLiveTranslation(text, targetLang) {
       return data[0].map(s => s[0]).join('');
     }
   } catch (e) {}
+
+  // 2. Try MyMemory Translation API fallback
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.trim())}&langpair=en|${encodeURIComponent(shortTarget)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data.responseData && data.responseData.translatedText) {
+      const trans = data.responseData.translatedText.trim();
+      if (trans && !trans.toLowerCase().startsWith('invalid')) {
+        return trans;
+      }
+    }
+  } catch (e) {}
+
   return text;
 }
 
 export function getCachedWordMeaning(studyWord, baseWord, studyLang, targetBaseLang) {
   const cleanTarget = (targetBaseLang || 'en').toLowerCase().split('-')[0];
-  const cleanStudy = (studyLang || 'auto').toLowerCase().split('-')[0];
-  const cleanStudyWord = (studyWord || '').split('\n')[0].trim();
-  const cacheKey = `meaning:${cleanStudy}:${cleanTarget}:${cleanStudyWord.toLowerCase()}`;
+  if (cleanTarget === 'en') return baseWord || '...';
+
+  const cacheKey = `meaning:${cleanTarget}:${(baseWord || studyWord || '').trim().toLowerCase()}`;
   try {
     const localCache = JSON.parse(localStorage.getItem('monogenesis_meaning_cache') || '{}');
     if (localCache[cacheKey]) return localCache[cacheKey];
@@ -7694,9 +7710,9 @@ export function getCachedWordMeaning(studyWord, baseWord, studyLang, targetBaseL
 
 export async function fetchWordMeaningTranslation(studyWord, baseWord, studyLang, targetBaseLang) {
   const cleanTarget = (targetBaseLang || 'en').toLowerCase().split('-')[0];
-  const cleanStudy = (studyLang || 'auto').toLowerCase().split('-')[0];
-  const cleanStudyWord = (studyWord || '').split('\n')[0].trim();
-  const cacheKey = `meaning:${cleanStudy}:${cleanTarget}:${cleanStudyWord.toLowerCase()}`;
+  if (cleanTarget === 'en') return baseWord || '';
+
+  const cacheKey = `meaning:${cleanTarget}:${(baseWord || studyWord || '').trim().toLowerCase()}`;
   
   let localCache = {};
   try {
@@ -7704,16 +7720,17 @@ export async function fetchWordMeaningTranslation(studyWord, baseWord, studyLang
     if (localCache[cacheKey]) return localCache[cacheKey];
   } catch (e) {}
 
-  const textToTranslate = cleanStudyWord || baseWord;
+  const textToTranslate = (baseWord || '').trim() || (studyWord || '').split('\n')[0].trim();
   if (!textToTranslate) return baseWord || '';
 
+  // 1. Try Google Translate
   try {
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(cleanStudy)}&tl=${encodeURIComponent(cleanTarget)}&dt=t&q=${encodeURIComponent(textToTranslate)}`;
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(cleanTarget)}&dt=t&q=${encodeURIComponent(textToTranslate)}`;
     const res = await fetch(url);
     const data = await res.json();
     if (data && data[0]) {
-      const translated = data[0].map(s => s[0]).join('');
-      if (translated) {
+      const translated = data[0].map(s => s[0]).join('').trim();
+      if (translated && translated.toLowerCase() !== textToTranslate.toLowerCase()) {
         localCache[cacheKey] = translated;
         try { localStorage.setItem('monogenesis_meaning_cache', JSON.stringify(localCache)); } catch (e) {}
         return translated;
@@ -7721,14 +7738,23 @@ export async function fetchWordMeaningTranslation(studyWord, baseWord, studyLang
     }
   } catch (e) {}
 
-  if (baseWord) {
-    const fallbackTrans = await fetchLiveTranslation(baseWord, cleanTarget);
-    if (fallbackTrans) {
-      localCache[cacheKey] = fallbackTrans;
-      try { localStorage.setItem('monogenesis_meaning_cache', JSON.stringify(localCache)); } catch (e) {}
-      return fallbackTrans;
+  // 2. Try MyMemory API (high availability fallback)
+  try {
+    const fromPair = baseWord ? 'en' : (studyLang || 'id').toLowerCase().split('-')[0];
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=${encodeURIComponent(fromPair)}|${encodeURIComponent(cleanTarget)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data.responseData && data.responseData.translatedText) {
+      let trans = data.responseData.translatedText.trim();
+      // Clean any punctuation or casing artifacts
+      if (trans && !trans.toLowerCase().startsWith('invalid')) {
+        trans = trans.replace(/^[-s]+/, '');
+        localCache[cacheKey] = trans;
+        try { localStorage.setItem('monogenesis_meaning_cache', JSON.stringify(localCache)); } catch (e) {}
+        return trans;
+      }
     }
-  }
+  } catch (e) {}
 
   return baseWord || '...';
 }
