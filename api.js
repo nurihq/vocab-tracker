@@ -84,15 +84,7 @@ export function getLocalStore() {
         { deckId: 'all', name: 'All', langCode: 'ka', order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
       ]
     },
-    words: {
-      'ja': [
-        { wordId: 'w1', studyWord: 'こんにちは\nkonnichiwa', baseWord: 'Hello', pronunciation: 'Greeting used during the daytime', langCode: 'ja', deckId: 'practicing', order: 0, createdAt: new Date(Date.now() - 3000000).toISOString() },
-        { wordId: 'w2', studyWord: 'ありがとう\narigatou', baseWord: 'Thank you', pronunciation: 'Casual form of thank you', langCode: 'ja', deckId: 'practicing', order: 1, createdAt: new Date(Date.now() - 2000000).toISOString() }
-      ],
-      'es': [
-        { wordId: 'w3', studyWord: 'Hola', baseWord: 'Hello', pronunciation: 'Silent H', langCode: 'es', deckId: 'practicing', order: 0, createdAt: new Date().toISOString() }
-      ]
-    }
+    words: {}
   };
   saveLocalStore(defaultStore);
   return defaultStore;

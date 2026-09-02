@@ -306,8 +306,14 @@ export function renderStudyLanguagesScreen(container) {
           const name = item.getAttribute('data-name');
           const flag = item.getAttribute('data-flag');
           Modal.close();
+
+          vocabCounts[code] = 0;
+          const newLangObj = { code, name, flag, order: languages.length, hidden: false, createdAt: new Date().toISOString() };
+          languages.push(newLangObj);
+          render();
+
           try {
-            await Api.addLanguage({ code, name, flag });
+            await Api.addLanguage(newLangObj);
             trackEvent('add_language', { langCode: code, langName: name });
             refreshBackground();
           } catch (err) {
