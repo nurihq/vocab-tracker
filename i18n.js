@@ -71,7 +71,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ko": {
     "appTitle": "monogenesis",
@@ -143,7 +145,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "단축키: [스페이스바] 뒤집기 • [→] 다음 • [←] 이전",
     "lightMode": "라이트 모드",
     "darkMode": "다크 모드",
-    "dragToReorder": "타일을 드래그하여 순서를 변경하세요"
+    "dragToReorder": "타일을 드래그하여 순서를 변경하세요",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "hi": {
     "appTitle": "monogenesis",
@@ -215,7 +219,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "शॉर्टकट: [Space] पलटें • [→] अगला • [←] पिछला",
     "lightMode": "लाइट मोड",
     "darkMode": "डार्क मोड",
-    "dragToReorder": "क्रम बदलने के लिए खींचें"
+    "dragToReorder": "क्रम बदलने के लिए खींचें",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "id": {
     "appTitle": "monogenesis",
@@ -287,7 +293,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Pintasan: [Spasi] balik • [→] lanjut • [←] kembali",
     "lightMode": "Mode Terang",
     "darkMode": "Mode Gelap",
-    "dragToReorder": "Geser ubin untuk mengubah urutan"
+    "dragToReorder": "Geser ubin untuk mengubah urutan",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "pa": {
     "appTitle": "monogenesis",
@@ -359,7 +367,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "ਸ਼ਾਰਟਕੱਟ: [ਸਪੇਸ] ਉਲਟਾਓ • [→] ਅਗਲਾ • [←] ਪਿਛਲਾ",
     "lightMode": "ਲਾਈਟ ਮੋਡ",
     "darkMode": "ਡਾਰਕ ਮੋਡ",
-    "dragToReorder": "ਕ੍ਰਮ ਬਦਲਣ ਲਈ ਖਿੱਚੋ"
+    "dragToReorder": "ਕ੍ਰਮ ਬਦਲਣ ਲਈ ਖਿੱਚੋ",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ru": {
     "appTitle": "monogenesis",
@@ -431,7 +441,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Клавиши: [Пробел] перевернуть • [→] след. • [←] пред.",
     "lightMode": "Светлая тема",
     "darkMode": "Темная тема",
-    "dragToReorder": "Перетаскивайте плитки для изменения порядка"
+    "dragToReorder": "Перетаскивайте плитки для изменения порядка",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "es": {
     "appTitle": "monogenesis",
@@ -503,7 +515,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Atajos: [Espacio] voltear • [→] siguiente • [←] anterior",
     "lightMode": "Modo claro",
     "darkMode": "Modo oscuro",
-    "dragToReorder": "Arrastra los bloques para reordenar"
+    "dragToReorder": "Arrastra los bloques para reordenar",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ka": {
     "appTitle": "monogenesis",
@@ -575,7 +589,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "კლავიშები: [Space] გადაბრუნება • [→] შემდეგი • [←] წინა",
     "lightMode": "ნათელი თემა",
     "darkMode": "მუქი თემა",
-    "dragToReorder": "გადააადგილეთ ფილები რიგითობის შესაცვლელად"
+    "dragToReorder": "გადააადგილეთ ფილები რიგითობის შესაცვლელად",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "fr": {
     "appTitle": "monogenesis",
@@ -647,7 +663,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Raccourcis : [Espace] retourner • [→] suivant • [←] précédent",
     "lightMode": "Mode clair",
     "darkMode": "Mode sombre",
-    "dragToReorder": "Glissez les tuiles pour réorganiser"
+    "dragToReorder": "Glissez les tuiles pour réorganiser",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "de": {
     "appTitle": "monogenesis",
@@ -719,7 +737,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Tastenkürzel: [Leertaste] drehen • [→] weiter • [←] zurück",
     "lightMode": "Heller Modus",
     "darkMode": "Dunkler Modus",
-    "dragToReorder": "Kacheln zum Sortieren ziehen"
+    "dragToReorder": "Kacheln zum Sortieren ziehen",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ja": {
     "appTitle": "monogenesis",
@@ -791,7 +811,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "ショートカット: [スペース] めくる • [→] 次へ • [←] 前へ",
     "lightMode": "ライトモード",
     "darkMode": "ダークモード",
-    "dragToReorder": "タイルをドラッグして並び替えできます"
+    "dragToReorder": "タイルをドラッグして並び替えできます",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "it": {
     "appTitle": "monogenesis",
@@ -863,7 +885,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "pt": {
     "appTitle": "monogenesis",
@@ -935,7 +959,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "zh": {
     "appTitle": "monogenesis",
@@ -1007,7 +1033,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "zh-TW": {
     "appTitle": "monogenesis",
@@ -1079,7 +1107,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ar": {
     "appTitle": "monogenesis",
@@ -1151,7 +1181,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "bn": {
     "appTitle": "monogenesis",
@@ -1223,7 +1255,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "jv": {
     "appTitle": "monogenesis",
@@ -1295,7 +1329,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ms": {
     "appTitle": "monogenesis",
@@ -1367,7 +1403,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "vi": {
     "appTitle": "monogenesis",
@@ -1439,7 +1477,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "th": {
     "appTitle": "monogenesis",
@@ -1511,7 +1551,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "tr": {
     "appTitle": "monogenesis",
@@ -1583,7 +1625,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "fa": {
     "appTitle": "monogenesis",
@@ -1655,7 +1699,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "pl": {
     "appTitle": "monogenesis",
@@ -1727,7 +1773,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "uk": {
     "appTitle": "monogenesis",
@@ -1799,7 +1847,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "nl": {
     "appTitle": "monogenesis",
@@ -1871,7 +1921,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "el": {
     "appTitle": "monogenesis",
@@ -1943,7 +1995,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "cs": {
     "appTitle": "monogenesis",
@@ -2015,7 +2069,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Zkratky: [Mezerník] k převrácení • [→] další • [←] předchozí",
     "lightMode": "Světelný režim",
     "darkMode": "Tmavý režim",
-    "dragToReorder": "Přetažením dlaždic změníte pořadí seznamu priorit"
+    "dragToReorder": "Přetažením dlaždic změníte pořadí seznamu priorit",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "sv": {
     "appTitle": "monogenesis",
@@ -2087,7 +2143,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Genvägar: [Mellanslag] för att vända • [→] nästa • [←] föregående",
     "lightMode": "Ljusläge",
     "darkMode": "Mörkt läge",
-    "dragToReorder": "Dra brickor för att ändra ordningen på din prioritetslista"
+    "dragToReorder": "Dra brickor för att ändra ordningen på din prioritetslista",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "hu": {
     "appTitle": "monogenesis",
@@ -2159,7 +2217,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Gyorsbillentyűk: [Szóköz] a lapozáshoz • [→] következő • [←] előz",
     "lightMode": "Fény mód",
     "darkMode": "Sötét mód",
-    "dragToReorder": "Húzza a csempéket a prioritáslista átrendezéséhez"
+    "dragToReorder": "Húzza a csempéket a prioritáslista átrendezéséhez",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ro": {
     "appTitle": "monogenesis",
@@ -2231,7 +2291,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Comenzi rapide: [Spațiu] pentru a răsturna • [→] următor • [←] anterioară",
     "lightMode": "Modul de lumină",
     "darkMode": "Modul întunecat",
-    "dragToReorder": "Trageți piese pentru a reordona lista de priorități"
+    "dragToReorder": "Trageți piese pentru a reordona lista de priorități",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "da": {
     "appTitle": "monogenesis",
@@ -2303,7 +2365,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Genveje: [Mellemrum] for at vende • [→] næste • [←] forrige",
     "lightMode": "Lys tilstand",
     "darkMode": "Mørk tilstand",
-    "dragToReorder": "Træk fliser for at omarrangere din prioritetsliste"
+    "dragToReorder": "Træk fliser for at omarrangere din prioritetsliste",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "fi": {
     "appTitle": "monogenesis",
@@ -2375,7 +2439,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Pikanäppäimet: [välilyönti] kääntääksesi • [→] seuraava • [←] esi",
     "lightMode": "Valotila",
     "darkMode": "Tumma tila",
-    "dragToReorder": "Järjestä prioriteettiluettelosi uudelleen vetämällä laattoja"
+    "dragToReorder": "Järjestä prioriteettiluettelosi uudelleen vetämällä laattoja",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "no": {
     "appTitle": "monogenesis",
@@ -2447,7 +2513,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Snarveier: [Mellomrom] for å snu • [→] neste • [←] forrige",
     "lightMode": "Lysmodus",
     "darkMode": "Mørk modus",
-    "dragToReorder": "Dra fliser for å omorganisere prioriteringslisten"
+    "dragToReorder": "Dra fliser for å omorganisere prioriteringslisten",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "he": {
     "appTitle": "monogenesis",
@@ -2519,7 +2587,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "sk": {
     "appTitle": "monogenesis",
@@ -2591,7 +2661,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Skratky: [Medzerník] na preklopenie • [→] ďalej • [←] predch",
     "lightMode": "Svetelný režim",
     "darkMode": "Tmavý režim",
-    "dragToReorder": "Presunutím dlaždíc zmeníte poradie svojho zoznamu priorít"
+    "dragToReorder": "Presunutím dlaždíc zmeníte poradie svojho zoznamu priorít",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "bg": {
     "appTitle": "monogenesis",
@@ -2663,7 +2735,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "hr": {
     "appTitle": "monogenesis",
@@ -2735,7 +2809,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Prečaci: [Razmaknica] za okretanje • [→] dalje • [←] prev",
     "lightMode": "Način svjetla",
     "darkMode": "Tamni način rada",
-    "dragToReorder": "Povucite pločice da promijenite redoslijed popisa prioriteta"
+    "dragToReorder": "Povucite pločice da promijenite redoslijed popisa prioriteta",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "sr": {
     "appTitle": "monogenesis",
@@ -2807,7 +2883,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "lt": {
     "appTitle": "monogenesis",
@@ -2879,7 +2957,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "lv": {
     "appTitle": "monogenesis",
@@ -2951,7 +3031,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Īsceļi: [Atstarpe], lai apgrieztu • [→] nākamais • [←] iep",
     "lightMode": "Gaismas režīms",
     "darkMode": "Tumšais režīms",
-    "dragToReorder": "Velciet elementus, lai pārkārtotu savu prioritāšu sarakstu"
+    "dragToReorder": "Velciet elementus, lai pārkārtotu savu prioritāšu sarakstu",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "et": {
     "appTitle": "monogenesis",
@@ -3023,7 +3105,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "sl": {
     "appTitle": "monogenesis",
@@ -3095,7 +3179,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Bližnjice: [Preslednica] za obračanje • [→] naslednji • [←] prejšnji",
     "lightMode": "Svetlobni način",
     "darkMode": "Temni način",
-    "dragToReorder": "Povlecite ploščice, da preuredite prednostni seznam"
+    "dragToReorder": "Povlecite ploščice, da preuredite prednostni seznam",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ga": {
     "appTitle": "monogenesis",
@@ -3167,7 +3253,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "cy": {
     "appTitle": "monogenesis",
@@ -3239,7 +3327,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "is": {
     "appTitle": "monogenesis",
@@ -3311,7 +3401,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "tl": {
     "appTitle": "monogenesis",
@@ -3383,7 +3475,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Mga Shortcut: [Space] para i-flip • [→] susunod • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "I-drag ang mga tile upang muling isaayos ang iyong listahan ng priyoridad"
+    "dragToReorder": "I-drag ang mga tile upang muling isaayos ang iyong listahan ng priyoridad",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "sw": {
     "appTitle": "monogenesis",
@@ -3455,7 +3549,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Njia za mkato: [Nafasi] ya kugeuza • [→] inayofuata • [←] iliyotangulia",
     "lightMode": "Hali ya Mwanga",
     "darkMode": "Hali ya Giza",
-    "dragToReorder": "Buruta vigae ili kupanga upya orodha yako ya kipaumbele"
+    "dragToReorder": "Buruta vigae ili kupanga upya orodha yako ya kipaumbele",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "am": {
     "appTitle": "monogenesis",
@@ -3527,7 +3623,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "አቋራጮች፡ [ክፍተት] ለመገልበጥ • [→] ቀጣይ • [←] ቅድመ",
     "lightMode": "የብርሃን ሁነታ",
     "darkMode": "ጨለማ ሁነታ",
-    "dragToReorder": "ቅድሚያ የሚሰጡዋቸውን ዝርዝር እንደገና ለመደርደር ሰቆችን ይጎትቱ"
+    "dragToReorder": "ቅድሚያ የሚሰጡዋቸውን ዝርዝር እንደገና ለመደርደር ሰቆችን ይጎትቱ",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "hy": {
     "appTitle": "monogenesis",
@@ -3599,7 +3697,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Դյուրանցումներ՝ [Space] շրջելու համար • [→] հաջորդը • [←] նախորդ",
     "lightMode": "Լույսի ռեժիմ",
     "darkMode": "Մութ ռեժիմ",
-    "dragToReorder": "Քաշեք սալիկները՝ ձեր առաջնահերթությունների ցանկը վերադասավորելու համար"
+    "dragToReorder": "Քաշեք սալիկները՝ ձեր առաջնահերթությունների ցանկը վերադասավորելու համար",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "az": {
     "appTitle": "monogenesis",
@@ -3671,7 +3771,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "eu": {
     "appTitle": "monogenesis",
@@ -3743,7 +3845,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "be": {
     "appTitle": "monogenesis",
@@ -3815,7 +3919,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "bs": {
     "appTitle": "monogenesis",
@@ -3887,7 +3993,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Prečice: [Space] za okretanje • [→] sljedeće • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Prevucite pločice da promijenite redoslijed liste prioriteta"
+    "dragToReorder": "Prevucite pločice da promijenite redoslijed liste prioriteta",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ca": {
     "appTitle": "monogenesis",
@@ -3959,7 +4067,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ceb": {
     "appTitle": "monogenesis",
@@ -4031,7 +4141,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Mga Shortcut: [Space] aron i-flip • [→] sunod • [←] prev",
     "lightMode": "Kahayag nga Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "I-drag ang mga tile aron mahan-ay pag-usab ang imong lista sa prayoridad"
+    "dragToReorder": "I-drag ang mga tile aron mahan-ay pag-usab ang imong lista sa prayoridad",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "eo": {
     "appTitle": "monogenesis",
@@ -4103,7 +4215,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Ŝparvojoj: [Spaco] por renversi • [→] sekva • [←] antaŭ",
     "lightMode": "Luma Reĝimo",
     "darkMode": "Malhela Reĝimo",
-    "dragToReorder": "Trenu kahelojn por reordigi vian prioritatan liston"
+    "dragToReorder": "Trenu kahelojn por reordigi vian prioritatan liston",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "gl": {
     "appTitle": "monogenesis",
@@ -4175,7 +4289,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "gu": {
     "appTitle": "monogenesis",
@@ -4247,7 +4363,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ht": {
     "appTitle": "monogenesis",
@@ -4319,7 +4437,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Raccourcis: [Espas] pou baskile • [→] pwochen • [←] prev",
     "lightMode": "Mòd limyè",
     "darkMode": "Mòd nwa",
-    "dragToReorder": "Trennen mozayik pou rekòmande lis priyorite w la"
+    "dragToReorder": "Trennen mozayik pou rekòmande lis priyorite w la",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ha": {
     "appTitle": "monogenesis",
@@ -4391,7 +4511,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "haw": {
     "appTitle": "monogenesis",
@@ -4463,7 +4585,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ig": {
     "appTitle": "monogenesis",
@@ -4535,7 +4659,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "kn": {
     "appTitle": "monogenesis",
@@ -4607,7 +4733,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "kk": {
     "appTitle": "monogenesis",
@@ -4679,7 +4807,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "km": {
     "appTitle": "monogenesis",
@@ -4751,7 +4881,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "rw": {
     "appTitle": "monogenesis",
@@ -4823,7 +4955,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ku": {
     "appTitle": "monogenesis",
@@ -4895,7 +5029,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ky": {
     "appTitle": "monogenesis",
@@ -4967,7 +5103,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "lo": {
     "appTitle": "monogenesis",
@@ -5039,7 +5177,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "la": {
     "appTitle": "monogenesis",
@@ -5111,7 +5251,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "lb": {
     "appTitle": "monogenesis",
@@ -5183,7 +5325,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "mk": {
     "appTitle": "monogenesis",
@@ -5255,7 +5399,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "mg": {
     "appTitle": "monogenesis",
@@ -5327,7 +5473,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ml": {
     "appTitle": "monogenesis",
@@ -5399,7 +5547,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "mt": {
     "appTitle": "monogenesis",
@@ -5471,7 +5621,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "mi": {
     "appTitle": "monogenesis",
@@ -5543,7 +5695,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "mr": {
     "appTitle": "monogenesis",
@@ -5615,7 +5769,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "mn": {
     "appTitle": "monogenesis",
@@ -5687,7 +5843,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "my": {
     "appTitle": "monogenesis",
@@ -5759,7 +5917,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ne": {
     "appTitle": "monogenesis",
@@ -5831,7 +5991,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ny": {
     "appTitle": "monogenesis",
@@ -5903,7 +6065,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "or": {
     "appTitle": "monogenesis",
@@ -5975,7 +6139,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ps": {
     "appTitle": "monogenesis",
@@ -6047,7 +6213,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "sm": {
     "appTitle": "monogenesis",
@@ -6119,7 +6287,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "gd": {
     "appTitle": "monogenesis",
@@ -6191,7 +6361,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "st": {
     "appTitle": "monogenesis",
@@ -6263,7 +6435,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "sn": {
     "appTitle": "monogenesis",
@@ -6335,7 +6509,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "sd": {
     "appTitle": "monogenesis",
@@ -6407,7 +6583,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "si": {
     "appTitle": "monogenesis",
@@ -6479,7 +6657,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "so": {
     "appTitle": "monogenesis",
@@ -6551,7 +6731,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "su": {
     "appTitle": "monogenesis",
@@ -6623,7 +6805,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "tg": {
     "appTitle": "monogenesis",
@@ -6695,7 +6879,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ta": {
     "appTitle": "monogenesis",
@@ -6767,7 +6953,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "tt": {
     "appTitle": "monogenesis",
@@ -6839,7 +7027,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "te": {
     "appTitle": "monogenesis",
@@ -6911,7 +7101,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ur": {
     "appTitle": "monogenesis",
@@ -6983,7 +7175,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "ug": {
     "appTitle": "monogenesis",
@@ -7055,7 +7249,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "uz": {
     "appTitle": "monogenesis",
@@ -7127,7 +7323,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "xh": {
     "appTitle": "monogenesis",
@@ -7199,7 +7397,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "yi": {
     "appTitle": "monogenesis",
@@ -7271,7 +7471,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "yo": {
     "appTitle": "monogenesis",
@@ -7343,7 +7545,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   },
   "zu": {
     "appTitle": "monogenesis",
@@ -7415,7 +7619,9 @@ export const STATIC_TRANSLATIONS = {
     "keyboardTips": "Shortcuts: [Space] to flip • [→] next • [←] prev",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "dragToReorder": "Drag tiles to reorder your priority list"
+    "dragToReorder": "Drag tiles to reorder your priority list",
+    "tapToFlip": "Tap to flip",
+    "tapToFlipBack": "Tap to flip back"
   }
 };
 

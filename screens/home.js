@@ -56,7 +56,7 @@ export function renderHomeScreen(container) {
                   </div>
                   <div class="home-card-word">${card.word}</div>
                   <div class="home-card-pronunciation">${card.pronunciation}</div>
-                  <div class="home-card-hint">Tap to flip</div>
+                  <div class="home-card-hint" data-i18n="tapToFlip">${t('tapToFlip')}</div>
                 </div>
 
                 <!-- Back Side: Base Language Translation -->
@@ -66,7 +66,7 @@ export function renderHomeScreen(container) {
                     <span>${localizedBaseName}</span>
                   </div>
                   <div class="home-card-word" data-home-trans-id="${card.langCode}">${card.baseMeaning}</div>
-                  <div class="home-card-hint">Tap to flip back</div>
+                  <div class="home-card-hint" data-i18n="tapToFlipBack">${t('tapToFlipBack')}</div>
                 </div>
               </div>
             </div>
