@@ -1,5 +1,5 @@
 import { t, getI18nBaseLang, fetchLiveTranslation } from '../i18n.js';
-import { getLanguageByCode } from '../languages.js';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api } from '../api.js';
 import { Modal } from '../components/modal.js';
 
@@ -8,6 +8,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
   const deckId = params.deckId || 'practicing';
   const langInfo = getLanguageByCode(langCode);
   const currentBase = getI18nBaseLang();
+  const localizedLangName = getLocalizedLanguageName(langCode, currentBase);
 
   let words = [];
   let allDecks = [];
@@ -24,15 +25,13 @@ export async function renderDeckWordsScreen(container, params = {}) {
 
       // Ensure translations are displayed in current base language
       for (const w of words) {
-        if (!w.baseWord || w.baseWord === w.studyWord) {
-          fetchLiveTranslation(w.studyWord, currentBase).then(trans => {
-            if (trans && trans !== w.studyWord) {
-              w.baseWord = trans;
-              const el = container.querySelector(`[data-word-base-id="${w.wordId}"]`);
-              if (el) el.textContent = trans;
-            }
-          });
-        }
+        fetchLiveTranslation(w.studyWord, currentBase).then(trans => {
+          if (trans && trans !== w.studyWord) {
+            w.baseWord = trans;
+            const el = container.querySelector(`[data-word-base-id="${w.wordId}"]`);
+            if (el) el.textContent = trans;
+          }
+        });
       }
 
       render();
@@ -58,10 +57,10 @@ export async function renderDeckWordsScreen(container, params = {}) {
         <div class="screen-title-group">
           <h2 class="screen-title">
             <span>${langInfo.flag}</span>
-            <span>${deckName} (${words.length})</span>
+            <span>${localizedLangName} — ${deckName} (${words.length})</span>
           </h2>
           <p class="screen-subtitle">
-            ${isAllDeck ? t('allDeckNotice') : `${langInfo.name} vocabulary deck`}
+            ${isAllDeck ? t('allDeckNotice') : `${localizedLangName} ${t('decks')}`}
           </p>
         </div>
         <div class="screen-actions">
@@ -246,8 +245,8 @@ export async function renderDeckWordsScreen(container, params = {}) {
   function openAddWordModal() {
     const contentHtml = `
       <div class="form-group">
-        <label class="form-label">${t('studyWord')} (${langInfo.name})</label>
-        <input type="text" class="form-input" id="new-study-word-input" placeholder="e.g. ありがとう or Gamarjoba" autofocus />
+        <label class="form-label">${t('studyWord')} (${localizedLangName})</label>
+        <input type="text" class="form-input" id="new-study-word-input" placeholder="e.g. Terima kasih" autofocus />
       </div>
       <div class="form-group">
         <label class="form-label">${t('pronunciationNotes')}</label>

@@ -1,11 +1,13 @@
-import { t } from '../i18n.js';
-import { getLanguageByCode } from '../languages.js';
+import { t, getI18nBaseLang } from '../i18n.js';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api } from '../api.js';
 import { Modal } from '../components/modal.js';
 
 export async function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
   const langInfo = getLanguageByCode(langCode);
+  const currentBase = getI18nBaseLang();
+  const localizedLangName = getLocalizedLanguageName(langCode, currentBase);
 
   let showHidden = false;
   let decks = [];
@@ -43,7 +45,7 @@ export async function renderDecksScreen(container, params = {}) {
         <div class="screen-title-group">
           <h2 class="screen-title">
             <span>${langInfo.flag}</span>
-            <span>${langInfo.name} — ${t('decks')}</span>
+            <span>${localizedLangName} — ${t('decks')}</span>
           </h2>
           <p class="screen-subtitle">${t('dragToReorder')}</p>
         </div>
@@ -94,7 +96,7 @@ export async function renderDecksScreen(container, params = {}) {
               </div>
               <div class="tile-bottom">
                 <div class="tile-title">${displayName}</div>
-                <div class="tile-subtitle">${isDefault ? 'Default Deck' : 'Custom Deck'}</div>
+                <div class="tile-subtitle">${isDefault ? t('practicing') === displayName ? t('practicing') : 'Default' : 'Custom'}</div>
               </div>
               <div class="tile-drag-handle" title="Drag to reorder">⋮⋮</div>
             </div>

@@ -1,5 +1,5 @@
 import { t, getI18nBaseLang, fetchLiveTranslation } from '../i18n.js';
-import { getLanguageByCode } from '../languages.js';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api } from '../api.js';
 
 export async function renderFlashcardsScreen(container, params = {}) {
@@ -8,6 +8,8 @@ export async function renderFlashcardsScreen(container, params = {}) {
   const langInfo = getLanguageByCode(langCode);
   const currentBase = getI18nBaseLang();
   const baseLangInfo = getLanguageByCode(currentBase);
+  const localizedStudyLangName = getLocalizedLanguageName(langCode, currentBase);
+  const localizedBaseLangName = getLocalizedLanguageName(currentBase, currentBase);
 
   let words = [];
   let allDecks = [];
@@ -106,8 +108,8 @@ export async function renderFlashcardsScreen(container, params = {}) {
     const backMain = showStudyFirst ? currentWord.baseWord : currentWord.studyWord;
     const backSub = showStudyFirst ? '' : currentWord.pronunciation;
 
-    const frontLangLabel = showStudyFirst ? `${langInfo.flag} ${langInfo.name}` : `${baseLangInfo?.flag || '🌐'} ${t('baseLanguage')}`;
-    const backLangLabel = showStudyFirst ? `${baseLangInfo?.flag || '🌐'} ${t('baseLanguage')}` : `${langInfo.flag} ${langInfo.name}`;
+    const frontLangLabel = showStudyFirst ? `${langInfo.flag} ${localizedStudyLangName}` : `${baseLangInfo?.flag || '🌐'} ${localizedBaseLangName}`;
+    const backLangLabel = showStudyFirst ? `${baseLangInfo?.flag || '🌐'} ${localizedBaseLangName}` : `${langInfo.flag} ${localizedStudyLangName}`;
 
     const progressPercent = Math.round(((currentIndex + 1) / words.length) * 100);
 

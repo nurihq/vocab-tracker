@@ -49,7 +49,7 @@ export const LANGUAGES = [
   { code: 'tl', name: 'Tagalog / Filipino', nativeName: 'Filipino', flag: '🇵🇭' },
   { code: 'sw', name: 'Swahili', nativeName: 'Kiswahili', flag: '🇹🇿' },
   { code: 'am', name: 'Amharic', nativeName: 'አማርኛ', flag: '🇪🇹' },
-  { code: 'hy', name: 'Armenian', nativeName: 'Հայերեն', flag: '🇦🇲' },
+  { code: 'hy', name: 'Armenian', nativeName: 'Հայերენ', flag: '🇦🇲' },
   { code: 'az', name: 'Azerbaijani', nativeName: 'Azərbaycan', flag: '🇦🇿' },
   { code: 'eu', name: 'Basque', nativeName: 'Euskara', flag: '🇪🇸' },
   { code: 'be', name: 'Belarusian', nativeName: 'Беларуская', flag: '🇧🇾' },
@@ -112,6 +112,20 @@ export function getLanguageByCode(code) {
     nativeName: code.toUpperCase(),
     flag: '🌐'
   };
+}
+
+export function getLocalizedLanguageName(code, baseLang = 'en') {
+  if (!code) return '';
+  const langObj = getLanguageByCode(code);
+  const cleanBase = (baseLang || 'en').toLowerCase().split('-')[0];
+  try {
+    const displayNames = new Intl.DisplayNames([cleanBase, 'en'], { type: 'language' });
+    const localized = displayNames.of(code);
+    if (localized) {
+      return localized.charAt(0).toUpperCase() + localized.slice(1);
+    }
+  } catch (e) {}
+  return langObj ? langObj.name : code.toUpperCase();
 }
 
 export function detectBrowserLanguage() {

@@ -1,11 +1,12 @@
-import { t } from '../i18n.js';
-import { LANGUAGES, getLanguageByCode } from '../languages.js';
+import { t, getI18nBaseLang } from '../i18n.js';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api } from '../api.js';
 import { Modal } from '../components/modal.js';
 
 export async function renderStudyLanguagesScreen(container) {
   let showHidden = false;
   let languages = [];
+  const currentBase = getI18nBaseLang();
 
   async function loadData() {
     try {
@@ -44,6 +45,7 @@ export async function renderStudyLanguagesScreen(container) {
       <div class="tiles-grid" id="languages-grid">
         ${visibleLanguages.map((lang, index) => {
           const langInfo = getLanguageByCode(lang.code) || lang;
+          const localizedTitle = getLocalizedLanguageName(lang.code, currentBase);
           return `
             <div class="tile ${lang.hidden ? 'is-hidden-item' : ''}" 
                  draggable="true" 
@@ -62,7 +64,7 @@ export async function renderStudyLanguagesScreen(container) {
                 </div>
               </div>
               <div class="tile-bottom">
-                <div class="tile-title">${lang.name || langInfo.name}</div>
+                <div class="tile-title">${localizedTitle}</div>
                 <div class="tile-subtitle">${langInfo.nativeName || lang.code.toUpperCase()}</div>
               </div>
               <div class="tile-drag-handle" title="Drag to reorder">⋮⋮</div>
@@ -193,16 +195,19 @@ export async function renderStudyLanguagesScreen(container) {
         <input type="text" class="form-input" id="modal-lang-search" placeholder="${t('searchLanguages')}" autofocus />
       </div>
       <div class="lang-search-list" id="modal-lang-list">
-        ${available.map(l => `
-          <div class="lang-search-item" data-code="${l.code}" data-name="${l.name}" data-flag="${l.flag}">
-            <span style="font-size: 1.5rem;">${l.flag}</span>
-            <div style="flex: 1;">
-              <div style="font-weight: 600; color: var(--text-primary);">${l.name}</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">${l.nativeName} (${l.code})</div>
+        ${available.map(l => {
+          const localized = getLocalizedLanguageName(l.code, currentBase);
+          return `
+            <div class="lang-search-item" data-code="${l.code}" data-name="${l.name}" data-flag="${l.flag}">
+              <span style="font-size: 1.5rem;">${l.flag}</span>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; color: var(--text-primary);">${localized}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">${l.nativeName} (${l.code})</div>
+              </div>
+              <button class="btn btn-secondary btn-sm">+ Select</button>
             </div>
-            <button class="btn btn-secondary btn-sm">+ Select</button>
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
     `;
 
@@ -216,22 +221,29 @@ export async function renderStudyLanguagesScreen(container) {
 
     searchInput.addEventListener('input', (e) => {
       const q = e.target.value.toLowerCase().trim();
-      const filtered = available.filter(l =>
-        l.name.toLowerCase().includes(q) ||
-        l.nativeName.toLowerCase().includes(q) ||
-        l.code.toLowerCase().includes(q)
-      );
+      const filtered = available.filter(l => {
+        const localized = getLocalizedLanguageName(l.code, currentBase).toLowerCase();
+        return (
+          localized.includes(q) ||
+          l.name.toLowerCase().includes(q) ||
+          l.nativeName.toLowerCase().includes(q) ||
+          l.code.toLowerCase().includes(q)
+        );
+      });
 
-      listEl.innerHTML = filtered.map(l => `
-        <div class="lang-search-item" data-code="${l.code}" data-name="${l.name}" data-flag="${l.flag}">
-          <span style="font-size: 1.5rem;">${l.flag}</span>
-          <div style="flex: 1;">
-            <div style="font-weight: 600; color: var(--text-primary);">${l.name}</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">${l.nativeName} (${l.code})</div>
+      listEl.innerHTML = filtered.map(l => {
+        const localized = getLocalizedLanguageName(l.code, currentBase);
+        return `
+          <div class="lang-search-item" data-code="${l.code}" data-name="${l.name}" data-flag="${l.flag}">
+            <span style="font-size: 1.5rem;">${l.flag}</span>
+            <div style="flex: 1;">
+              <div style="font-weight: 600; color: var(--text-primary);">${localized}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">${l.nativeName} (${l.code})</div>
+            </div>
+            <button class="btn btn-secondary btn-sm">+ Select</button>
           </div>
-          <button class="btn btn-secondary btn-sm">+ Select</button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
       bindSelection();
     });
