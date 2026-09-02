@@ -1,6 +1,7 @@
 import { t, getI18nBaseLang, fetchLiveTranslation } from '../i18n.js';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api } from '../api.js';
+import { trackEvent } from '../analytics.js';
 
 export async function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -31,13 +32,15 @@ export async function renderFlashcardsScreen(container, params = {}) {
 
       // Translate words into active base language
       for (const w of words) {
-        fetchLiveTranslation(w.studyWord, currentBase).then(trans => {
-          if (trans && trans !== w.studyWord) {
-            w.baseWord = trans;
-            const el = container.querySelector(`[data-card-base-id="${w.wordId}"]`);
-            if (el) el.textContent = trans;
-          }
-        });
+        if (w.baseWord) {
+          fetchLiveTranslation(w.baseWord, currentBase).then(trans => {
+            if (trans && trans !== w.baseWord) {
+              w.baseWord = trans;
+              const el = container.querySelector(`[data-card-base-id="${w.wordId}"]`);
+              if (el) el.textContent = trans;
+            }
+          });
+        }
       }
 
       render();
@@ -76,10 +79,11 @@ export async function renderFlashcardsScreen(container, params = {}) {
       return;
     }
 
-    const currentWord = words[currentIndex];
     const isCompleted = currentIndex >= words.length;
 
     if (isCompleted) {
+      trackEvent('study_deck_finished', { langCode, deckId, wordCount: words.length });
+
       container.innerHTML = `
         <div class="empty-state" style="margin-top: 3rem;">
           <div class="empty-icon">🎉</div>
@@ -97,10 +101,13 @@ export async function renderFlashcardsScreen(container, params = {}) {
       container.querySelector('#restart-study-btn').addEventListener('click', () => {
         currentIndex = 0;
         isFlipped = false;
+        trackEvent('study_deck_restart', { langCode, deckId });
         render();
       });
       return;
     }
+
+    const currentWord = words[currentIndex];
 
     const frontMain = showStudyFirst ? currentWord.studyWord : currentWord.baseWord;
     const frontSub = showStudyFirst ? currentWord.pronunciation : '';
@@ -206,6 +213,7 @@ export async function renderFlashcardsScreen(container, params = {}) {
 
     function toggleFlip() {
       isFlipped = !isFlipped;
+      trackEvent('card_flip', { langCode, deckId, isFlipped, cardIndex: currentIndex });
       if (cardEl) {
         if (isFlipped) cardEl.classList.add('flipped');
         else cardEl.classList.remove('flipped');
@@ -224,6 +232,7 @@ export async function renderFlashcardsScreen(container, params = {}) {
         if (currentIndex < words.length) {
           currentIndex++;
           isFlipped = false;
+          trackEvent('card_next', { langCode, deckId, newIndex: currentIndex });
           render();
         }
       });
@@ -235,6 +244,7 @@ export async function renderFlashcardsScreen(container, params = {}) {
         if (currentIndex > 0) {
           currentIndex--;
           isFlipped = false;
+          trackEvent('card_prev', { langCode, deckId, newIndex: currentIndex });
           render();
         }
       });
@@ -243,11 +253,13 @@ export async function renderFlashcardsScreen(container, params = {}) {
     container.querySelector('#toggle-study-first').addEventListener('click', () => {
       showStudyFirst = true;
       isFlipped = false;
+      trackEvent('toggle_card_side', { langCode, showStudyFirst: true });
       render();
     });
     container.querySelector('#toggle-base-first').addEventListener('click', () => {
       showStudyFirst = false;
       isFlipped = false;
+      trackEvent('toggle_card_side', { langCode, showStudyFirst: false });
       render();
     });
 
@@ -258,6 +270,7 @@ export async function renderFlashcardsScreen(container, params = {}) {
       }
       currentIndex = 0;
       isFlipped = false;
+      trackEvent('card_shuffle', { langCode, deckId, wordCount: words.length });
       render();
     });
 
@@ -269,6 +282,7 @@ export async function renderFlashcardsScreen(container, params = {}) {
 
         try {
           await Api.moveWord(langCode, currentWord.wordId, currentWord.deckId, targetDeck);
+          trackEvent('move_word_in_study', { langCode, fromDeckId: currentWord.deckId, toDeckId: targetDeck });
           currentWord.deckId = targetDeck;
           currentIndex = Math.min(currentIndex, words.length - 1);
           render();

@@ -1,6 +1,7 @@
 import { t, getI18nBaseLang, fetchLiveTranslation } from '../i18n.js';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Auth } from '../api.js';
+import { trackEvent } from '../analytics.js';
 
 export function renderHomeScreen(container) {
   const currentBase = getI18nBaseLang();
@@ -45,7 +46,7 @@ export function renderHomeScreen(container) {
           const localizedStudyName = getLocalizedLanguageName(card.langCode, currentBase);
 
           return `
-            <div class="home-card-stage" data-card-idx="${idx}" title="Click to flip">
+            <div class="home-card-stage" data-card-idx="${idx}" data-lang="${card.langCode}" data-word="${card.word}" title="Click to flip">
               <div class="home-card-inner">
                 <!-- Front Side: Study Language -->
                 <div class="home-card-face home-card-front">
@@ -85,16 +86,20 @@ export function renderHomeScreen(container) {
     });
   });
 
-  // Enable 3D flip on click
+  // Enable 3D flip on click with event tracking
   container.querySelectorAll('.home-card-stage').forEach(stage => {
     stage.addEventListener('click', () => {
       stage.classList.toggle('is-flipped');
+      const lang = stage.getAttribute('data-lang');
+      const word = stage.getAttribute('data-word');
+      trackEvent('home_card_flip', { langCode: lang, word });
     });
   });
 
   const startBtn = container.querySelector('#home-start-btn');
   if (startBtn) {
     startBtn.addEventListener('click', () => {
+      trackEvent('home_start_click', { authenticated: Auth.isAuthenticated() });
       if (Auth.isAuthenticated()) {
         window.location.hash = '#/languages';
       } else {

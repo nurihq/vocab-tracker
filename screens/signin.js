@@ -1,6 +1,7 @@
 import { t } from '../i18n.js';
 import { Auth, Api } from '../api.js';
 import { CONFIG } from '../config.js';
+import { trackEvent } from '../analytics.js';
 
 export function renderSignInScreen(container) {
   const leafLogoSvg = `
@@ -61,6 +62,7 @@ export function renderSignInScreen(container) {
                 });
               } catch (e) {}
 
+              trackEvent('sign_in', { method: 'google' });
               await Api.getProfile().catch(() => {});
               window.location.hash = '#/languages';
             }

@@ -2,6 +2,7 @@ import { t, getI18nBaseLang } from '../i18n.js';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api } from '../api.js';
 import { Modal } from '../components/modal.js';
+import { trackEvent } from '../analytics.js';
 
 export async function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -120,6 +121,7 @@ export async function renderDecksScreen(container, params = {}) {
     if (toggleHiddenBtn) {
       toggleHiddenBtn.addEventListener('click', () => {
         showHidden = !showHidden;
+        trackEvent('toggle_hidden_decks', { langCode, showHidden });
         render();
       });
     }
@@ -127,6 +129,7 @@ export async function renderDecksScreen(container, params = {}) {
     container.querySelectorAll('.tile[data-deck-id]').forEach(tile => {
       tile.addEventListener('click', () => {
         const deckId = tile.getAttribute('data-deck-id');
+        trackEvent('select_deck', { langCode, deckId });
         window.location.hash = `#/languages/${langCode}/decks/${deckId}`;
       });
     });
@@ -138,6 +141,7 @@ export async function renderDecksScreen(container, params = {}) {
         const isCurrentlyHidden = btn.getAttribute('data-hidden') === 'true';
         try {
           await Api.toggleHideDeck(langCode, deckId, !isCurrentlyHidden);
+          trackEvent(isCurrentlyHidden ? 'unhide_deck' : 'hide_deck', { langCode, deckId });
           await loadData();
         } catch (err) {
           console.error(err);
@@ -156,6 +160,7 @@ export async function renderDecksScreen(container, params = {}) {
           onConfirm: async () => {
             try {
               await Api.deleteDeck(langCode, deckId);
+              trackEvent('delete_deck', { langCode, deckId });
               await loadData();
             } catch (err) {
               console.error('Failed to delete deck:', err);
@@ -220,6 +225,7 @@ export async function renderDecksScreen(container, params = {}) {
 
           try {
             await Api.reorderDecks(langCode, orderList);
+            trackEvent('reorder_decks', { langCode, count: decks.length });
           } catch (err) {
             console.error('Failed to save deck reorder:', err);
           }
@@ -246,6 +252,7 @@ export async function renderDecksScreen(container, params = {}) {
         if (!name) return false;
         try {
           await Api.addDeck(langCode, name);
+          trackEvent('add_deck', { langCode, name });
           await loadData();
           return true;
         } catch (err) {

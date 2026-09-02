@@ -2,6 +2,7 @@ import { t, getI18nBaseLang, fetchLiveTranslation } from '../i18n.js';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api } from '../api.js';
 import { Modal } from '../components/modal.js';
+import { trackEvent } from '../analytics.js';
 
 export async function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -136,10 +137,18 @@ export async function renderDeckWordsScreen(container, params = {}) {
     const addWordBtn = container.querySelector('#add-word-btn');
     if (addWordBtn) addWordBtn.addEventListener('click', openAddWordModal);
 
+    const studyDeckBtn = container.querySelector('#study-deck-btn');
+    if (studyDeckBtn) {
+      studyDeckBtn.addEventListener('click', () => {
+        trackEvent('study_deck_click', { langCode, deckId, wordCount: words.length });
+      });
+    }
+
     const sortDropdown = container.querySelector('#sort-dropdown');
     if (sortDropdown) {
       sortDropdown.addEventListener('change', async (e) => {
         currentSort = e.target.value;
+        trackEvent('sort_words', { langCode, deckId, sort: currentSort });
         await loadData();
       });
     }
@@ -152,6 +161,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
 
         try {
           await Api.moveWord(langCode, wordId, deckId, toDeckId);
+          trackEvent('move_word', { langCode, fromDeckId: deckId, toDeckId });
           await loadData();
         } catch (err) {
           console.error('Failed to move word:', err);
@@ -165,6 +175,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
         const targetDeck = btn.getAttribute('data-deck-id') || deckId;
         try {
           await Api.deleteWord(langCode, targetDeck, wordId);
+          trackEvent('delete_word', { langCode, deckId: targetDeck, wordId });
           await loadData();
         } catch (err) {
           console.error('Failed to delete word:', err);
@@ -229,6 +240,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
 
           try {
             await Api.reorderWords(langCode, deckId, orderList);
+            trackEvent('reorder_words', { langCode, deckId, count: words.length });
           } catch (err) {
             console.error('Failed to save word reorder:', err);
           }
@@ -300,6 +312,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
 
         try {
           await Api.addWord(langCode, targetDestinationDeck, baseWord, studyWord, pronunciation);
+          trackEvent('add_word', { langCode, deckId: targetDestinationDeck, hasPronunciation: !!pronunciation });
           await loadData();
           return true;
         } catch (err) {

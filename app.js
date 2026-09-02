@@ -2,6 +2,7 @@ import { Navbar } from './components/navbar.js';
 import { detectBrowserLanguage } from './languages.js';
 import { setI18nBaseLang, getI18nBaseLang } from './i18n.js';
 import { Auth } from './api.js';
+import { trackPageView } from './analytics.js';
 
 import { renderHomeScreen } from './screens/home.js';
 import { renderSignInScreen } from './screens/signin.js';
@@ -35,12 +36,10 @@ class App {
   }
 
   handleBaseLangChange(newLang) {
-    // Re-render current route to update all UI translations
     this.handleRoute();
   }
 
   handleThemeChange(theme) {
-    // Theme is updated via data-theme attribute
   }
 
   handleSignOut() {
@@ -50,6 +49,9 @@ class App {
   handleRoute() {
     const hash = window.location.hash || '#/';
     const path = hash.replace(/^#/, '');
+
+    // Track SPA Page View in GA4
+    trackPageView(path || '/');
 
     // Re-render navbar with updated active state
     this.navbar.render(this.navContainer, hash);

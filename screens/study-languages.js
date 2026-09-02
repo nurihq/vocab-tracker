@@ -2,6 +2,7 @@ import { t, getI18nBaseLang } from '../i18n.js';
 import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api } from '../api.js';
 import { Modal } from '../components/modal.js';
+import { trackEvent } from '../analytics.js';
 
 export async function renderStudyLanguagesScreen(container) {
   let showHidden = false;
@@ -110,6 +111,7 @@ export async function renderStudyLanguagesScreen(container) {
     if (toggleHiddenBtn) {
       toggleHiddenBtn.addEventListener('click', () => {
         showHidden = !showHidden;
+        trackEvent('toggle_hidden_languages', { showHidden });
         render();
       });
     }
@@ -117,6 +119,7 @@ export async function renderStudyLanguagesScreen(container) {
     container.querySelectorAll('.tile[data-code]').forEach(tile => {
       tile.addEventListener('click', () => {
         const code = tile.getAttribute('data-code');
+        trackEvent('select_study_language', { langCode: code });
         window.location.hash = `#/languages/${code}/decks`;
       });
     });
@@ -128,6 +131,7 @@ export async function renderStudyLanguagesScreen(container) {
         const isCurrentlyHidden = btn.getAttribute('data-hidden') === 'true';
         try {
           await Api.toggleHideLanguage(code, !isCurrentlyHidden);
+          trackEvent(isCurrentlyHidden ? 'unhide_language' : 'hide_language', { langCode: code });
           await loadData();
         } catch (err) {
           console.error(err);
@@ -190,6 +194,7 @@ export async function renderStudyLanguagesScreen(container) {
 
           try {
             await Api.reorderLanguages(orderList);
+            trackEvent('reorder_languages', { count: languages.length });
           } catch (err) {
             console.error('Failed to save reorder:', err);
           }
@@ -269,6 +274,7 @@ export async function renderStudyLanguagesScreen(container) {
           Modal.close();
           try {
             await Api.addLanguage({ code, name, flag });
+            trackEvent('add_language', { langCode: code, langName: name });
             await loadData();
           } catch (err) {
             console.error('Failed to add language:', err);

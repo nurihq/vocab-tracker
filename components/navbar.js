@@ -1,6 +1,7 @@
 import { LANGUAGES } from '../languages.js';
 import { t, setI18nBaseLang, getI18nBaseLang } from '../i18n.js';
 import { Auth, Api } from '../api.js';
+import { trackEvent } from '../analytics.js';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {
@@ -99,6 +100,7 @@ export class Navbar {
     if (backBtn) {
       backBtn.addEventListener('click', () => {
         const target = backBtn.getAttribute('data-target');
+        trackEvent('nav_back_click', { target: target || 'history' });
         if (target) {
           window.location.hash = target;
         } else {
@@ -113,6 +115,7 @@ export class Navbar {
         const newLang = e.target.value;
         setI18nBaseLang(newLang);
         localStorage.setItem('vocab_base_lang', newLang);
+        trackEvent('base_language_change', { baseLang: newLang });
         if (Auth.isAuthenticated()) {
           Api.updateProfile({ baseLang: newLang }).catch(() => {});
         }
@@ -127,6 +130,7 @@ export class Navbar {
         document.documentElement.setAttribute('data-theme', this.theme);
         localStorage.setItem('vocab_theme', this.theme);
         themeBtn.textContent = this.theme === 'dark' ? '☀️' : '🌙';
+        trackEvent('theme_change', { theme: this.theme });
         if (this.onThemeChange) this.onThemeChange(this.theme);
       });
     }
@@ -134,6 +138,7 @@ export class Navbar {
     const signOutBtn = container.querySelector('#nav-signout-btn');
     if (signOutBtn) {
       signOutBtn.addEventListener('click', () => {
+        trackEvent('sign_out');
         Auth.signOut();
         if (this.onSignOut) this.onSignOut();
         window.location.hash = '#/';
