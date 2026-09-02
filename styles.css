@@ -1157,3 +1157,67 @@ body {
 .edit-word-trigger:hover {
   opacity: 0.85;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SIGN IN SCREEN
+   ══════════════════════════════════════════════════════════════════════════ */
+.signin-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 160px);
+  padding: 1.5rem 1rem;
+}
+
+.signin-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2.25rem;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  margin: 0 auto;
+}
+
+.signin-logo {
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+  line-height: 1;
+}
+
+.signin-title {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: lowercase;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.65rem;
+  line-height: 1.2;
+}
+
+.signin-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.signin-btn-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.75rem;
+  min-height: 44px;
+}
+
+.signin-footer {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.25rem;
+  margin-top: 0.5rem;
+}

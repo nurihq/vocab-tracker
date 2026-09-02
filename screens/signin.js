@@ -8,20 +8,22 @@ export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();
 
   container.innerHTML = `
-    <div class="signin-card">
-      <div class="signin-logo">✨</div>
-      <h2 class="signin-title" style="font-family: var(--font-display); font-size: 2.2rem; font-weight: 600; text-transform: lowercase; letter-spacing: -0.02em; margin-bottom: 0.5rem;">monogenesis</h2>
-      <p class="signin-subtitle" data-i18n="signInSubtitle">${t('signInSubtitle')}</p>
+    <div class="signin-wrapper">
+      <div class="signin-card">
+        <div class="signin-logo">✨</div>
+        <h2 class="signin-title">monogenesis</h2>
+        <p class="signin-subtitle" data-i18n="signInSubtitle">${t('signInSubtitle')}</p>
 
-      <div class="signin-btn-container">
-        <!-- Render Google One Tap / Button Container -->
-        <div id="google-signin-btn"></div>
-      </div>
+        <div class="signin-btn-container">
+          <!-- Render Google One Tap / Button Container -->
+          <div id="google-signin-btn"></div>
+        </div>
 
-      <div class="signin-footer">
-        <p style="font-size: 0.8rem; color: var(--text-muted);">
-          Protected with Google Identity Services & AWS DynamoDB.
-        </p>
+        <div class="signin-footer">
+          <p style="font-size: 0.8rem; color: var(--text-muted);">
+            Protected with Google Identity Services & AWS DynamoDB.
+          </p>
+        </div>
       </div>
     </div>
   `;
@@ -75,10 +77,10 @@ export function renderSignInScreen(container) {
         Api.syncLocalToCloud().catch(() => {});
 
         // Clean redirect to languages
-        navigate('/languages');
+        navigate('#/languages');
       } catch (err) {
         console.error('Failed to parse JWT payload:', err);
-        navigate('/languages');
+        navigate('#/languages');
       }
     }
   }
