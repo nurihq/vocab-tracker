@@ -1,4 +1,4 @@
-import { t, getI18nBaseLang, fetchLiveTranslation } from '../i18n.js';
+import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Auth } from '../api.js';
 import { trackEvent } from '../analytics.js';
@@ -26,15 +26,15 @@ export function renderHomeScreen(container) {
   container.innerHTML = `
     <div class="hero-wrapper">
       <div class="hero-badge">
-        <span>✨</span> <span>${t('tagline')}</span>
+        <span>✨</span> <span data-i18n="tagline">${t('tagline')}</span>
       </div>
       
       <h1 class="hero-title">${t('appTitle')}</h1>
-      <p class="hero-subtitle">${t('subtitle')}</p>
+      <p class="hero-subtitle" data-i18n="subtitle">${t('subtitle')}</p>
 
       <div class="hero-actions">
         <button class="btn btn-primary btn-lg" id="home-start-btn">
-          <span>${t('startLearning')}</span>
+          <span data-i18n="startLearning">${t('startLearning')}</span>
           <span style="font-size: 1.15rem;">→</span>
         </button>
       </div>
@@ -76,7 +76,7 @@ export function renderHomeScreen(container) {
     </div>
   `;
 
-  // Dynamically translate meanings to base language
+  // Dynamically translate meanings on cards to active base language
   activeCards.forEach(card => {
     fetchLiveTranslation(card.baseMeaning, currentBase).then(translated => {
       if (translated && translated !== card.baseMeaning) {
@@ -85,6 +85,9 @@ export function renderHomeScreen(container) {
       }
     });
   });
+
+  // Dynamically translate all UI text across the page for all 100+ languages
+  autoTranslateUi(container);
 
   // Enable 3D flip on click with event tracking
   container.querySelectorAll('.home-card-stage').forEach(stage => {

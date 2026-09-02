@@ -1,4 +1,4 @@
-// Multi-language UI localization system for monogenesis
+// Multi-language UI localization system with Instant Static Dictionaries + Universal Live Dynamic Fallback for 100+ languages
 
 export const STATIC_TRANSLATIONS = {
   en: {
@@ -72,6 +72,78 @@ export const STATIC_TRANSLATIONS = {
     lightMode: 'Light Mode',
     darkMode: 'Dark Mode',
     dragToReorder: 'Drag tiles to reorder your priority list'
+  },
+  pa: {
+    appTitle: 'monogenesis',
+    tagline: 'ਕਈ ਭਾਸ਼ਾਵਾਂ ਵਿੱਚ ਆਪਣੀ ਸ਼ਬਦਾਵਲੀ ਨੂੰ ਟ੍ਰੈਕ ਕਰੋ ਅਤੇ ਸੁਧਾਰੋ',
+    subtitle: 'ਸਾਰੀਆਂ ਭਾਸ਼ਾਵਾਂ ਵਿੱਚ ਅਨੁਕੂਲਿਤ ਸ਼ਬਦਾਵਲੀ ਡੇਕ ਅਤੇ ਫਲੈਸ਼ ਕਾਰਡ।',
+    startLearning: 'ਸਿੱਖਣਾ ਸ਼ੁਰੂ ਕਰੋ',
+    signInWithGoogle: 'Google ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ',
+    signInTitle: 'ਸਾਈਨ ਇਨ',
+    signInSubtitle: 'ਆਪਣੀਆਂ ਭਾਸ਼ਾਵਾਂ, ਡੇਕ ਅਤੇ ਸ਼ਬਦਾਂ ਨੂੰ ਸਾਰੇ ਡਿਵਾਈਸਾਂ ਵਿੱਚ ਸਿੰਕ ਕਰੋ।',
+    signOut: 'ਸਾਈਨ ਆਉਟ',
+    baseLanguage: 'ਮੂਲ ਭਾਸ਼ਾ',
+    studyLanguages: 'ਅਧਿਐਨ ਭਾਸ਼ਾਵਾਂ',
+    languages: 'ਭਾਸ਼ਾਵਾਂ',
+    language: 'ਭਾਸ਼ਾ',
+    addLanguage: 'ਭਾਸ਼ਾ ਸ਼ਾਮਲ ਕਰੋ',
+    searchLanguages: 'ਭਾਸ਼ਾਵਾਂ ਖੋਜੋ...',
+    selectLanguage: 'ਸਿੱਖਣ ਲਈ ਭਾਸ਼ਾ ਚੁਣੋ',
+    hide: 'ਲੁਕਾਓ',
+    unhide: 'ਦਿਖਾਓ',
+    showHidden: 'ਲੁਕਵੇਂ ਦਿਖਾਓ',
+    hideHidden: 'ਲੁਕਵੇਂ ਛੁਪਾਓ',
+    noLanguagesYet: 'ਅਜੇ ਕੋਈ ਭਾਸ਼ਾ ਸ਼ਾਮਲ ਨਹੀਂ ਕੀਤੀ ਗਈ।',
+    decks: 'ਡੇਕ',
+    deck: 'ਡੇਕ',
+    addDeck: 'ਨਵਾਂ ਡੇਕ',
+    deckName: 'ਡੇਕ ਦਾ ਨਾਮ',
+    createDeck: 'ਡੇਕ ਬਣਾਓ',
+    deleteDeck: 'ਡੇਕ ਮਿਟਾਓ',
+    deleteConfirmTitle: 'ਡੇਕ ਮਿਟਾਉਣ ਦੀ ਪੁਸ਼ਟੀ ਕਰੋ',
+    deleteConfirmWarning: 'ਇਹ ਕਾਰਵਾਈ ਵਾਪਸ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ। ਪੁਸ਼ਟੀ ਕਰਨ ਲਈ ਹੇਠਾਂ ਡੇਕ ਦਾ ਨਾਮ ਲਿਖੋ:',
+    typeToConfirm: 'ਪੁਸ਼ਟੀ ਕਰਨ ਲਈ "{name}" ਲਿਖੋ',
+    delete: 'ਮਿਟਾਓ',
+    cancel: 'ਰੱਦ ਕਰੋ',
+    save: 'ਸੰਭਾਲੋ',
+    back: 'ਪਿੱਛੇ',
+    home: 'ਮੁੱਖ ਪੰਨਾ',
+    practicing: 'ਅਭਿਆਸ ਅਧੀਨ',
+    mastered: 'ਮੁਹਾਰਤ ਹਾਸਲ',
+    all: 'ਸਾਰੇ',
+    words: 'ਸ਼ਬਦ',
+    word: 'ਸ਼ਬਦ',
+    wordInBase: '{lang} ਵਿੱਚ ਸ਼ਬਦ',
+    addWord: 'ਸ਼ਬਦ ਸ਼ਾਮਲ ਕਰੋ',
+    studyWord: 'ਅਧਿਐਨ ਭਾਸ਼ਾ ਵਿੱਚ ਸ਼ਬਦ',
+    pronunciationNotes: 'ਉਚਾਰਨ ਨੋਟਸ (ਵਿਕਲਪਿਕ)',
+    pronunciationPlaceholder: 'ਜਿਵੇਂ ਉਚਾਰਨ ਸੰਕੇਤ',
+    translationAuto: 'ਅਨੁਵਾਦ ਤੁਹਾਡੀ ਮੂਲ ਭਾਸ਼ਾ ਵਿੱਚ ਆਪਣੇ ਆਪ ਤਿਆਰ ਹੋ ਜਾਵੇਗਾ',
+    editWord: 'ਸ਼ਬਦ ਸੋਧੋ',
+    moveWord: 'ਡੇਕ ਵਿੱਚ ਭੇਜੋ',
+    sortBy: 'ਕ੍ਰਮਬੱਧ ਕਰੋ',
+    sortNewest: 'ਪਹਿਲਾਂ ਨਵੇਂ',
+    sortAlpha: 'ਵਰਣਮਾਲਾ ਅਨੁਸਾਰ',
+    sortCustom: 'ਕਸਟਮ',
+    studyDeck: 'ਡੇਕ ਪੜ੍ਹੋ',
+    noWordsYet: 'ਇਸ ਡੇਕ ਵਿੱਚ ਅਜੇ ਕੋਈ ਸ਼ਬਦ ਨਹੀਂ ਹਨ।',
+    allDeckNotice: '"ਸਾਰੇ" ਡੇਕ ਆਪਣੇ ਆਪ ਸਾਰੇ ਸ਼ਬਦ ਇਕੱਠੇ ਕਰਦਾ ਹੈ।',
+    flashcards: 'ਫਲੈਸ਼ ਕਾਰਡ',
+    showFirst: 'ਪਹਿਲਾਂ ਦਿਖਾਓ',
+    studyFirst: 'ਅਧਿਐਨ ਭਾਸ਼ਾ',
+    baseFirst: 'ਮੂਲ ਭਾਸ਼ਾ',
+    flipCard: 'ਕਾਰਡ ਉਲਟਾਓ',
+    nextCard: 'ਅਗਲਾ',
+    prevCard: 'ਪਿਛਲਾ',
+    shuffle: 'ਰਲਾਓ',
+    cardCount: 'ਕਾਰਡ {current} ਵਿੱਚੋਂ {total}',
+    deckFinished: 'ਡੇਕ ਪੂਰਾ ਹੋ ਗਿਆ! ਸ਼ਾਨਦਾਰ ਕੰਮ 🎉',
+    studyAgain: 'ਦੁਬਾਰਾ ਪੜ੍ਹੋ',
+    backToDeck: 'ਡੇਕ ਤੇ ਵਾਪਸ ਜਾਓ',
+    keyboardTips: 'ਸ਼ਾਰਟਕੱਟ: [ਸਪੇਸ] ਉਲਟਾਓ • [→] ਅਗਲਾ • [←] ਪਿਛਲਾ',
+    lightMode: 'ਲਾਈਟ ਮੋਡ',
+    darkMode: 'ਡਾਰਕ ਮੋਡ',
+    dragToReorder: 'ਕ੍ਰਮ ਬਦਲਣ ਲਈ ਖਿੱਚੋ'
   },
   ru: {
     appTitle: 'monogenesis',
@@ -508,23 +580,40 @@ export const STATIC_TRANSLATIONS = {
 };
 
 let currentBaseLang = 'en';
-const dynamicCache = {};
+
+// Load stored dynamic translations from localStorage
+const STORAGE_KEY = 'monogenesis_i18n_cache';
+function getCache() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  } catch (e) {
+    return {};
+  }
+}
+function setCache(cache) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
+  } catch (e) {}
+}
+
+const dynamicCache = getCache();
 
 export async function fetchLiveTranslation(text, targetLang) {
   if (!text || !targetLang) return text;
   const shortTarget = targetLang.toLowerCase().split('-')[0];
   if (shortTarget === 'en') return text;
   
-  const cacheKey = `${shortTarget}:${text}`;
+  const cacheKey = `${shortTarget}:${text.trim()}`;
   if (dynamicCache[cacheKey]) return dynamicCache[cacheKey];
 
   try {
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(shortTarget)}&dt=t&q=${encodeURIComponent(text)}`;
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(shortTarget)}&dt=t&q=${encodeURIComponent(text.trim())}`;
     const res = await fetch(url);
     const data = await res.json();
     if (data && data[0] && data[0][0] && data[0][0][0]) {
       const translated = data[0].map(s => s[0]).join('');
       dynamicCache[cacheKey] = translated;
+      setCache(dynamicCache);
       return translated;
     }
   } catch (e) {}
@@ -541,11 +630,47 @@ export function getI18nBaseLang() {
 
 export function t(key, params = {}) {
   const shortCode = currentBaseLang.toLowerCase().split('-')[0];
-  const langDict = STATIC_TRANSLATIONS[currentBaseLang] || STATIC_TRANSLATIONS[shortCode] || STATIC_TRANSLATIONS['en'];
-  let text = langDict[key] || STATIC_TRANSLATIONS['en'][key] || key;
+  const langDict = STATIC_TRANSLATIONS[currentBaseLang] || STATIC_TRANSLATIONS[shortCode];
+  
+  let text;
+  if (langDict && langDict[key]) {
+    text = langDict[key];
+  } else {
+    // Check cached dynamic translation for this key + baseLang
+    const englishText = STATIC_TRANSLATIONS['en'][key] || key;
+    const cacheKey = `${shortCode}:${englishText.trim()}`;
+    text = dynamicCache[cacheKey] || englishText;
+  }
 
   for (const [k, v] of Object.entries(params)) {
     text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), v);
   }
   return text;
+}
+
+// Automatically translates any container's elements having data-i18n attributes for ANY of the 100+ languages!
+export async function autoTranslateUi(container) {
+  const shortCode = currentBaseLang.toLowerCase().split('-')[0];
+  if (shortCode === 'en') return;
+
+  const elements = container.querySelectorAll('[data-i18n]');
+  for (const el of elements) {
+    const key = el.getAttribute('data-i18n');
+    const englishText = STATIC_TRANSLATIONS['en'][key];
+    if (!englishText) continue;
+
+    // If already in static dictionary, it's already set
+    const langDict = STATIC_TRANSLATIONS[currentBaseLang] || STATIC_TRANSLATIONS[shortCode];
+    if (langDict && langDict[key]) {
+      el.textContent = langDict[key];
+      continue;
+    }
+
+    // Otherwise fetch dynamic live translation
+    fetchLiveTranslation(englishText, shortCode).then(translated => {
+      if (translated && translated !== englishText) {
+        el.textContent = translated;
+      }
+    });
+  }
 }
