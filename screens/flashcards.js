@@ -9,7 +9,10 @@ export function renderFlashcardsScreen(container, params = {}) {
   const deckId = params.deckId || 'practicing';
   const langInfo = getLanguageByCode(langCode);
   const currentBase = getI18nBaseLang();
-  const localizedLangName = getLocalizedLanguageName(langCode, currentBase);
+  const localizedStudyName = getLocalizedLanguageName(langCode, currentBase);
+  const localizedBaseName = getLocalizedLanguageName(currentBase, currentBase);
+
+  const isStillMounted = () => window.location.hash.startsWith(`#/languages/${langCode}/decks/${deckId}/study`);
 
   // Instant optimistic words from local store
   const store = getLocalStore();
@@ -26,6 +29,7 @@ export function renderFlashcardsScreen(container, params = {}) {
   async function refreshBackground() {
     try {
       const res = await Api.getWords(langCode, deckId);
+      if (!isStillMounted()) return;
       if (res.words && res.words.length > 0) {
         words = [...res.words];
         if (currentIndex >= words.length) currentIndex = 0;
@@ -74,10 +78,10 @@ export function renderFlashcardsScreen(container, params = {}) {
       cardIndex: currentIndex + 1
     });
     
-    const inner = container.querySelector('.flashcard-inner');
-    if (inner) {
-      if (isFlipped) inner.classList.add('is-flipped');
-      else inner.classList.remove('is-flipped');
+    const cardEl = container.querySelector('#active-flashcard');
+    if (cardEl) {
+      if (isFlipped) cardEl.classList.add('flipped');
+      else cardEl.classList.remove('flipped');
     }
   }
 
@@ -104,6 +108,8 @@ export function renderFlashcardsScreen(container, params = {}) {
   }
 
   function render() {
+    if (!isStillMounted()) return;
+
     if (words.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
@@ -158,70 +164,72 @@ export function renderFlashcardsScreen(container, params = {}) {
     const isStudyFront = showFirst === 'study';
     const frontWord = isStudyFront ? currentWord.studyWord : (currentWord.baseWord || '...');
     const frontPronunciation = isStudyFront ? currentWord.pronunciation : '';
-    const frontTag = isStudyFront ? `${langInfo.flag} ${localizedLangName}` : t('baseLanguage');
+    const frontTag = isStudyFront ? `${langInfo.flag} ${localizedStudyName}` : localizedBaseName;
 
     const backWord = isStudyFront ? (currentWord.baseWord || '...') : currentWord.studyWord;
     const backPronunciation = !isStudyFront ? currentWord.pronunciation : '';
-    const backTag = !isStudyFront ? `${langInfo.flag} ${localizedLangName}` : t('baseLanguage');
+    const backTag = !isStudyFront ? `${langInfo.flag} ${localizedStudyName}` : localizedBaseName;
 
     container.innerHTML = `
-      <div class="flashcard-screen">
-        <div class="flashcard-toolbar">
-          <div class="show-first-toggle">
-            <span style="font-size: 0.85rem; color: var(--text-secondary);" data-i18n="showFirst">${t('showFirst')}:</span>
-            <select class="form-input" id="show-first-select" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;">
-              <option value="study" ${showFirst === 'study' ? 'selected' : ''}>${t('studyFirst')}</option>
-              <option value="base" ${showFirst === 'base' ? 'selected' : ''}>${t('baseFirst')}</option>
-            </select>
+      <div class="flashcards-container">
+        <!-- Top Controls: Show First Toggle & Shuffle -->
+        <div class="flashcards-controls-top">
+          <div class="lang-toggle-pill">
+            <button class="lang-toggle-btn ${showFirst === 'study' ? 'active' : ''}" id="toggle-study-first-btn">
+              ${langInfo.flag} ${localizedStudyName}
+            </button>
+            <button class="lang-toggle-btn ${showFirst === 'base' ? 'active' : ''}" id="toggle-base-first-btn">
+              ${localizedBaseName}
+            </button>
           </div>
 
-          <button class="btn btn-secondary btn-sm" id="shuffle-btn" data-i18n="shuffle">
-            🔀 ${t('shuffle')}
+          <button class="icon-btn" id="shuffle-btn" title="${t('shuffle')}" style="font-size: 0.85rem; width: auto; padding: 0 0.75rem; gap: 0.35rem; display: flex;">
+            🔀 <span data-i18n="shuffle">${t('shuffle')}</span>
           </button>
         </div>
 
-        <div class="flashcard-progress">
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" style="width: ${progressPercent}%;"></div>
-          </div>
-          <div class="progress-text">
-            ${t('cardCount', { current: currentIndex + 1, total: words.length })}
-          </div>
-        </div>
-
-        <div class="flashcard-stage" id="card-stage">
-          <div class="flashcard-inner ${isFlipped ? 'is-flipped' : ''}">
+        <!-- 3D Interactive Card Stage -->
+        <div class="card-stage" id="card-stage">
+          <div class="flashcard ${isFlipped ? 'flipped' : ''}" id="active-flashcard">
             <!-- Front Face -->
-            <div class="flashcard-face flashcard-front">
-              <div class="flashcard-lang-tag">${frontTag}</div>
-              <div class="flashcard-main-text">${frontWord}</div>
-              ${frontPronunciation ? `<div class="flashcard-pronunciation-text">${frontPronunciation}</div>` : ''}
-              <div class="flashcard-hint" data-i18n="tapToFlip">${t('tapToFlip')}</div>
+            <div class="card-face">
+              <div class="card-lang-indicator">${frontTag}</div>
+              <div class="card-deck-badge">${currentIndex + 1} / ${words.length}</div>
+              <div class="card-text-main">${frontWord}</div>
+              ${frontPronunciation ? `<div class="card-pronunciation-sub">${frontPronunciation}</div>` : ''}
+              <div class="card-hint" data-i18n="tapToFlip">${t('tapToFlip')}</div>
             </div>
 
             <!-- Back Face -->
-            <div class="flashcard-face flashcard-back">
-              <div class="flashcard-lang-tag">${backTag}</div>
-              <div class="flashcard-main-text">${backWord}</div>
-              ${backPronunciation ? `<div class="flashcard-pronunciation-text">${backPronunciation}</div>` : ''}
-              <div class="flashcard-hint" data-i18n="tapToFlipBack">${t('tapToFlipBack')}</div>
+            <div class="card-face card-face-back">
+              <div class="card-lang-indicator">${backTag}</div>
+              <div class="card-deck-badge">${currentIndex + 1} / ${words.length}</div>
+              <div class="card-text-main">${backWord}</div>
+              ${backPronunciation ? `<div class="card-pronunciation-sub">${backPronunciation}</div>` : ''}
+              <div class="card-hint" data-i18n="tapToFlipBack">${t('tapToFlipBack')}</div>
             </div>
           </div>
         </div>
 
-        <div class="flashcard-controls">
-          <button class="btn btn-secondary btn-lg" id="prev-card-btn" ${currentIndex === 0 ? 'disabled' : ''} data-i18n="prevCard">
-            ← ${t('prevCard')}
+        <!-- Action Controls -->
+        <div class="flashcards-nav-actions">
+          <button class="btn btn-secondary" id="prev-card-btn" ${currentIndex === 0 ? 'disabled' : ''} style="flex: 1;">
+            ← <span data-i18n="prevCard">${t('prevCard')}</span>
           </button>
-          <button class="btn btn-primary btn-lg" id="flip-card-btn" data-i18n="flipCard">
-            🔄 ${t('flipCard')}
+          <button class="btn btn-primary" id="flip-card-btn" style="flex: 1.4;">
+            🔄 <span data-i18n="flipCard">${t('flipCard')}</span>
           </button>
-          <button class="btn btn-secondary btn-lg" id="next-card-btn">
+          <button class="btn btn-secondary" id="next-card-btn" style="flex: 1;">
             <span data-i18n="nextCard">${t('nextCard')}</span> →
           </button>
         </div>
 
-        <div class="keyboard-shortcuts" data-i18n="keyboardTips">
+        <!-- Progress Bar -->
+        <div class="progress-bar-wrapper">
+          <div class="progress-bar-fill" style="width: ${progressPercent}%;"></div>
+        </div>
+
+        <div class="keyboard-shortcuts" style="margin-top: 1.25rem; font-size: 0.78rem; color: var(--text-muted); text-align: center;" data-i18n="keyboardTips">
           ${t('keyboardTips')}
         </div>
       </div>
@@ -234,7 +242,10 @@ export function renderFlashcardsScreen(container, params = {}) {
     if (stage) stage.addEventListener('click', flipCard);
 
     const flipBtn = container.querySelector('#flip-card-btn');
-    if (flipBtn) flipBtn.addEventListener('click', flipCard);
+    if (flipBtn) flipBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      flipCard();
+    });
 
     const nextBtn = container.querySelector('#next-card-btn');
     if (nextBtn) nextBtn.addEventListener('click', nextCard);
@@ -245,13 +256,27 @@ export function renderFlashcardsScreen(container, params = {}) {
     const shuffleBtn = container.querySelector('#shuffle-btn');
     if (shuffleBtn) shuffleBtn.addEventListener('click', shuffleWords);
 
-    const showFirstSelect = container.querySelector('#show-first-select');
-    if (showFirstSelect) {
-      showFirstSelect.addEventListener('change', (e) => {
-        showFirst = e.target.value;
-        isFlipped = false;
-        trackEvent('change_show_first', { langCode, deckId, showFirst });
-        render();
+    const studyFirstBtn = container.querySelector('#toggle-study-first-btn');
+    if (studyFirstBtn) {
+      studyFirstBtn.addEventListener('click', () => {
+        if (showFirst !== 'study') {
+          showFirst = 'study';
+          isFlipped = false;
+          trackEvent('change_show_first', { langCode, deckId, showFirst });
+          render();
+        }
+      });
+    }
+
+    const baseFirstBtn = container.querySelector('#toggle-base-first-btn');
+    if (baseFirstBtn) {
+      baseFirstBtn.addEventListener('click', () => {
+        if (showFirst !== 'base') {
+          showFirst = 'base';
+          isFlipped = false;
+          trackEvent('change_show_first', { langCode, deckId, showFirst });
+          render();
+        }
       });
     }
 
