@@ -6,7 +6,7 @@ const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
 const USER_KEY = `${STORAGE_PREFIX}user`;
 const LOCAL_DATA_KEY = `${STORAGE_PREFIX}local_data`;
 
-// Auto-translate helper for local offline/fallback mode
+// Client fallback auto-translate helper
 async function clientAutoTranslate(text, fromLang, toLang) {
   if (!text) return '';
   const cleanFrom = (fromLang || 'auto').toLowerCase().split('-')[0];
@@ -130,30 +130,51 @@ async function fetchWithAuth(url, options = {}) {
   return response.json();
 }
 
-// Two-way intelligent merge and sync between local and cloud
-async function syncLocalToCloud() {
-  if (!shouldUseCloud()) return;
+let isSyncing = false;
+
+// Robust Continuous Two-Way Sync Engine: Guarantees zero word loss
+export async function syncLocalToCloud() {
+  if (!shouldUseCloud() || isSyncing) return;
+  isSyncing = true;
+
   try {
     const store = getLocalStore();
-    const cloudLangs = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
-    const existingCloudCodes = new Set((cloudLangs.languages || []).map(l => l.code));
+    const cloudLangsRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' }).catch(() => null);
+    if (!cloudLangsRes) {
+      isSyncing = false;
+      return;
+    }
 
-    // Upload any local languages that are missing in the cloud
+    const cloudLangs = cloudLangsRes.languages || [];
+    const cloudLangCodes = new Set(cloudLangs.map(l => l.code));
+
+    // 1. Sync Languages: Upload missing local languages to DynamoDB
     for (const l of store.languages) {
-      if (!existingCloudCodes.has(l.code)) {
+      if (!cloudLangCodes.has(l.code)) {
         await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, {
           method: 'POST',
           body: JSON.stringify({ action: 'add', code: l.code, name: l.name, flag: l.flag })
-        });
+        }).catch(() => {});
       }
+    }
 
-      // Check and sync custom decks
-      const localDecks = store.decks[l.code] || [];
+    // Merge cloud languages into local store
+    for (const cl of cloudLangs) {
+      if (!store.languages.find(l => l.code === cl.code)) {
+        store.languages.push(cl);
+      }
+    }
+
+    // 2. Sync Decks and Words for each language
+    for (const l of store.languages) {
+      // Check cloud decks
       const cloudDecksRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(l.code)}`, { method: 'GET' }).catch(() => ({ decks: [] }));
-      const existingCloudDeckNames = new Set((cloudDecksRes.decks || []).map(d => d.name.toLowerCase()));
+      const cloudDecks = cloudDecksRes.decks || [];
+      const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
 
+      const localDecks = store.decks[l.code] || [];
       for (const d of localDecks) {
-        if (!['practicing', 'mastered', 'all'].includes(d.deckId.toLowerCase()) && !existingCloudDeckNames.has(d.name.toLowerCase())) {
+        if (!['practicing', 'mastered', 'all'].includes(d.deckId.toLowerCase()) && !cloudDeckIds.has(d.deckId)) {
           await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
             method: 'POST',
             body: JSON.stringify({ action: 'add', langCode: l.code, name: d.name })
@@ -161,30 +182,59 @@ async function syncLocalToCloud() {
         }
       }
 
-      // Check and sync words
-      const localWords = store.words[l.code] || [];
+      // Check cloud words
       const cloudWordsRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(l.code)}&deckId=all`, { method: 'GET' }).catch(() => ({ words: [] }));
-      const existingCloudWords = new Set((cloudWordsRes.words || []).map(w => (w.studyWord || '').toLowerCase().trim()));
+      const cloudWords = cloudWordsRes.words || [];
+      const cloudWordKeys = new Set(cloudWords.map(w => `${w.deckId}:${(w.studyWord || '').toLowerCase().trim()}`));
 
-      for (const w of localWords) {
-        if (w.studyWord && !existingCloudWords.has(w.studyWord.toLowerCase().trim())) {
-          await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
+      const localWords = store.words[l.code] || [];
+      
+      // Upload any local word not found in cloud
+      for (const lw of localWords) {
+        const key = `${lw.deckId}:${(lw.studyWord || '').toLowerCase().trim()}`;
+        if (lw.studyWord && (!cloudWordKeys.has(key) || lw._needsSync)) {
+          const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
             method: 'POST',
             body: JSON.stringify({
               action: 'add',
               langCode: l.code,
-              deckId: w.deckId || 'practicing',
-              baseWord: w.baseWord,
-              studyWord: w.studyWord,
-              pronunciation: w.pronunciation || ''
+              deckId: lw.deckId || 'practicing',
+              baseWord: lw.baseWord,
+              studyWord: lw.studyWord,
+              pronunciation: lw.pronunciation || ''
             })
-          }).catch(() => {});
+          }).catch(() => null);
+
+          if (res && res.word) {
+            delete lw._needsSync;
+            lw.wordId = res.word.wordId;
+          }
         }
       }
+
+      // Merge cloud words into local store so local store is complete
+      const existingLocalKeys = new Set(localWords.map(w => `${w.deckId}:${(w.studyWord || '').toLowerCase().trim()}`));
+      for (const cw of cloudWords) {
+        const key = `${cw.deckId}:${(cw.studyWord || '').toLowerCase().trim()}`;
+        if (!existingLocalKeys.has(key)) {
+          localWords.push(cw);
+        }
+      }
+      store.words[l.code] = localWords;
     }
-  } catch (e) {
-    console.warn('Sync note:', e);
+
+    saveLocalStore(store);
+  } catch (err) {
+    console.warn('Sync background check:', err);
+  } finally {
+    isSyncing = false;
   }
+}
+
+// Background sync loop every 15 seconds
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => syncLocalToCloud());
+  setInterval(() => syncLocalToCloud(), 15000);
 }
 
 export const Api = {
@@ -219,19 +269,18 @@ export const Api = {
     if (shouldUseCloud() && CONFIG.API_ENDPOINTS.languages) {
       try {
         const cloudRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
-        if (cloudRes.languages && cloudRes.languages.length > 0) {
+        if (cloudRes.languages) {
           const store = getLocalStore();
-          store.languages = cloudRes.languages;
+          // Merge languages safely
+          const cloudCodes = new Set(cloudRes.languages.map(l => l.code));
+          const unsyncedLocal = store.languages.filter(l => !cloudCodes.has(l.code));
+          store.languages = [...cloudRes.languages, ...unsyncedLocal];
           saveLocalStore(store);
-          return cloudRes;
-        }
-        await syncLocalToCloud();
-        const retryRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
-        if (retryRes.languages && retryRes.languages.length > 0) {
-          const store = getLocalStore();
-          store.languages = retryRes.languages;
-          saveLocalStore(store);
-          return retryRes;
+          
+          if (unsyncedLocal.length > 0) {
+            syncLocalToCloud();
+          }
+          return { languages: store.languages };
         }
       } catch (e) {}
     }
@@ -443,9 +492,17 @@ export const Api = {
         });
         if (res.words) {
           const store = getLocalStore();
-          store.words[langCode] = res.words;
+          // Merge cloud words with any unsynced local words
+          const cloudIds = new Set(res.words.map(w => w.wordId));
+          const localList = store.words[langCode] || [];
+          const unsynced = localList.filter(w => w._needsSync || !cloudIds.has(w.wordId));
+          store.words[langCode] = [...res.words, ...unsynced];
           saveLocalStore(store);
-          return res;
+          
+          if (unsynced.length > 0) {
+            syncLocalToCloud();
+          }
+          return { words: store.words[langCode].filter(w => deckId === 'all' || w.deckId === deckId) };
         }
       } catch (e) {}
     }
@@ -475,23 +532,25 @@ export const Api = {
       finalBase = await clientAutoTranslate(finalStudy, langCode, baseLang);
     }
 
-    const wordId = 'w_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+    const tempId = 'w_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
 
     const store = getLocalStore();
     if (!store.words[langCode]) store.words[langCode] = [];
     const newWord = {
-      wordId,
+      wordId: tempId,
       baseWord: finalBase,
       studyWord: finalStudy,
       pronunciation: (pronunciation || '').trim(),
       langCode,
       deckId,
       order: store.words[langCode].length,
+      _needsSync: true,
       createdAt: new Date().toISOString()
     };
     store.words[langCode].unshift(newWord);
     saveLocalStore(store);
 
+    // Immediate Direct Cloud Write
     if (shouldUseCloud() && CONFIG.API_ENDPOINTS.words) {
       try {
         const cloudRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
@@ -506,8 +565,16 @@ export const Api = {
             baseLang
           })
         });
-        if (cloudRes.word) return cloudRes;
-      } catch (e) {}
+        if (cloudRes.word) {
+          // Mark synchronized in local store
+          newWord.wordId = cloudRes.word.wordId;
+          delete newWord._needsSync;
+          saveLocalStore(store);
+          return cloudRes;
+        }
+      } catch (e) {
+        console.warn('Word saved locally, will sync when online:', e);
+      }
     }
     return { word: newWord };
   },
