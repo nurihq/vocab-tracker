@@ -1,30 +1,50 @@
 import { t } from '../i18n.js';
 import { Auth, Api } from '../api.js';
 import { CONFIG } from '../config.js';
-import { Modal } from '../components/modal.js';
 
 export function renderSignInScreen(container) {
+  const leafLogoSvg = `
+    <svg width="68" height="68" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: 0 auto 1.25rem;">
+      <g transform="translate(50, 48)">
+        <!-- Top central leaf -->
+        <path d="M0 -42 C8 -30 10 -15 0 0 C-10 -15 -8 -30 0 -42 Z" 
+              fill="#c8bcd9" fill-opacity="0.28" stroke="#a793c2" stroke-width="2.2" stroke-dasharray="4 3" stroke-linejoin="round"/>
+        <!-- Top Right leaf -->
+        <path d="M0 0 C12 -20 28 -28 38 -20 C38 -8 20 4 0 0 Z" 
+              fill="#c8bcd9" fill-opacity="0.28" stroke="#a793c2" stroke-width="2.2" stroke-dasharray="4 3" stroke-linejoin="round"/>
+        <!-- Bottom Right leaf -->
+        <path d="M0 0 C18 0 35 12 30 24 C18 28 6 12 0 0 Z" 
+              fill="#c8bcd9" fill-opacity="0.28" stroke="#a793c2" stroke-width="2.2" stroke-dasharray="4 3" stroke-linejoin="round"/>
+        <!-- Bottom Left leaf -->
+        <path d="M0 0 C-6 12 -18 28 -30 24 C-35 12 -18 0 0 0 Z" 
+              fill="#c8bcd9" fill-opacity="0.28" stroke="#a793c2" stroke-width="2.2" stroke-dasharray="4 3" stroke-linejoin="round"/>
+        <!-- Top Left leaf -->
+        <path d="M0 0 C-20 4 -38 -8 -38 -20 C-28 -28 -12 -20 0 0 Z" 
+              fill="#c8bcd9" fill-opacity="0.28" stroke="#a793c2" stroke-width="2.2" stroke-dasharray="4 3" stroke-linejoin="round"/>
+        <!-- Center point & stem -->
+        <circle cx="0" cy="0" r="2.5" fill="#a793c2"/>
+        <path d="M0 0 Q1 12 0 18" stroke="#a793c2" stroke-width="2" stroke-linecap="round"/>
+      </g>
+    </svg>
+  `;
+
   container.innerHTML = `
-    <div style="max-width: 460px; margin: 3rem auto; padding: 2.5rem 2rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); text-align: center;">
-      <div style="font-size: 3rem; margin-bottom: 1rem;">🗂️</div>
-      <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.02em;">${t('signInTitle')}</h2>
-      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.5;">${t('signInSubtitle')}</p>
+    <div style="max-width: 440px; margin: 3.5rem auto; padding: 2.75rem 2rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); text-align: center;">
+      ${leafLogoSvg}
+      <h2 style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.01em; color: var(--text-primary);">Monogenesis</h2>
+      <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 2rem; line-height: 1.55;">${t('signInSubtitle')}</p>
 
       <!-- Google Identity Services Container -->
       <div id="g_id_signin_container" style="display: flex; justify-content: center; margin-bottom: 1.5rem; min-height: 44px;"></div>
 
-      <div style="display: flex; align-items: center; gap: 0.75rem; margin: 1.5rem 0; color: var(--text-muted); font-size: 0.85rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin: 1.5rem 0; color: var(--text-muted); font-size: 0.82rem;">
         <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
         <span>or</span>
         <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
       </div>
 
-      <button class="btn btn-secondary" id="demo-signin-btn" style="width: 100%; margin-bottom: 1.25rem;">
+      <button class="btn btn-secondary" id="demo-signin-btn" style="width: 100%;">
         <span>🚀 Instant Demo / Guest Mode</span>
-      </button>
-
-      <button class="btn btn-ghost btn-sm" id="oauth-instructions-btn" style="color: var(--primary); font-size: 0.85rem;">
-        ℹ️ How to configure Google OAuth credentials
       </button>
     </div>
   `;
@@ -38,7 +58,6 @@ export function renderSignInScreen(container) {
           callback: async (response) => {
             if (response && response.credential) {
               Auth.setToken(response.credential);
-              // Decode basic payload for display
               try {
                 const base64Url = response.credential.split('.')[1];
                 const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -52,7 +71,6 @@ export function renderSignInScreen(container) {
                 });
               } catch (e) {}
 
-              // Upsert profile in cloud
               await Api.getProfile().catch(() => {});
               window.location.hash = '#/languages';
             }
@@ -76,7 +94,6 @@ export function renderSignInScreen(container) {
   }
 
   initGoogleSignIn();
-  // Retry once in case script was still loading
   setTimeout(initGoogleSignIn, 500);
 
   // Demo Sign-in
@@ -84,36 +101,8 @@ export function renderSignInScreen(container) {
     Auth.setUser({
       sub: 'demo-user-123',
       name: 'Polyglot Learner',
-      email: 'demo@vocabtracker.app'
+      email: 'demo@monogenesis.org'
     });
     window.location.hash = '#/languages';
-  });
-
-  // OAuth Instructions Modal
-  container.querySelector('#oauth-instructions-btn').addEventListener('click', () => {
-    Modal.open({
-      title: 'Google OAuth App Setup Steps',
-      contentHtml: `
-        <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
-          <p style="margin-bottom: 0.75rem;">Follow these manual steps in Google Cloud Console to set up your own OAuth client:</p>
-          <ol style="padding-left: 1.25rem; margin-bottom: 1rem;">
-            <li>Visit <strong>Google Cloud Console → APIs & Credentials</strong>.</li>
-            <li>Select your project and click <strong>Create Credentials → OAuth client ID</strong>.</li>
-            <li>Select application type: <strong>Web application</strong>.</li>
-            <li>Set Name: <strong>Vocab Tracker</strong>.</li>
-            <li>Add to <strong>Authorized JavaScript origins</strong>:
-              <ul style="padding-left: 1.25rem; margin: 0.25rem 0;">
-                <li><code>https://nurihq.github.io</code></li>
-                <li><code>http://localhost:8080</code> (for local testing)</li>
-                <li>Your custom domain (e.g. <code>https://vocab.nuri.software</code>)</li>
-              </ul>
-            </li>
-            <li>Copy your generated <strong>Client ID</strong> and paste it into <code>config.js</code> under <code>GOOGLE_CLIENT_ID</code>.</li>
-          </ol>
-        </div>
-      `,
-      confirmText: 'Got It',
-      confirmClass: 'btn-primary'
-    });
   });
 }
