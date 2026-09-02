@@ -1,10 +1,11 @@
 import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
-import { Api } from '../api.js';
+import { Api, getLocalStore } from '../api.js';
 import { Modal } from '../components/modal.js';
 import { trackEvent } from '../analytics.js';
+import { navigate } from '../app.js';
 
-export async function renderDeckWordsScreen(container, params = {}) {
+export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
   const deckId = params.deckId || 'practicing';
   const langInfo = getLanguageByCode(langCode);
@@ -12,11 +13,22 @@ export async function renderDeckWordsScreen(container, params = {}) {
   const localizedStudyLangName = getLocalizedLanguageName(langCode, currentBase);
   const localizedBaseLangName = getLocalizedLanguageName(currentBase, currentBase);
 
-  let words = [];
-  let allDecks = [];
   let currentSort = 'newest';
 
-  async function loadData() {
+  // Instant optimistic render from local store
+  const store = getLocalStore();
+  let words = (store.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
+  let allDecks = store.decks[langCode] || [
+    { deckId: 'practicing', name: 'Practicing', langCode, isDefault: true },
+    { deckId: 'mastered', name: 'Mastered', langCode, isDefault: true },
+    { deckId: 'all', name: 'All', langCode, isDefault: true }
+  ];
+
+  // Render immediately on frame 0 (0ms latency!)
+  render();
+
+  // Background async refresh from DynamoDB
+  async function refreshBackground() {
     try {
       const [wordsRes, decksRes] = await Promise.all([
         Api.getWords(langCode, deckId, currentSort),
@@ -39,9 +51,10 @@ export async function renderDeckWordsScreen(container, params = {}) {
 
       render();
     } catch (err) {
-      console.error('Failed to load words:', err);
+      console.warn('Background words refresh:', err);
     }
   }
+  refreshBackground();
 
   function getDeckDisplayName(dId) {
     if (dId === 'practicing') return t('practicing');
@@ -66,7 +79,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
         </div>
         <div class="screen-actions">
           ${words.length > 0 ? `
-            <a href="#/languages/${langCode}/decks/${deckId}/study" class="btn btn-primary" id="study-deck-btn" data-i18n="studyDeck">
+            <a href="/languages/${langCode}/decks/${deckId}/study" class="btn btn-primary" id="study-deck-btn" data-i18n="studyDeck">
               ${t('studyDeck')}
             </a>
           ` : ''}
@@ -147,8 +160,10 @@ export async function renderDeckWordsScreen(container, params = {}) {
 
     const studyDeckBtn = container.querySelector('#study-deck-btn');
     if (studyDeckBtn) {
-      studyDeckBtn.addEventListener('click', () => {
+      studyDeckBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         trackEvent('study_deck_click', { langCode, deckId, wordCount: words.length });
+        navigate(`/languages/${langCode}/decks/${deckId}/study`);
       });
     }
 
@@ -157,7 +172,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
       sortDropdown.addEventListener('change', async (e) => {
         currentSort = e.target.value;
         trackEvent('sort_words', { langCode, deckId, sort: currentSort });
-        await loadData();
+        refreshBackground();
       });
     }
 
@@ -170,7 +185,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
         try {
           await Api.moveWord(langCode, wordId, deckId, toDeckId);
           trackEvent('move_word', { langCode, fromDeckId: deckId, toDeckId });
-          await loadData();
+          refreshBackground();
         } catch (err) {
           console.error('Failed to move word:', err);
         }
@@ -196,7 +211,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
         try {
           await Api.deleteWord(langCode, targetDeck, wordId);
           trackEvent('delete_word', { langCode, deckId: targetDeck, wordId });
-          await loadData();
+          refreshBackground();
         } catch (err) {
           console.error('Failed to delete word:', err);
         }
@@ -336,7 +351,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
         try {
           await Api.addWord(langCode, targetDestinationDeck, baseWord, studyWord, pronunciation);
           trackEvent('add_word', { langCode, deckId: targetDestinationDeck, hasPronunciation: !!pronunciation });
-          await loadData();
+          refreshBackground();
           return true;
         } catch (err) {
           console.error(err);
@@ -389,7 +404,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
         try {
           await Api.updateWord(langCode, targetDestinationDeck, word.wordId, baseWord, studyWord, pronunciation);
           trackEvent('edit_word', { langCode, wordId: word.wordId, hasPronunciation: !!pronunciation });
-          await loadData();
+          refreshBackground();
           return true;
         } catch (err) {
           console.error(err);
@@ -401,6 +416,4 @@ export async function renderDeckWordsScreen(container, params = {}) {
     const input = overlay.querySelector('#edit-base-word-input');
     setTimeout(() => input && input.focus(), 50);
   }
-
-  await loadData();
 }

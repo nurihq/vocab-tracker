@@ -1,27 +1,52 @@
 import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
-import { Api } from '../api.js';
+import { Api, getLocalStore } from '../api.js';
 import { Modal } from '../components/modal.js';
 import { trackEvent } from '../analytics.js';
+import { navigate } from '../app.js';
 
-export async function renderDecksScreen(container, params = {}) {
+export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
   const langInfo = getLanguageByCode(langCode);
   const currentBase = getI18nBaseLang();
   const localizedLangName = getLocalizedLanguageName(langCode, currentBase);
 
   let showHidden = false;
-  let decks = [];
 
-  async function loadData() {
+  // Instant optimistic render from local cache
+  const store = getLocalStore();
+  let decks = store.decks[langCode] || [
+    { deckId: 'practicing', name: 'Practicing', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'mastered', name: 'Mastered', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'all', name: 'All', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+  ];
+
+  const words = store.words[langCode] || [];
+  const counts = {};
+  for (const w of words) {
+    counts[w.deckId] = (counts[w.deckId] || 0) + 1;
+  }
+  decks = decks.map(d => ({
+    ...d,
+    wordCount: d.deckId === 'all' ? words.length : (counts[d.deckId] || 0)
+  }));
+
+  // Render immediately (0ms!)
+  render();
+
+  // Background async refresh from DynamoDB
+  async function refreshBackground() {
     try {
       const res = await Api.getDecks(langCode);
-      decks = res.decks || [];
-      render();
+      if (res.decks) {
+        decks = res.decks;
+        render();
+      }
     } catch (err) {
-      console.error('Failed to load decks:', err);
+      console.warn('Background deck refresh:', err);
     }
   }
+  refreshBackground();
 
   function getDeckDisplayName(deck) {
     if (deck.deckId === 'practicing') return t('practicing');
@@ -132,7 +157,7 @@ export async function renderDecksScreen(container, params = {}) {
       tile.addEventListener('click', () => {
         const deckId = tile.getAttribute('data-deck-id');
         trackEvent('select_deck', { langCode, deckId });
-        window.location.hash = `#/languages/${langCode}/decks/${deckId}`;
+        navigate(`/languages/${langCode}/decks/${deckId}`);
       });
     });
 
@@ -144,7 +169,7 @@ export async function renderDecksScreen(container, params = {}) {
         try {
           await Api.toggleHideDeck(langCode, deckId, !isCurrentlyHidden);
           trackEvent(isCurrentlyHidden ? 'unhide_deck' : 'hide_deck', { langCode, deckId });
-          await loadData();
+          refreshBackground();
         } catch (err) {
           console.error(err);
         }
@@ -163,7 +188,7 @@ export async function renderDecksScreen(container, params = {}) {
             try {
               await Api.deleteDeck(langCode, deckId);
               trackEvent('delete_deck', { langCode, deckId });
-              await loadData();
+              refreshBackground();
             } catch (err) {
               console.error('Failed to delete deck:', err);
             }
@@ -255,7 +280,7 @@ export async function renderDecksScreen(container, params = {}) {
         try {
           await Api.addDeck(langCode, name);
           trackEvent('add_deck', { langCode, name });
-          await loadData();
+          refreshBackground();
           return true;
         } catch (err) {
           console.error(err);
@@ -267,6 +292,4 @@ export async function renderDecksScreen(container, params = {}) {
     const input = overlay.querySelector('#new-deck-name-input');
     setTimeout(() => input && input.focus(), 50);
   }
-
-  await loadData();
 }

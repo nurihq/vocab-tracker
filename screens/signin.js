@@ -1,97 +1,87 @@
+import { CONFIG } from '../config.js';
 import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js';
 import { Auth, Api } from '../api.js';
-import { CONFIG } from '../config.js';
 import { trackEvent } from '../analytics.js';
+import { navigate } from '../app.js';
 
 export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();
-  const langCode = (currentBase || 'en').toLowerCase().split('-')[0];
-
-  const leafLogoSvg = `
-    <svg width="68" height="68" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: 0 auto 1.25rem;">
-      <g transform="translate(50, 48)">
-        <!-- Top central leaf -->
-        <path d="M0 -42 C8 -30 10 -15 0 0 C-10 -15 -8 -30 0 -42 Z" 
-              fill="#c8bcd9" fill-opacity="0.28" stroke="#a793c2" stroke-width="2.2" stroke-dasharray="4 3" stroke-linejoin="round"/>
-        <!-- Top Right leaf -->
-        <path d="M0 0 C12 -20 28 -28 38 -20 C38 -8 20 4 0 0 Z" 
-              fill="#c8bcd9" fill-opacity="0.28" stroke="#a793c2" stroke-width="2.2" stroke-dasharray="4 3" stroke-linejoin="round"/>
-        <!-- Bottom Right leaf -->
-        <path d="M0 0 C18 0 35 12 30 24 C18 28 6 12 0 0 Z" 
-              fill="#c8bcd9" fill-opacity="0.28" stroke="#a793c2" stroke-width="2.2" stroke-dasharray="4 3" stroke-linejoin="round"/>
-        <!-- Bottom Left leaf -->
-        <path d="M0 0 C-6 12 -18 28 -30 24 C-35 12 -18 0 0 0 Z" 
-              fill="#c8bcd9" fill-opacity="0.28" stroke="#a793c2" stroke-width="2.2" stroke-dasharray="4 3" stroke-linejoin="round"/>
-        <!-- Top Left leaf -->
-        <path d="M0 0 C-20 4 -38 -8 -38 -20 C-28 -28 -12 -20 0 0 Z" 
-              fill="#c8bcd9" fill-opacity="0.28" stroke="#a793c2" stroke-width="2.2" stroke-dasharray="4 3" stroke-linejoin="round"/>
-        <!-- Center point & stem -->
-        <circle cx="0" cy="0" r="2.5" fill="#a793c2"/>
-        <path d="M0 0 Q1 12 0 18" stroke="#a793c2" stroke-width="2" stroke-linecap="round"/>
-      </g>
-    </svg>
-  `;
 
   container.innerHTML = `
-    <div style="max-width: 440px; margin: 3.5rem auto; padding: 2.75rem 2rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); text-align: center;">
-      ${leafLogoSvg}
-      <h2 style="font-family: var(--font-serif); font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; color: var(--text-primary);">monogenesis</h2>
-      <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 2rem; line-height: 1.55;" data-i18n="signInSubtitle">${t('signInSubtitle')}</p>
+    <div class="signin-card">
+      <div class="signin-logo">✨</div>
+      <h2 class="signin-title" style="font-family: var(--font-display); font-size: 2.2rem; font-weight: 600; text-transform: lowercase; letter-spacing: -0.02em; margin-bottom: 0.5rem;">monogenesis</h2>
+      <p class="signin-subtitle" data-i18n="signInSubtitle">${t('signInSubtitle')}</p>
 
-      <!-- Google Identity Services Container -->
-      <div id="g_id_signin_container" style="display: flex; justify-content: center; min-height: 44px;"></div>
+      <div class="signin-btn-container">
+        <!-- Render Google One Tap / Button Container -->
+        <div id="google-signin-btn"></div>
+      </div>
+
+      <div class="signin-footer">
+        <p style="font-size: 0.8rem; color: var(--text-muted);">
+          Protected with Google Identity Services & AWS DynamoDB.
+        </p>
+      </div>
     </div>
   `;
 
   autoTranslateUi(container);
 
-  // Initialize Google Identity Services with active Base Language
-  function initGoogleSignIn() {
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-      try {
-        window.google.accounts.id.initialize({
-          client_id: CONFIG.GOOGLE_CLIENT_ID,
-          callback: async (response) => {
-            if (response && response.credential) {
-              Auth.setToken(response.credential);
-              try {
-                const base64Url = response.credential.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-                const decoded = JSON.parse(jsonPayload);
-                Auth.setUser({
-                  sub: decoded.sub,
-                  name: decoded.name,
-                  email: decoded.email,
-                  picture: decoded.picture
-                });
-              } catch (e) {}
+  // Initialize Google Sign-In button
+  function initGoogleBtn() {
+    if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+      google.accounts.id.initialize({
+        client_id: CONFIG.GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
 
-              trackEvent('sign_in', { method: 'google' });
-              await Api.getProfile().catch(() => {});
-              window.location.hash = '#/languages';
-            }
-          }
+      const btnContainer = document.getElementById('google-signin-btn');
+      if (btnContainer) {
+        google.accounts.id.renderButton(btnContainer, {
+          theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'filled_black' : 'outline',
+          size: 'large',
+          shape: 'pill',
+          text: 'signin_with',
+          logo_alignment: 'left',
+          width: 280,
+          locale: currentBase || 'en'
         });
+      }
+    } else {
+      setTimeout(initGoogleBtn, 100);
+    }
+  }
 
-        const target = container.querySelector('#g_id_signin_container');
-        if (target) {
-          target.innerHTML = '';
-          window.google.accounts.id.renderButton(target, {
-            theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'filled_black' : 'outline',
-            size: 'large',
-            shape: 'pill',
-            text: 'signin_with',
-            locale: langCode,
-            width: 280
-          });
-        }
+  async function handleCredentialResponse(response) {
+    if (response && response.credential) {
+      const idToken = response.credential;
+      Auth.setToken(idToken);
+
+      try {
+        const payload = JSON.parse(atob(idToken.split('.')[1]));
+        const userObj = {
+          sub: payload.sub,
+          name: payload.name,
+          email: payload.email,
+          picture: payload.picture
+        };
+        Auth.setUser(userObj);
+        trackEvent('sign_in', { method: 'google', sub: payload.sub });
+
+        // Trigger two-way sync
+        Api.syncLocalToCloud().catch(() => {});
+
+        // Clean redirect to languages
+        navigate('/languages');
       } catch (err) {
-        console.warn('Google Identity initialization notice:', err);
+        console.error('Failed to parse JWT payload:', err);
+        navigate('/languages');
       }
     }
   }
 
-  initGoogleSignIn();
-  setTimeout(initGoogleSignIn, 400);
+  initGoogleBtn();
 }

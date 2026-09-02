@@ -2,6 +2,7 @@ import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i1
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Auth } from '../api.js';
 import { trackEvent } from '../analytics.js';
+import { navigate } from '../app.js';
 
 export function renderHomeScreen(container) {
   const currentBase = getI18nBaseLang();
@@ -104,9 +105,9 @@ export function renderHomeScreen(container) {
     startBtn.addEventListener('click', () => {
       trackEvent('home_start_click', { authenticated: Auth.isAuthenticated() });
       if (Auth.isAuthenticated()) {
-        window.location.hash = '#/languages';
+        navigate('/languages');
       } else {
-        window.location.hash = '#/signin';
+        navigate('/signin');
       }
     });
   }

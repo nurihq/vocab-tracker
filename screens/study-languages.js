@@ -1,36 +1,45 @@
 import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js';
 import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
-import { Api } from '../api.js';
+import { Api, getLocalStore } from '../api.js';
 import { Modal } from '../components/modal.js';
 import { trackEvent } from '../analytics.js';
+import { navigate } from '../app.js';
 
-export async function renderStudyLanguagesScreen(container) {
+export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
-  let languages = [];
-  let vocabCounts = {};
   const currentBase = getI18nBaseLang();
 
-  async function loadData() {
+  // Instant optimistic load from local storage
+  const store = getLocalStore();
+  let languages = store.languages || [];
+  let vocabCounts = {};
+  for (const l of languages) {
+    vocabCounts[l.code] = (store.words[l.code] || []).length;
+  }
+
+  // Render on frame 0 (0ms latency!)
+  render();
+
+  // Background async refresh from DynamoDB
+  async function refreshBackground() {
     try {
       const res = await Api.getLanguages();
       languages = res.languages || [];
-
-      // Fetch word counts for each language
       const countPromises = languages.map(async (l) => {
         try {
           const wordsRes = await Api.getWords(l.code, 'all');
           vocabCounts[l.code] = (wordsRes.words || []).length;
         } catch (e) {
-          vocabCounts[l.code] = 0;
+          vocabCounts[l.code] = (store.words[l.code] || []).length;
         }
       });
       await Promise.all(countPromises);
-
       render();
     } catch (err) {
-      console.error('Failed to load languages:', err);
+      console.warn('Background language refresh:', err);
     }
   }
+  refreshBackground();
 
   function render() {
     const visibleLanguages = showHidden ? languages : languages.filter(l => !l.hidden);
@@ -122,7 +131,7 @@ export async function renderStudyLanguagesScreen(container) {
       tile.addEventListener('click', () => {
         const code = tile.getAttribute('data-code');
         trackEvent('select_study_language', { langCode: code });
-        window.location.hash = `#/languages/${code}/decks`;
+        navigate(`/languages/${code}/decks`);
       });
     });
 
@@ -134,7 +143,7 @@ export async function renderStudyLanguagesScreen(container) {
         try {
           await Api.toggleHideLanguage(code, !isCurrentlyHidden);
           trackEvent(isCurrentlyHidden ? 'unhide_language' : 'hide_language', { langCode: code });
-          await loadData();
+          refreshBackground();
         } catch (err) {
           console.error(err);
         }
@@ -277,7 +286,7 @@ export async function renderStudyLanguagesScreen(container) {
           try {
             await Api.addLanguage({ code, name, flag });
             trackEvent('add_language', { langCode: code, langName: name });
-            await loadData();
+            refreshBackground();
           } catch (err) {
             console.error('Failed to add language:', err);
           }
@@ -287,6 +296,4 @@ export async function renderStudyLanguagesScreen(container) {
 
     bindSelection();
   }
-
-  await loadData();
 }
