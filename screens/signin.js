@@ -1,9 +1,12 @@
-import { t } from '../i18n.js';
+import { t, getI18nBaseLang } from '../i18n.js';
 import { Auth, Api } from '../api.js';
 import { CONFIG } from '../config.js';
 import { trackEvent } from '../analytics.js';
 
 export function renderSignInScreen(container) {
+  const currentBase = getI18nBaseLang();
+  const langCode = (currentBase || 'en').toLowerCase().split('-')[0];
+
   const leafLogoSvg = `
     <svg width="68" height="68" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: 0 auto 1.25rem;">
       <g transform="translate(50, 48)">
@@ -40,7 +43,7 @@ export function renderSignInScreen(container) {
     </div>
   `;
 
-  // Initialize Google Identity Services
+  // Initialize Google Identity Services with active Base Language
   function initGoogleSignIn() {
     if (window.google && window.google.accounts && window.google.accounts.id) {
       try {
@@ -71,11 +74,13 @@ export function renderSignInScreen(container) {
 
         const target = container.querySelector('#g_id_signin_container');
         if (target) {
+          target.innerHTML = '';
           window.google.accounts.id.renderButton(target, {
             theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'filled_black' : 'outline',
             size: 'large',
             shape: 'pill',
             text: 'signin_with',
+            locale: langCode, // Localize Google button to user's selected base language
             width: 280
           });
         }
@@ -86,5 +91,5 @@ export function renderSignInScreen(container) {
   }
 
   initGoogleSignIn();
-  setTimeout(initGoogleSignIn, 500);
+  setTimeout(initGoogleSignIn, 400);
 }
