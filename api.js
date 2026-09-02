@@ -208,11 +208,18 @@ export const Api = {
       try {
         const cloudRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
         if (cloudRes.languages && cloudRes.languages.length > 0) {
+          // Update local store with cloud data
+          const store = getLocalStore();
+          store.languages = cloudRes.languages;
+          saveLocalStore(store);
           return cloudRes;
         }
         await syncLocalToCloud();
         const retryRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
         if (retryRes.languages && retryRes.languages.length > 0) {
+          const store = getLocalStore();
+          store.languages = retryRes.languages;
+          saveLocalStore(store);
           return retryRes;
         }
       } catch (e) {}
@@ -298,7 +305,12 @@ export const Api = {
     if (shouldUseCloud() && CONFIG.API_ENDPOINTS.decks) {
       try {
         const res = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}`, { method: 'GET' });
-        if (res.decks && res.decks.length > 0) return res;
+        if (res.decks && res.decks.length > 0) {
+          const store = getLocalStore();
+          store.decks[langCode] = res.decks;
+          saveLocalStore(store);
+          return res;
+        }
       } catch (e) {}
     }
     const store = getLocalStore();
@@ -418,7 +430,7 @@ export const Api = {
         const res = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(langCode)}&deckId=${encodeURIComponent(deckId)}&sort=${encodeURIComponent(sort)}`, {
           method: 'GET'
         });
-        if (res.words && res.words.length > 0) return res;
+        if (res.words) return res;
       } catch (e) {}
     }
     const store = getLocalStore();
