@@ -4,7 +4,7 @@ export const STATIC_TRANSLATIONS = {
   en: {
     appTitle: 'monogenesis',
     tagline: 'Track and improve your vocabulary in multiple languages',
-    subtitle: 'Customizable vocabulary decks and flash cards in all languages.',
+    subtitle: 'Customizable vocabulary decks and flash cards in any and every language at your pace.',
     startLearning: 'Start Learning',
     signInWithGoogle: 'Sign in with Google',
     signInTitle: 'Sign In',
@@ -76,7 +76,7 @@ export const STATIC_TRANSLATIONS = {
   pa: {
     appTitle: 'monogenesis',
     tagline: 'ਕਈ ਭਾਸ਼ਾਵਾਂ ਵਿੱਚ ਆਪਣੀ ਸ਼ਬਦਾਵਲੀ ਨੂੰ ਟ੍ਰੈਕ ਕਰੋ ਅਤੇ ਸੁਧਾਰੋ',
-    subtitle: 'ਸਾਰੀਆਂ ਭਾਸ਼ਾਵਾਂ ਵਿੱਚ ਅਨੁਕੂਲਿਤ ਸ਼ਬਦਾਵਲੀ ਡੇਕ ਅਤੇ ਫਲੈਸ਼ ਕਾਰਡ।',
+    subtitle: 'ਤੁਹਾਡੀ ਆਪਣੀ ਰਫ਼ਤਾਰ ਨਾਲ ਕਿਸੇ ਵੀ ਅਤੇ ਹਰ ਭਾਸ਼ਾ ਵਿੱਚ ਅਨੁਕੂਲਿਤ ਸ਼ਬਦਾਵਲੀ ਡੇਕ ਅਤੇ ਫਲੈਸ਼ ਕਾਰਡ।',
     startLearning: 'ਸਿੱਖਣਾ ਸ਼ੁਰੂ ਕਰੋ',
     signInWithGoogle: 'Google ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ',
     signInTitle: 'ਸਾਈਨ ਇਨ',
