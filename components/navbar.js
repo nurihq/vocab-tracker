@@ -1,5 +1,5 @@
 import { LANGUAGES } from '../languages.js';
-import { t, setI18nBaseLang, getI18nBaseLang } from '../i18n.js';
+import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js';
 import { Auth, Api } from '../api.js';
 import { trackEvent } from '../analytics.js';
 
@@ -88,13 +88,15 @@ export class Navbar {
           </button>
 
           ${isAuthed ? `
-            <button class="btn-signout" id="nav-signout-btn">
+            <button class="btn-signout" id="nav-signout-btn" data-i18n="signOut">
               ${t('signOut')}
             </button>
           ` : ''}
         </div>
       </header>
     `;
+
+    autoTranslateUi(container);
 
     // Bind event listeners
     const backBtn = container.querySelector('#nav-back-btn');

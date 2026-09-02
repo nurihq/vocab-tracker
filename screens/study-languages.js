@@ -1,4 +1,4 @@
-import { t, getI18nBaseLang } from '../i18n.js';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js';
 import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api } from '../api.js';
 import { Modal } from '../components/modal.js';
@@ -40,7 +40,7 @@ export async function renderStudyLanguagesScreen(container) {
       <div class="screen-header">
         <div class="screen-title-group">
           <h2 class="screen-title">
-            <span>${t('studyLanguages')}</span>
+            <span data-i18n="studyLanguages">${t('studyLanguages')}</span>
           </h2>
         </div>
         <div class="screen-actions">
@@ -50,7 +50,7 @@ export async function renderStudyLanguagesScreen(container) {
             </button>
           ` : ''}
           <button class="btn btn-primary" id="add-lang-btn">
-            + ${t('addLanguage')}
+            + <span data-i18n="addLanguage">${t('addLanguage')}</span>
           </button>
         </div>
       </div>
@@ -90,16 +90,18 @@ export async function renderStudyLanguagesScreen(container) {
 
         <div class="tile-add" id="tile-add-card">
           <span class="tile-add-icon">+</span>
-          <span class="tile-add-text">${t('addLanguage')}</span>
+          <span class="tile-add-text" data-i18n="addLanguage">${t('addLanguage')}</span>
         </div>
       </div>
 
       ${languages.length === 0 ? `
         <div class="empty-state">
-          <p>${t('noLanguagesYet')}</p>
+          <p data-i18n="noLanguagesYet">${t('noLanguagesYet')}</p>
         </div>
       ` : ''}
     `;
+
+    autoTranslateUi(container);
 
     // Event Bindings
     const addBtn = container.querySelector('#add-lang-btn');
