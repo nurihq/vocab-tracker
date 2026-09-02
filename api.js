@@ -219,14 +219,12 @@ export async function syncLocalToCloud() {
       // Check cloud words
       const cloudWordsRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(l.code)}&deckId=all`, { method: 'GET' }).catch(() => ({ words: [] }));
       const cloudWords = cloudWordsRes.words || [];
-      const cloudWordKeys = new Set(cloudWords.map(w => `${w.deckId || 'practicing'}:${(w.studyWord || '').toLowerCase().trim()}`));
 
       const localWords = store.words[l.code] || [];
       
-      // Upload any local word not found in cloud
+      // Upload ONLY brand new un-synced local words that have temporary IDs
       for (const lw of localWords) {
-        const key = `${lw.deckId || 'practicing'}:${(lw.studyWord || '').toLowerCase().trim()}`;
-        if (lw.studyWord && (!cloudWordKeys.has(key) || lw._needsSync)) {
+        if (lw._needsSync && lw.wordId && lw.wordId.startsWith('w_') && lw.studyWord) {
           const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
             method: 'POST',
             body: JSON.stringify({
@@ -246,8 +244,9 @@ export async function syncLocalToCloud() {
         }
       }
 
-      // Merge cloud words into local store and strictly deduplicate
-      store.words[l.code] = deduplicateWords([...cloudWords, ...localWords]);
+      // Cloud words are the single source of truth for all persisted words
+      const unsyncedTemporary = localWords.filter(lw => lw._needsSync && lw.wordId && lw.wordId.startsWith('w_'));
+      store.words[l.code] = deduplicateWords([...cloudWords, ...unsyncedTemporary]);
     }
 
     saveLocalStore(store);
