@@ -24,12 +24,41 @@ async function clientAutoTranslate(text, fromLang, toLang) {
   return text;
 }
 
+// Strict word deduplicator: preserves true cloud IDs over temporary IDs
+export function deduplicateWords(words = []) {
+  const seen = new Map();
+  for (const w of words) {
+    if (!w || !w.studyWord) continue;
+    const key = `${w.deckId || 'practicing'}:${w.studyWord.toLowerCase().trim()}`;
+    if (!seen.has(key)) {
+      seen.set(key, w);
+    } else {
+      const existing = seen.get(key);
+      // If existing was temporary and new one has cloud ID, or newer timestamp
+      if (existing.wordId?.startsWith('w_') && !w.wordId?.startsWith('w_')) {
+        seen.set(key, w);
+      } else if (new Date(w.updatedAt || w.createdAt || 0) > new Date(existing.updatedAt || existing.createdAt || 0)) {
+        seen.set(key, w);
+      }
+    }
+  }
+  return Array.from(seen.values());
+}
+
 export function getLocalStore() {
   const raw = localStorage.getItem(LOCAL_DATA_KEY);
   if (raw) {
     try { 
       const parsed = JSON.parse(raw);
-      if (parsed && Array.isArray(parsed.languages)) return parsed;
+      if (parsed && Array.isArray(parsed.languages)) {
+        // Auto-deduplicate words in all languages
+        if (parsed.words) {
+          for (const code of Object.keys(parsed.words)) {
+            parsed.words[code] = deduplicateWords(parsed.words[code]);
+          }
+        }
+        return parsed;
+      }
     } catch (e) {}
   }
   const defaultStore = {
@@ -70,6 +99,11 @@ export function getLocalStore() {
 }
 
 export function saveLocalStore(store) {
+  if (store && store.words) {
+    for (const code of Object.keys(store.words)) {
+      store.words[code] = deduplicateWords(store.words[code]);
+    }
+  }
   localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify(store));
 }
 
@@ -132,7 +166,7 @@ async function fetchWithAuth(url, options = {}) {
 
 let isSyncing = false;
 
-// Robust Continuous Two-Way Sync Engine: Guarantees zero word loss
+// Robust Continuous Two-Way Sync Engine: Deduplicates and prevents any word loss
 export async function syncLocalToCloud() {
   if (!shouldUseCloud() || isSyncing) return;
   isSyncing = true;
@@ -185,13 +219,13 @@ export async function syncLocalToCloud() {
       // Check cloud words
       const cloudWordsRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(l.code)}&deckId=all`, { method: 'GET' }).catch(() => ({ words: [] }));
       const cloudWords = cloudWordsRes.words || [];
-      const cloudWordKeys = new Set(cloudWords.map(w => `${w.deckId}:${(w.studyWord || '').toLowerCase().trim()}`));
+      const cloudWordKeys = new Set(cloudWords.map(w => `${w.deckId || 'practicing'}:${(w.studyWord || '').toLowerCase().trim()}`));
 
       const localWords = store.words[l.code] || [];
       
       // Upload any local word not found in cloud
       for (const lw of localWords) {
-        const key = `${lw.deckId}:${(lw.studyWord || '').toLowerCase().trim()}`;
+        const key = `${lw.deckId || 'practicing'}:${(lw.studyWord || '').toLowerCase().trim()}`;
         if (lw.studyWord && (!cloudWordKeys.has(key) || lw._needsSync)) {
           const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
             method: 'POST',
@@ -212,15 +246,8 @@ export async function syncLocalToCloud() {
         }
       }
 
-      // Merge cloud words into local store so local store is complete
-      const existingLocalKeys = new Set(localWords.map(w => `${w.deckId}:${(w.studyWord || '').toLowerCase().trim()}`));
-      for (const cw of cloudWords) {
-        const key = `${cw.deckId}:${(cw.studyWord || '').toLowerCase().trim()}`;
-        if (!existingLocalKeys.has(key)) {
-          localWords.push(cw);
-        }
-      }
-      store.words[l.code] = localWords;
+      // Merge cloud words into local store and strictly deduplicate
+      store.words[l.code] = deduplicateWords([...cloudWords, ...localWords]);
     }
 
     saveLocalStore(store);
@@ -271,7 +298,6 @@ export const Api = {
         const cloudRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
         if (cloudRes.languages) {
           const store = getLocalStore();
-          // Merge languages safely
           const cloudCodes = new Set(cloudRes.languages.map(l => l.code));
           const unsyncedLocal = store.languages.filter(l => !cloudCodes.has(l.code));
           store.languages = [...cloudRes.languages, ...unsyncedLocal];
@@ -492,22 +518,28 @@ export const Api = {
         });
         if (res.words) {
           const store = getLocalStore();
-          // Merge cloud words with any unsynced local words
-          const cloudIds = new Set(res.words.map(w => w.wordId));
+          const cloudWords = res.words;
           const localList = store.words[langCode] || [];
-          const unsynced = localList.filter(w => w._needsSync || !cloudIds.has(w.wordId));
-          store.words[langCode] = [...res.words, ...unsynced];
+          
+          // Deduplicate and merge cloud words with true IDs
+          store.words[langCode] = deduplicateWords([...cloudWords, ...localList]);
           saveLocalStore(store);
           
-          if (unsynced.length > 0) {
-            syncLocalToCloud();
+          let filtered = store.words[langCode].filter(w => deckId === 'all' || w.deckId === deckId);
+          if (sort === 'alpha') {
+            filtered.sort((a, b) => (a.studyWord || '').localeCompare(b.studyWord || ''));
+          } else if (sort === 'custom') {
+            filtered.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+          } else {
+            filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
           }
-          return { words: store.words[langCode].filter(w => deckId === 'all' || w.deckId === deckId) };
+          return { words: filtered };
         }
       } catch (e) {}
     }
     const store = getLocalStore();
     let words = (store.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
+    words = deduplicateWords(words);
 
     if (sort === 'alpha') {
       words.sort((a, b) => (a.studyWord || '').localeCompare(b.studyWord || ''));
@@ -548,6 +580,7 @@ export const Api = {
       createdAt: new Date().toISOString()
     };
     store.words[langCode].unshift(newWord);
+    store.words[langCode] = deduplicateWords(store.words[langCode]);
     saveLocalStore(store);
 
     // Immediate Direct Cloud Write
@@ -566,9 +599,9 @@ export const Api = {
           })
         });
         if (cloudRes.word) {
-          // Mark synchronized in local store
           newWord.wordId = cloudRes.word.wordId;
           delete newWord._needsSync;
+          store.words[langCode] = deduplicateWords(store.words[langCode]);
           saveLocalStore(store);
           return cloudRes;
         }
@@ -600,6 +633,7 @@ export const Api = {
       target.pronunciation = finalPron;
       target.updatedAt = new Date().toISOString();
       target._needsSync = true;
+      store.words[langCode] = deduplicateWords(words);
       saveLocalStore(store);
     }
 
@@ -637,6 +671,7 @@ export const Api = {
     if (target) {
       target.deckId = toDeckId;
       target.updatedAt = new Date().toISOString();
+      store.words[langCode] = deduplicateWords(words);
       saveLocalStore(store);
     }
 
