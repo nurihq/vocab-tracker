@@ -98,7 +98,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
                    ${currentSort === 'custom' ? 'draggable="true"' : ''}
                    data-word-id="${w.wordId}" 
                    data-index="${index}">
-                <div class="word-content">
+                <div class="word-content edit-word-trigger" data-word-id="${w.wordId}" title="${t('editWord')} (Click to edit)">
                   <div class="word-study-row">
                     <span class="word-study">${w.studyWord}</span>
                     ${w.pronunciation ? `<span class="word-pronunciation">${w.pronunciation}</span>` : ''}
@@ -113,6 +113,12 @@ export async function renderDeckWordsScreen(container, params = {}) {
                       <option value="${d.deckId}">${getDeckDisplayName(d.deckId)}</option>
                     `).join('')}
                   </select>
+
+                  <button class="tile-action-btn edit-word-btn" 
+                          data-word-id="${w.wordId}"
+                          title="${t('editWord')}">
+                    ✏️
+                  </button>
 
                   <button class="tile-action-btn delete-hover delete-word-btn" 
                           data-word-id="${w.wordId}" 
@@ -167,6 +173,18 @@ export async function renderDeckWordsScreen(container, params = {}) {
           await loadData();
         } catch (err) {
           console.error('Failed to move word:', err);
+        }
+      });
+    });
+
+    // Edit Word Handlers
+    container.querySelectorAll('.edit-word-btn, .edit-word-trigger').forEach(trigger => {
+      trigger.addEventListener('click', (e) => {
+        if (e.target.closest('.word-actions') && !e.target.closest('.edit-word-btn')) return;
+        const wordId = trigger.getAttribute('data-word-id');
+        const wordObj = words.find(w => w.wordId === wordId);
+        if (wordObj) {
+          openEditWordModal(wordObj);
         }
       });
     });
@@ -328,6 +346,59 @@ export async function renderDeckWordsScreen(container, params = {}) {
     });
 
     const input = overlay.querySelector('#new-base-word-input');
+    setTimeout(() => input && input.focus(), 50);
+  }
+
+  function openEditWordModal(word) {
+    const baseExample = getBaseExample();
+    const studyExample = getStudyExample();
+    const targetDestinationDeck = word.deckId || (deckId.toLowerCase() === 'all' ? 'practicing' : deckId);
+
+    const contentHtml = `
+      <div class="form-group">
+        <label class="form-label">${t('wordInBase', { lang: localizedBaseLangName })}</label>
+        <input type="text" class="form-input" id="edit-base-word-input" value="${(word.baseWord || '').replace(/"/g, '&quot;')}" placeholder="${baseExample}" autofocus />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">${localizedStudyLangName} Translation</label>
+        <textarea class="form-input" id="edit-study-word-input" rows="2" placeholder="${studyExample}">${word.studyWord || ''}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">${t('pronunciationNotes')}</label>
+        <textarea class="form-input" id="edit-pronunciation-input" rows="2" placeholder="e.g. Tone, phonetic hints, or context notes">${word.pronunciation || ''}</textarea>
+      </div>
+    `;
+
+    const overlay = Modal.open({
+      title: t('editWord'),
+      contentHtml,
+      confirmText: t('save'),
+      onConfirm: async (modalEl) => {
+        const baseInput = modalEl.querySelector('#edit-base-word-input');
+        const studyInput = modalEl.querySelector('#edit-study-word-input');
+        const pronInput = modalEl.querySelector('#edit-pronunciation-input');
+
+        const baseWord = baseInput ? baseInput.value.trim() : '';
+        const studyWord = studyInput ? studyInput.value.trim() : '';
+        const pronunciation = pronInput ? pronInput.value.trim() : '';
+
+        if (!baseWord && !studyWord) return false;
+
+        try {
+          await Api.updateWord(langCode, targetDestinationDeck, word.wordId, baseWord, studyWord, pronunciation);
+          trackEvent('edit_word', { langCode, wordId: word.wordId, hasPronunciation: !!pronunciation });
+          await loadData();
+          return true;
+        } catch (err) {
+          console.error(err);
+          return false;
+        }
+      }
+    });
+
+    const input = overlay.querySelector('#edit-base-word-input');
     setTimeout(() => input && input.focus(), 50);
   }
 

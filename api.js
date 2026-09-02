@@ -579,6 +579,57 @@ export const Api = {
     return { word: newWord };
   },
 
+  async updateWord(langCode, deckId, wordId, baseWord, studyWord, pronunciation = '') {
+    const baseLang = getI18nBaseLang();
+    let finalBase = (baseWord || '').trim();
+    let finalStudy = (studyWord || '').trim();
+    let finalPron = (pronunciation || '').trim();
+
+    if (!finalStudy && finalBase) {
+      finalStudy = await clientAutoTranslate(finalBase, baseLang, langCode);
+    } else if (!finalBase && finalStudy) {
+      finalBase = await clientAutoTranslate(finalStudy, langCode, baseLang);
+    }
+
+    const store = getLocalStore();
+    const words = store.words[langCode] || [];
+    const target = words.find(w => w.wordId === wordId);
+    if (target) {
+      target.baseWord = finalBase;
+      target.studyWord = finalStudy;
+      target.pronunciation = finalPron;
+      target.updatedAt = new Date().toISOString();
+      target._needsSync = true;
+      saveLocalStore(store);
+    }
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.words) {
+      try {
+        const cloudRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'update',
+            wordId,
+            langCode,
+            deckId: target ? target.deckId : deckId,
+            baseWord: finalBase,
+            studyWord: finalStudy,
+            pronunciation: finalPron,
+            baseLang
+          })
+        });
+        if (cloudRes.word && target) {
+          delete target._needsSync;
+          saveLocalStore(store);
+          return cloudRes;
+        }
+      } catch (e) {
+        console.warn('Word updated locally, will sync when online:', e);
+      }
+    }
+    return { word: target };
+  },
+
   async moveWord(langCode, wordId, fromDeckId, toDeckId) {
     const store = getLocalStore();
     const words = store.words[langCode] || [];
