@@ -1030,3 +1030,14 @@ body {
     padding: 1.35rem 1.15rem;
   }
 }
+
+.screen-lang-tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-zen);
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.2rem;
+}

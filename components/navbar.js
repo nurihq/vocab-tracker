@@ -11,24 +11,62 @@ export class Navbar {
     document.documentElement.setAttribute('data-theme', this.theme);
   }
 
+  getNavBackInfo(route) {
+    const cleanRoute = (route || '').replace(/^#/, '');
+
+    const studyMatch = cleanRoute.match(/^\/languages\/([^/]+)\/decks\/([^/]+)\/study$/);
+    if (studyMatch) {
+      return {
+        label: t('deck'),
+        target: `#/languages/${studyMatch[1]}/decks/${studyMatch[2]}`
+      };
+    }
+
+    const deckWordsMatch = cleanRoute.match(/^\/languages\/([^/]+)\/decks\/([^/]+)$/);
+    if (deckWordsMatch) {
+      return {
+        label: t('decks'),
+        target: `#/languages/${deckWordsMatch[1]}/decks`
+      };
+    }
+
+    const decksMatch = cleanRoute.match(/^\/languages\/([^/]+)\/decks$/);
+    if (decksMatch) {
+      return {
+        label: t('languages'),
+        target: `#/languages`
+      };
+    }
+
+    if (cleanRoute === '/signin') {
+      return {
+        label: t('home'),
+        target: `#/\`
+      };
+    }
+
+    return null;
+  }
+
   render(container, currentRoute) {
-    const isHome = currentRoute === '' || currentRoute === '/' || currentRoute === '#/';
     const isAuthed = Auth.isAuthenticated();
     const currentBase = getI18nBaseLang();
+    const backInfo = this.getNavBackInfo(currentRoute);
 
     container.innerHTML = `
       <header class="navbar">
         <div class="nav-left">
-          ${!isHome ? `
-            <button class="nav-back-btn" id="nav-back-btn" title="${t('back')}">
-              ← <span>${t('back')}</span>
+          ${backInfo ? `
+            <button class="nav-back-btn" id="nav-back-btn" data-target="${backInfo.target}">
+              ← <span>${backInfo.label}</span>
             </button>
-          ` : ''}
-          <a href="#/" class="nav-brand">
-            <span class="nav-brand-logo">🗂️</span>
-            <span>${t('appTitle')}</span>
-          </a>
+          ` : `
+            <a href="#/" class="nav-brand" title="Home">
+              <span class="nav-brand-logo">🗂️</span>
+            </a>
+          `}
         </div>
+
         <div class="nav-right">
           <div class="base-lang-wrapper" title="${t('baseLanguage')}">
             <select class="base-lang-select" id="base-lang-select">
@@ -57,7 +95,12 @@ export class Navbar {
     const backBtn = container.querySelector('#nav-back-btn');
     if (backBtn) {
       backBtn.addEventListener('click', () => {
-        window.history.back();
+        const target = backBtn.getAttribute('data-target');
+        if (target) {
+          window.location.hash = target;
+        } else {
+          window.history.back();
+        }
       });
     }
 

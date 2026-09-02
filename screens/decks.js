@@ -43,11 +43,11 @@ export async function renderDecksScreen(container, params = {}) {
     container.innerHTML = `
       <div class="screen-header">
         <div class="screen-title-group">
-          <h2 class="screen-title">
+          <div class="screen-lang-tag">
             <span>${langInfo.flag}</span>
-            <span>${localizedLangName} — ${t('decks')}</span>
-          </h2>
-          <p class="screen-subtitle">${t('dragToReorder')}</p>
+            <span>${localizedLangName}</span>
+          </div>
+          <h2 class="screen-title">${t('decks')}</h2>
         </div>
         <div class="screen-actions">
           ${hasHidden ? `
@@ -56,7 +56,7 @@ export async function renderDecksScreen(container, params = {}) {
             </button>
           ` : ''}
           <button class="btn btn-primary" id="add-deck-btn">
-            <span>+</span> <span>${t('addDeck')}</span>
+            + ${t('addDeck')}
           </button>
         </div>
       </div>
@@ -96,7 +96,7 @@ export async function renderDecksScreen(container, params = {}) {
               </div>
               <div class="tile-bottom">
                 <div class="tile-title">${displayName}</div>
-                <div class="tile-subtitle">${isDefault ? t('practicing') === displayName ? t('practicing') : 'Default' : 'Custom'}</div>
+                <div class="tile-subtitle">${isDefault ? '' : 'Custom'}</div>
               </div>
               <div class="tile-drag-handle" title="Drag to reorder">⋮⋮</div>
             </div>

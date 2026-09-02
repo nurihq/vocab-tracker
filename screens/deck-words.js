@@ -57,10 +57,11 @@ export async function renderDeckWordsScreen(container, params = {}) {
     container.innerHTML = `
       <div class="screen-header">
         <div class="screen-title-group">
-          <h2 class="screen-title">
+          <div class="screen-lang-tag">
             <span>${langInfo.flag}</span>
-            <span>${localizedStudyLangName} — ${deckName}</span>
-          </h2>
+            <span>${localizedStudyLangName}</span>
+          </div>
+          <h2 class="screen-title">${deckName}</h2>
         </div>
         <div class="screen-actions">
           ${words.length > 0 ? `
