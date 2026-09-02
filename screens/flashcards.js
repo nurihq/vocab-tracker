@@ -14,10 +14,16 @@ export function renderFlashcardsScreen(container, params = {}) {
 
   const isStillMounted = () => window.location.hash.startsWith(`#/languages/${langCode}/decks/${deckId}/study`);
 
-  // Instant optimistic words from local store
+  // Instant optimistic words and decks from local store
   const store = getLocalStore();
   let rawWords = (store.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
   let words = [...rawWords];
+  let allDecks = store.decks[langCode] || [
+    { deckId: 'practicing', name: 'Practicing', isDefault: true },
+    { deckId: 'mastered', name: 'Mastered', isDefault: true },
+    { deckId: 'all', name: 'All', isDefault: true }
+  ];
+
   let currentIndex = 0;
   let isFlipped = false;
   let showFirst = 'study'; // 'study' or 'base'
@@ -28,11 +34,15 @@ export function renderFlashcardsScreen(container, params = {}) {
   // Background refresh
   async function refreshBackground() {
     try {
-      const res = await Api.getWords(langCode, deckId);
+      const [wordsRes, decksRes] = await Promise.all([
+        Api.getWords(langCode, deckId),
+        Api.getDecks(langCode)
+      ]);
       if (!isStillMounted()) return;
-      if (res.words && res.words.length > 0) {
-        words = [...res.words];
-        if (currentIndex >= words.length) currentIndex = 0;
+      if (decksRes.decks) allDecks = decksRes.decks;
+      if (wordsRes.words && wordsRes.words.length > 0) {
+        words = [...wordsRes.words];
+        if (currentIndex >= words.length) currentIndex = Math.max(0, words.length - 1);
         render();
       }
     } catch (err) {
@@ -40,6 +50,14 @@ export function renderFlashcardsScreen(container, params = {}) {
     }
   }
   refreshBackground();
+
+  function getDeckDisplayName(dId) {
+    if (dId === 'practicing') return t('practicing');
+    if (dId === 'mastered') return t('mastered');
+    if (dId === 'all') return t('all');
+    const match = allDecks.find(d => d.deckId === dId);
+    return match ? match.name : dId;
+  }
 
   function shuffleWords() {
     for (let i = words.length - 1; i > 0; i--) {
@@ -54,7 +72,7 @@ export function renderFlashcardsScreen(container, params = {}) {
   }
 
   function handleKey(e) {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
     if (e.code === 'Space') {
       e.preventDefault();
       flipCard();
@@ -171,6 +189,8 @@ export function renderFlashcardsScreen(container, params = {}) {
     const backPronunciation = !isStudyFront ? currentWord.pronunciation : '';
     const backTag = !isStudyFront ? `${langInfo.flag} ${localizedStudyName}` : localizedBaseName;
 
+    const targetDecks = allDecks.filter(d => d.deckId !== 'all' && d.deckId !== currentWord.deckId);
+
     container.innerHTML = `
       <div class="flashcards-container">
         <!-- Top Controls: Show First Toggle & Shuffle -->
@@ -212,6 +232,22 @@ export function renderFlashcardsScreen(container, params = {}) {
           </div>
         </div>
 
+        <!-- Move Word to Deck & Utility Bar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 1rem; gap: 0.75rem; background: var(--bg-surface); border: 1px solid var(--border-color); padding: 0.5rem 0.85rem; border-radius: var(--radius-md);">
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+            <span style="font-size: 0.82rem; color: var(--text-secondary);" data-i18n="moveWord">${t('moveWord')}:</span>
+            <select class="move-select" id="flashcard-move-select" title="${t('moveWord')}" style="padding: 0.35rem 0.65rem; font-size: 0.82rem; border-radius: var(--radius-sm); flex: 1; max-width: 180px;">
+              <option value="" disabled selected>${t('moveWord')}...</option>
+              ${targetDecks.map(d => `
+                <option value="${d.deckId}">${getDeckDisplayName(d.deckId)}</option>
+              `).join('')}
+            </select>
+          </div>
+          <span style="font-size: 0.78rem; color: var(--text-muted);">
+            ${getDeckDisplayName(currentWord.deckId || deckId)}
+          </span>
+        </div>
+
         <!-- Action Controls -->
         <div class="flashcards-nav-actions">
           <button class="btn btn-secondary" id="prev-card-btn" ${currentIndex === 0 ? 'disabled' : ''} style="flex: 1;">
@@ -248,6 +284,38 @@ export function renderFlashcardsScreen(container, params = {}) {
         }
       }
     });
+
+    // Move Word Event Listener
+    const moveSelect = container.querySelector('#flashcard-move-select');
+    if (moveSelect) {
+      moveSelect.addEventListener('change', async (e) => {
+        const toDeckId = e.target.value;
+        if (!toDeckId) return;
+
+        const movedWord = currentWord;
+        trackEvent('move_word_flashcard', { langCode, wordId: movedWord.wordId, fromDeckId: movedWord.deckId || deckId, toDeckId });
+
+        try {
+          await Api.moveWord(langCode, movedWord.wordId, movedWord.deckId || deckId, toDeckId);
+          
+          if (deckId.toLowerCase() !== 'all') {
+            // Remove from current study list
+            words.splice(currentIndex, 1);
+            if (words.length === 0) {
+              isFinished = true;
+            } else if (currentIndex >= words.length) {
+              currentIndex = words.length - 1;
+            }
+          } else {
+            movedWord.deckId = toDeckId;
+          }
+          isFlipped = false;
+          render();
+        } catch (err) {
+          console.error('Failed to move word in flashcards:', err);
+        }
+      });
+    }
 
     // Event Listeners
     const stage = container.querySelector('#card-stage');
