@@ -1,4 +1,4 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api, getLocalStore } from '../api.js';
 import { trackEvent } from '../analytics.js';
@@ -160,13 +160,14 @@ export function renderFlashcardsScreen(container, params = {}) {
 
     const currentWord = words[currentIndex];
     const progressPercent = ((currentIndex + 1) / words.length) * 100;
+    const initialBaseMeaning = getCachedWordMeaning(currentWord.studyWord, currentWord.baseWord, langCode, currentBase);
 
     const isStudyFront = showFirst === 'study';
-    const frontWord = isStudyFront ? currentWord.studyWord : (currentWord.baseWord || '...');
+    const frontWord = isStudyFront ? currentWord.studyWord : initialBaseMeaning;
     const frontPronunciation = isStudyFront ? currentWord.pronunciation : '';
     const frontTag = isStudyFront ? `${langInfo.flag} ${localizedStudyName}` : localizedBaseName;
 
-    const backWord = isStudyFront ? (currentWord.baseWord || '...') : currentWord.studyWord;
+    const backWord = isStudyFront ? initialBaseMeaning : currentWord.studyWord;
     const backPronunciation = !isStudyFront ? currentWord.pronunciation : '';
     const backTag = !isStudyFront ? `${langInfo.flag} ${localizedStudyName}` : localizedBaseName;
 
@@ -195,7 +196,7 @@ export function renderFlashcardsScreen(container, params = {}) {
             <div class="card-face">
               <div class="card-lang-indicator">${frontTag}</div>
               <div class="card-deck-badge">${currentIndex + 1} / ${words.length}</div>
-              <div class="card-text-main">${frontWord}</div>
+              <div class="card-text-main" ${isStudyFront ? '' : 'data-card-base-text="true"'}>${frontWord}</div>
               ${frontPronunciation ? `<div class="card-pronunciation-sub">${frontPronunciation}</div>` : ''}
               <div class="card-hint" data-i18n="tapToFlip">${t('tapToFlip')}</div>
             </div>
@@ -204,7 +205,7 @@ export function renderFlashcardsScreen(container, params = {}) {
             <div class="card-face card-face-back">
               <div class="card-lang-indicator">${backTag}</div>
               <div class="card-deck-badge">${currentIndex + 1} / ${words.length}</div>
-              <div class="card-text-main">${backWord}</div>
+              <div class="card-text-main" ${!isStudyFront ? '' : 'data-card-base-text="true"'}>${backWord}</div>
               ${backPronunciation ? `<div class="card-pronunciation-sub">${backPronunciation}</div>` : ''}
               <div class="card-hint" data-i18n="tapToFlipBack">${t('tapToFlipBack')}</div>
             </div>
@@ -236,6 +237,17 @@ export function renderFlashcardsScreen(container, params = {}) {
     `;
 
     autoTranslateUi(container);
+
+    // Asynchronously resolve and update base meaning if not yet in cache
+    fetchWordMeaningTranslation(currentWord.studyWord, currentWord.baseWord, langCode, currentBase).then(trans => {
+      if (!isStillMounted()) return;
+      if (trans) {
+        const baseEl = container.querySelector('[data-card-base-text="true"]');
+        if (baseEl && baseEl.textContent !== trans) {
+          baseEl.textContent = trans;
+        }
+      }
+    });
 
     // Event Listeners
     const stage = container.querySelector('#card-stage');

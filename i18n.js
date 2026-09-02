@@ -7679,3 +7679,56 @@ export async function fetchLiveTranslation(text, targetLang) {
   } catch (e) {}
   return text;
 }
+
+export function getCachedWordMeaning(studyWord, baseWord, studyLang, targetBaseLang) {
+  const cleanTarget = (targetBaseLang || 'en').toLowerCase().split('-')[0];
+  const cleanStudy = (studyLang || 'auto').toLowerCase().split('-')[0];
+  const cleanStudyWord = (studyWord || '').split('\n')[0].trim();
+  const cacheKey = `meaning:${cleanStudy}:${cleanTarget}:${cleanStudyWord.toLowerCase()}`;
+  try {
+    const localCache = JSON.parse(localStorage.getItem('monogenesis_meaning_cache') || '{}');
+    if (localCache[cacheKey]) return localCache[cacheKey];
+  } catch (e) {}
+  return baseWord || '...';
+}
+
+export async function fetchWordMeaningTranslation(studyWord, baseWord, studyLang, targetBaseLang) {
+  const cleanTarget = (targetBaseLang || 'en').toLowerCase().split('-')[0];
+  const cleanStudy = (studyLang || 'auto').toLowerCase().split('-')[0];
+  const cleanStudyWord = (studyWord || '').split('\n')[0].trim();
+  const cacheKey = `meaning:${cleanStudy}:${cleanTarget}:${cleanStudyWord.toLowerCase()}`;
+  
+  let localCache = {};
+  try {
+    localCache = JSON.parse(localStorage.getItem('monogenesis_meaning_cache') || '{}');
+    if (localCache[cacheKey]) return localCache[cacheKey];
+  } catch (e) {}
+
+  const textToTranslate = cleanStudyWord || baseWord;
+  if (!textToTranslate) return baseWord || '';
+
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(cleanStudy)}&tl=${encodeURIComponent(cleanTarget)}&dt=t&q=${encodeURIComponent(textToTranslate)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data[0]) {
+      const translated = data[0].map(s => s[0]).join('');
+      if (translated) {
+        localCache[cacheKey] = translated;
+        try { localStorage.setItem('monogenesis_meaning_cache', JSON.stringify(localCache)); } catch (e) {}
+        return translated;
+      }
+    }
+  } catch (e) {}
+
+  if (baseWord) {
+    const fallbackTrans = await fetchLiveTranslation(baseWord, cleanTarget);
+    if (fallbackTrans) {
+      localCache[cacheKey] = fallbackTrans;
+      try { localStorage.setItem('monogenesis_meaning_cache', JSON.stringify(localCache)); } catch (e) {}
+      return fallbackTrans;
+    }
+  }
+
+  return baseWord || '...';
+}

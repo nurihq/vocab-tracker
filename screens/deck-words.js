@@ -1,4 +1,4 @@
-import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
 import { Api, getLocalStore } from '../api.js';
 import { Modal } from '../components/modal.js';
@@ -27,6 +27,7 @@ export function renderDeckWordsScreen(container, params = {}) {
 
   // Render immediately on frame 0 (0ms latency!)
   render();
+  translateWordMeanings();
 
   // Background async refresh from DynamoDB
   async function refreshBackground() {
@@ -36,27 +37,32 @@ export function renderDeckWordsScreen(container, params = {}) {
         Api.getWords(langCode, deckId, currentSort),
         Api.getDecks(langCode)
       ]);
+      if (!isStillMounted()) return;
       words = wordsRes.words || [];
       allDecks = decksRes.decks || [];
 
-      // Dynamically translate base words to current base language if switched
-      for (const w of words) {
-        if (w.baseWord) {
-          fetchLiveTranslation(w.baseWord, currentBase).then(trans => {
-            if (trans && trans !== w.baseWord) {
-              const el = container.querySelector(`[data-word-base-id="${w.wordId}"]`);
-              if (el) el.textContent = trans;
-            }
-          });
-        }
-      }
-
       render();
+      translateWordMeanings();
     } catch (err) {
       console.warn('Background words refresh:', err);
     }
   }
   refreshBackground();
+
+  // Dynamically translate all base meanings to the active base language
+  function translateWordMeanings() {
+    for (const w of words) {
+      fetchWordMeaningTranslation(w.studyWord, w.baseWord, langCode, currentBase).then(trans => {
+        if (!isStillMounted()) return;
+        if (trans) {
+          const el = container.querySelector(`[data-word-base-id="${w.wordId}"]`);
+          if (el && el.textContent !== trans) {
+            el.textContent = trans;
+          }
+        }
+      });
+    }
+  }
 
   function getDeckDisplayName(dId) {
     if (dId === 'practicing') return t('practicing');
@@ -68,6 +74,7 @@ export function renderDeckWordsScreen(container, params = {}) {
 
   function render() {
     if (!isStillMounted()) return;
+
     const isAllDeck = deckId.toLowerCase() === 'all';
     const deckName = getDeckDisplayName(deckId);
 
@@ -109,6 +116,8 @@ export function renderDeckWordsScreen(container, params = {}) {
 
         <div id="words-list">
           ${words.map((w, index) => {
+            const initialMeaning = getCachedWordMeaning(w.studyWord, w.baseWord, langCode, currentBase);
+
             return `
               <div class="word-row ${currentSort === 'custom' ? 'draggable-row' : ''}" 
                    ${currentSort === 'custom' ? 'draggable="true"' : ''}
@@ -119,7 +128,7 @@ export function renderDeckWordsScreen(container, params = {}) {
                     <span class="word-study">${w.studyWord}</span>
                     ${w.pronunciation ? `<span class="word-pronunciation">${w.pronunciation}</span>` : ''}
                   </div>
-                  <div class="word-base" data-word-base-id="${w.wordId}">${w.baseWord || '...'}</div>
+                  <div class="word-base" data-word-base-id="${w.wordId}">${initialMeaning}</div>
                 </div>
 
                 <div class="word-actions">
