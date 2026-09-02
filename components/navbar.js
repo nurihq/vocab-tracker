@@ -1,4 +1,4 @@
-import { LANGUAGES, detectBrowserLanguage } from '../languages.js';
+import { LANGUAGES } from '../languages.js';
 import { t, setI18nBaseLang, getI18nBaseLang } from '../i18n.js';
 import { Auth, Api } from '../api.js';
 
@@ -34,14 +34,14 @@ export class Navbar {
     if (decksMatch) {
       return {
         label: t('languages'),
-        target: `#/languages`
+        target: '#/languages'
       };
     }
 
     if (cleanRoute === '/signin') {
       return {
         label: t('home'),
-        target: `#/\`
+        target: '#/'
       };
     }
 
