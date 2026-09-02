@@ -2,7 +2,7 @@
 
 export const CONFIG = {
   // Google OAuth 2.0 Web Client ID
-  GOOGLE_CLIENT_ID: '719377736713-p1u6fp5epck9hjhhh9jeuopt9t8q1ebl.apps.googleusercontent.com',
+  GOOGLE_CLIENT_ID: '719377736713-fobtcss0udkkl5u930aifhe5318rlaf9.apps.googleusercontent.com',
 
   // Live AWS Lambda Function URLs
   API_ENDPOINTS: {
