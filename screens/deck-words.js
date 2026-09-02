@@ -267,7 +267,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
 
     const contentHtml = `
       <div class="form-group">
-        <label class="form-label">${t('word')} in ${localizedBaseLangName}</label>
+        <label class="form-label">${t('wordInBase', { lang: localizedBaseLangName })}</label>
         <input type="text" class="form-input" id="new-base-word-input" placeholder="${baseExample}" autofocus />
       </div>
 
