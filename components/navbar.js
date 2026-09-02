@@ -39,6 +39,13 @@ export class Navbar {
       };
     }
 
+    if (cleanRoute === '/languages') {
+      return {
+        label: t('home'),
+        target: '#/'
+      };
+    }
+
     if (cleanRoute === '/signin') {
       return {
         label: t('home'),
