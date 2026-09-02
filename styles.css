@@ -1125,3 +1125,16 @@ body {
   font-size: 0.68rem;
   color: var(--text-muted);
 }
+
+.nav-home-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+  display: block;
+  transition: color var(--transition-fast), transform var(--transition-fast);
+}
+
+.nav-brand:hover .nav-home-icon {
+  color: var(--primary);
+  transform: translateY(-1px);
+}
