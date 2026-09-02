@@ -35,17 +35,7 @@ export function renderSignInScreen(container) {
       <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 2rem; line-height: 1.55;">${t('signInSubtitle')}</p>
 
       <!-- Google Identity Services Container -->
-      <div id="g_id_signin_container" style="display: flex; justify-content: center; margin-bottom: 1.5rem; min-height: 44px;"></div>
-
-      <div style="display: flex; align-items: center; gap: 0.75rem; margin: 1.5rem 0; color: var(--text-muted); font-size: 0.82rem;">
-        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-        <span>or</span>
-        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-      </div>
-
-      <button class="btn btn-secondary" id="demo-signin-btn" style="width: 100%;">
-        <span>🚀 Instant Demo / Guest Mode</span>
-      </button>
+      <div id="g_id_signin_container" style="display: flex; justify-content: center; min-height: 44px;"></div>
     </div>
   `;
 
@@ -95,14 +85,4 @@ export function renderSignInScreen(container) {
 
   initGoogleSignIn();
   setTimeout(initGoogleSignIn, 500);
-
-  // Demo Sign-in
-  container.querySelector('#demo-signin-btn').addEventListener('click', () => {
-    Auth.setUser({
-      sub: 'demo-user-123',
-      name: 'Polyglot Learner',
-      email: 'demo@monogenesis.org'
-    });
-    window.location.hash = '#/languages';
-  });
 }
