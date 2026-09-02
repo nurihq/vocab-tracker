@@ -1,4 +1,4 @@
-import { t, getI18nBaseLang } from '../i18n.js';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js';
 import { Auth, Api } from '../api.js';
 import { CONFIG } from '../config.js';
 import { trackEvent } from '../analytics.js';
@@ -36,12 +36,14 @@ export function renderSignInScreen(container) {
     <div style="max-width: 440px; margin: 3.5rem auto; padding: 2.75rem 2rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); text-align: center;">
       ${leafLogoSvg}
       <h2 style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.01em; color: var(--text-primary);">Monogenesis</h2>
-      <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 2rem; line-height: 1.55;">${t('signInSubtitle')}</p>
+      <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 2rem; line-height: 1.55;" data-i18n="signInSubtitle">${t('signInSubtitle')}</p>
 
       <!-- Google Identity Services Container -->
       <div id="g_id_signin_container" style="display: flex; justify-content: center; min-height: 44px;"></div>
     </div>
   `;
+
+  autoTranslateUi(container);
 
   // Initialize Google Identity Services with active Base Language
   function initGoogleSignIn() {
@@ -80,7 +82,7 @@ export function renderSignInScreen(container) {
             size: 'large',
             shape: 'pill',
             text: 'signin_with',
-            locale: langCode, // Localize Google button to user's selected base language
+            locale: langCode,
             width: 280
           });
         }

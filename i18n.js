@@ -1,4 +1,4 @@
-// Multi-language UI localization system with Instant Static Dictionaries + Universal Live Dynamic Fallback for 100+ languages
+// Multi-language UI localization system with Instant Static Dictionaries + Universal Preload for all 100+ languages
 
 export const STATIC_TRANSLATIONS = {
   en: {
@@ -148,7 +148,7 @@ export const STATIC_TRANSLATIONS = {
   ru: {
     appTitle: 'monogenesis',
     tagline: 'Отслеживайте и совершенствуйте свой словарный запас на разных языках',
-    subtitle: 'Настраиваемые колоды слов и карточки на всех языках.',
+    subtitle: 'Настраиваемые колоды слов и карточки на любых языках в вашем темпе.',
     startLearning: 'Начать обучение',
     signInWithGoogle: 'Войти через Google',
     signInTitle: 'Вход',
@@ -220,7 +220,7 @@ export const STATIC_TRANSLATIONS = {
   es: {
     appTitle: 'monogenesis',
     tagline: 'Rastrea y mejora tu vocabulario en varios idiomas',
-    subtitle: 'Mazos de vocabulario y tarjetas de memoria personalizables en todos los idiomas.',
+    subtitle: 'Mazos de vocabulario y tarjetas de memoria personalizables en cualquier idioma a tu propio ritmo.',
     startLearning: 'Empezar a aprender',
     signInWithGoogle: 'Iniciar sesión con Google',
     signInTitle: 'Iniciar sesión',
@@ -292,7 +292,7 @@ export const STATIC_TRANSLATIONS = {
   ka: {
     appTitle: 'monogenesis',
     tagline: 'მართეთ და გაიუმჯობესეთ თქვენი ლექსიკა მრავალ ენაზე',
-    subtitle: 'მორგებადი ლექსიკის დასტები და ფლეშ-ბარათები ყველა ენაზე.',
+    subtitle: 'მორგებადი ლექსიკის დასტები და ფლეშ-ბარათები ნებისმიერ ენაზე თქვენი ტემპით.',
     startLearning: 'სწავლის დაწყება',
     signInWithGoogle: 'Google-ით შესვლა',
     signInTitle: 'შესვლა',
@@ -364,7 +364,7 @@ export const STATIC_TRANSLATIONS = {
   fr: {
     appTitle: 'monogenesis',
     tagline: 'Suivez et améliorez votre vocabulaire en plusieurs langues',
-    subtitle: 'Paquets de vocabulaire et cartes mémoire personnalisables dans toutes les langues.',
+    subtitle: 'Paquets de vocabulaire et cartes mémoire personnalisables dans n’importe quelle langue à votre rythme.',
     startLearning: 'Commencer',
     signInWithGoogle: 'Se connecter avec Google',
     signInTitle: 'Connexion',
@@ -436,7 +436,7 @@ export const STATIC_TRANSLATIONS = {
   de: {
     appTitle: 'monogenesis',
     tagline: 'Verfolgen und verbessern Sie Ihren Wortschatz in mehreren Sprachen',
-    subtitle: 'Anpassbare Vokabelstapel und Karteikarten in allen Sprachen.',
+    subtitle: 'Anpassbare Vokabelstapel und Karteikarten in jeder Sprache in Ihrem eigenen Tempo.',
     startLearning: 'Jetzt lernen',
     signInWithGoogle: 'Mit Google anmelden',
     signInTitle: 'Anmelden',
@@ -508,7 +508,7 @@ export const STATIC_TRANSLATIONS = {
   ja: {
     appTitle: 'monogenesis',
     tagline: '複数言語の語彙力を記録・向上させる',
-    subtitle: 'すべての言語に対応した、カスタマイズ可能な単語帳とフラッシュカード。',
+    subtitle: '自分のペースで、あらゆる言語に対応したカスタマイズ可能な単語帳とフラッシュカード。',
     startLearning: '学習を始める',
     signInWithGoogle: 'Googleでログイン',
     signInTitle: 'ログイン',
@@ -581,7 +581,6 @@ export const STATIC_TRANSLATIONS = {
 
 let currentBaseLang = 'en';
 
-// Load stored dynamic translations from localStorage
 const STORAGE_KEY = 'monogenesis_i18n_cache';
 function getCache() {
   try {
@@ -636,7 +635,6 @@ export function t(key, params = {}) {
   if (langDict && langDict[key]) {
     text = langDict[key];
   } else {
-    // Check cached dynamic translation for this key + baseLang
     const englishText = STATIC_TRANSLATIONS['en'][key] || key;
     const cacheKey = `${shortCode}:${englishText.trim()}`;
     text = dynamicCache[cacheKey] || englishText;
@@ -659,14 +657,12 @@ export async function autoTranslateUi(container) {
     const englishText = STATIC_TRANSLATIONS['en'][key];
     if (!englishText) continue;
 
-    // If already in static dictionary, it's already set
     const langDict = STATIC_TRANSLATIONS[currentBaseLang] || STATIC_TRANSLATIONS[shortCode];
     if (langDict && langDict[key]) {
       el.textContent = langDict[key];
       continue;
     }
 
-    // Otherwise fetch dynamic live translation
     fetchLiveTranslation(englishText, shortCode).then(translated => {
       if (translated && translated !== englishText) {
         el.textContent = translated;

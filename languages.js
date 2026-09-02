@@ -22,7 +22,7 @@ export const LANGUAGES = [
   { code: 'vi', name: 'Vietnamese', nativeName: 'Tiếng Việt', flag: '🇻🇳' },
   { code: 'th', name: 'Thai', nativeName: 'ไทย', flag: '🇹🇭' },
   { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', flag: '🇹🇷' },
-  { code: 'fa', name: 'Persian', nativeName: 'فارسی', flag: '🇮🇷' },
+  { code: 'fa', name: 'Persian', nativeName: 'فਾਰਸੀ', flag: '🇮🇷' },
   { code: 'pl', name: 'Polish', nativeName: 'Polski', flag: '🇵🇱' },
   { code: 'uk', name: 'Ukrainian', nativeName: 'Українська', flag: '🇺🇦' },
   { code: 'nl', name: 'Dutch', nativeName: 'Nederlands', flag: '🇳🇱' },
@@ -62,14 +62,14 @@ export const LANGUAGES = [
   { code: 'ht', name: 'Haitian Creole', nativeName: 'Kreyòl Ayisyen', flag: '🇭🇹' },
   { code: 'ha', name: 'Hausa', nativeName: 'Hausa', flag: '🇳🇬' },
   { code: 'haw', name: 'Hawaiian', nativeName: 'ʻŌlelo Hawaiʻi', flag: '🌺' },
-  { code: 'hmn', name: 'Hmong', nativeName: 'Hmoob', flag: '🇱🇦' },
   { code: 'ig', name: 'Igbo', nativeName: 'Asụsụ Igbo', flag: '🇳🇬' },
   { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ', flag: '🇮🇳' },
   { code: 'kk', name: 'Kazakh', nativeName: 'Қазақша', flag: '🇰🇿' },
-  { code: 'km', name: 'Khmer', nativeName: 'ខ្មែរ', flag: '🇰🇭' },
-  { code: 'ku', name: 'Kurdish', nativeName: 'Kurdî', flag: '🇹🇷' },
+  { code: 'km', name: 'Khmer', nativeName: 'ភាសាខ្មែរ', flag: '🇰🇭' },
+  { code: 'rw', name: 'Kinyarwanda', nativeName: 'Ikinyarwanda', flag: '🇷🇼' },
+  { code: 'ku', name: 'Kurdish', nativeName: 'Kurdî', flag: '☀️' },
   { code: 'ky', name: 'Kyrgyz', nativeName: 'Кыргызча', flag: '🇰🇬' },
-  { code: 'lo', name: 'Lao', nativeName: 'ລາວ', flag: '🇱🇦' },
+  { code: 'lo', name: 'Lao', nativeName: 'ພາສາລາວ', flag: '🇱🇦' },
   { code: 'la', name: 'Latin', nativeName: 'Latina', flag: '🏛️' },
   { code: 'lb', name: 'Luxembourgish', nativeName: 'Lëtzebuergesch', flag: '🇱🇺' },
   { code: 'mk', name: 'Macedonian', nativeName: 'Македонски', flag: '🇲🇰' },
@@ -81,8 +81,10 @@ export const LANGUAGES = [
   { code: 'mn', name: 'Mongolian', nativeName: 'Монгол', flag: '🇲🇳' },
   { code: 'my', name: 'Myanmar (Burmese)', nativeName: 'မြန်မာစာ', flag: '🇲🇲' },
   { code: 'ne', name: 'Nepali', nativeName: 'नेपाली', flag: '🇳🇵' },
+  { code: 'ny', name: 'Nyanja (Chichewa)', nativeName: 'Chinyanja', flag: '🇲🇼' },
+  { code: 'or', name: 'Odia (Oriya)', nativeName: 'ଓଡ଼ିਆ', flag: '🇮🇳' },
   { code: 'ps', name: 'Pashto', nativeName: 'پښتو', flag: '🇦🇫' },
-  { code: 'sm', name: 'Samoan', nativeName: 'Gagana Samoa', flag: '🇼🇸' },
+  { code: 'sm', name: 'Samoan', nativeName: 'Gagana Sāmoa', flag: '🇼🇸' },
   { code: 'gd', name: 'Scots Gaelic', nativeName: 'Gàidhlig', flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿' },
   { code: 'st', name: 'Sesotho', nativeName: 'Sesotho', flag: '🇱🇸' },
   { code: 'sn', name: 'Shona', nativeName: 'chiShona', flag: '🇿🇼' },
@@ -128,9 +130,38 @@ export function getLocalizedLanguageName(code, baseLang = 'en') {
   return langObj ? langObj.name : code.toUpperCase();
 }
 
+// Detection logic:
+// 1. Saved selection in localStorage (permanent user preference)
+// 2. Device / Browser Language (navigator.languages / navigator.language)
+// 3. Location / Timezone fallback
+// 4. Default 'en'
 export function detectBrowserLanguage() {
-  const browserLang = (navigator.language || (navigator.languages && navigator.languages[0]) || 'en').toLowerCase();
-  const code = browserLang.split('-')[0];
-  const matched = LANGUAGES.find(l => l.code === browserLang || l.code === code);
-  return matched ? matched.code : 'en';
+  // Check navigator languages
+  const navLangs = navigator.languages || [navigator.language || navigator.userLanguage || ''];
+  for (const raw of navLangs) {
+    if (!raw) continue;
+    const clean = raw.toLowerCase();
+    const shortCode = clean.split('-')[0];
+    const match = LANGUAGES.find(l => l.code.toLowerCase() === clean || l.code.toLowerCase() === shortCode);
+    if (match) return match.code;
+  }
+
+  // Timezone to language heuristic fallback
+  try {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    if (timeZone.includes('Tbilisi')) return 'ka';
+    if (timeZone.includes('Tokyo')) return 'ja';
+    if (timeZone.includes('Seoul')) return 'ko';
+    if (timeZone.includes('Moscow') || timeZone.includes('Kyiv') || timeZone.includes('Minsk')) return 'ru';
+    if (timeZone.includes('Paris') || timeZone.includes('Brussels')) return 'fr';
+    if (timeZone.includes('Berlin') || timeZone.includes('Vienna') || timeZone.includes('Zurich')) return 'de';
+    if (timeZone.includes('Rome')) return 'it';
+    if (timeZone.includes('Madrid') || timeZone.includes('Buenos_Aires') || timeZone.includes('Mexico') || timeZone.includes('Bogota')) return 'es';
+    if (timeZone.includes('Jakarta') || timeZone.includes('Makassar') || timeZone.includes('Pontianak')) return 'id';
+    if (timeZone.includes('Bangkok')) return 'th';
+    if (timeZone.includes('Istanbul')) return 'tr';
+    if (timeZone.includes('Kolkata')) return 'hi';
+  } catch (e) {}
+
+  return 'en';
 }
