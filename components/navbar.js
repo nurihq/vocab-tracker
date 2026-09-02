@@ -62,7 +62,7 @@ export class Navbar {
             </button>
           ` : `
             <a href="#/" class="nav-brand" title="Home">
-              <span class="nav-brand-logo">🗂️</span>
+              <span class="nav-brand-logo">🏠</span>
             </a>
           `}
         </div>

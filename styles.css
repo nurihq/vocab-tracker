@@ -1041,3 +1041,87 @@ body {
   gap: 0.35rem;
   margin-bottom: 0.2rem;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOME SCREEN INTERACTIVE FLASHCARDS
+   ══════════════════════════════════════════════════════════════════════════ */
+.home-card-stage {
+  width: 200px;
+  height: 160px;
+  perspective: 900px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.home-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.home-card-stage.is-flipped .home-card-inner {
+  transform: rotateY(180deg);
+}
+
+.home-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0.85rem;
+  text-align: center;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.home-card-stage:hover .home-card-face {
+  border-color: var(--accent-zen);
+}
+
+.home-card-back {
+  transform: rotateY(180deg);
+  background: var(--bg-surface);
+}
+
+.home-card-top-tag {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent-zen);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.home-card-word {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+  margin-top: 0.5rem;
+}
+
+.home-card-pronunciation {
+  font-size: 0.78rem;
+  color: var(--accent-zen);
+  font-style: italic;
+}
+
+.home-card-hint {
+  position: absolute;
+  bottom: 0.55rem;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}

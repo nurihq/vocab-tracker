@@ -1,10 +1,10 @@
-// Multi-language UI localization system
+// Multi-language UI localization system for monogenesis
 
 export const STATIC_TRANSLATIONS = {
   en: {
-    appTitle: '',
-    tagline: 'Master any language, one card at a time.',
-    subtitle: 'Customizable, elegant flash cards and vocabulary decks tailored to your learning pace.',
+    appTitle: 'monogenesis',
+    tagline: 'Track and improve your vocabulary in multiple languages',
+    subtitle: 'Customizable vocabulary decks and flash cards in all languages.',
     startLearning: 'Start Learning',
     signInWithGoogle: 'Sign in with Google',
     signInTitle: 'Sign In',
@@ -74,9 +74,9 @@ export const STATIC_TRANSLATIONS = {
     dragToReorder: 'Drag tiles to reorder your priority list'
   },
   ru: {
-    appTitle: '',
-    tagline: 'Осваивайте любой язык шаг за шагом с помощью карточек.',
-    subtitle: 'Элегантные настраиваемые флеш-карточки и колоды слов для вашего темпа обучения.',
+    appTitle: 'monogenesis',
+    tagline: 'Отслеживайте и совершенствуйте свой словарный запас на разных языках',
+    subtitle: 'Настраиваемые колоды слов и карточки на всех языках.',
     startLearning: 'Начать обучение',
     signInWithGoogle: 'Войти через Google',
     signInTitle: 'Вход',
@@ -146,9 +146,9 @@ export const STATIC_TRANSLATIONS = {
     dragToReorder: 'Перетаскивайте плитки для изменения порядка'
   },
   es: {
-    appTitle: '',
-    tagline: 'Domina cualquier idioma, una tarjeta a la vez.',
-    subtitle: 'Tarjetas de memoria personalizables y elegantes para tu vocabulario.',
+    appTitle: 'monogenesis',
+    tagline: 'Rastrea y mejora tu vocabulario en varios idiomas',
+    subtitle: 'Mazos de vocabulario y tarjetas de memoria personalizables en todos los idiomas.',
     startLearning: 'Empezar a aprender',
     signInWithGoogle: 'Iniciar sesión con Google',
     signInTitle: 'Iniciar sesión',
@@ -218,9 +218,9 @@ export const STATIC_TRANSLATIONS = {
     dragToReorder: 'Arrastra los bloques para reordenar'
   },
   ka: {
-    appTitle: '',
-    tagline: 'დაეუფლე ნებისმიერ ენას ბარათების დახმარებით.',
-    subtitle: 'მორგებადი, დახვეწილი ფლეშ-ბარათები და ლექსიკის დასტები თქვენი სწავლისთვის.',
+    appTitle: 'monogenesis',
+    tagline: 'მართეთ და გაიუმჯობესეთ თქვენი ლექსიკა მრავალ ენაზე',
+    subtitle: 'მორგებადი ლექსიკის დასტები და ფლეშ-ბარათები ყველა ენაზე.',
     startLearning: 'სწავლის დაწყება',
     signInWithGoogle: 'Google-ით შესვლა',
     signInTitle: 'შესვლა',
@@ -290,9 +290,9 @@ export const STATIC_TRANSLATIONS = {
     dragToReorder: 'გადააადგილეთ ფილები რიგითობის შესაცვლელად'
   },
   fr: {
-    appTitle: '',
-    tagline: 'Maîtrisez n’importe quelle langue, une carte à la fois.',
-    subtitle: 'Des cartes mémoire élégantes et personnalisables.',
+    appTitle: 'monogenesis',
+    tagline: 'Suivez et améliorez votre vocabulaire en plusieurs langues',
+    subtitle: 'Paquets de vocabulaire et cartes mémoire personnalisables dans toutes les langues.',
     startLearning: 'Commencer',
     signInWithGoogle: 'Se connecter avec Google',
     signInTitle: 'Connexion',
@@ -362,9 +362,9 @@ export const STATIC_TRANSLATIONS = {
     dragToReorder: 'Glissez les tuiles pour réorganiser'
   },
   de: {
-    appTitle: '',
-    tagline: 'Meistern Sie jede Sprache, Karte für Karte.',
-    subtitle: 'Anpassbare, elegante Karteikarten und Vokabeldecks.',
+    appTitle: 'monogenesis',
+    tagline: 'Verfolgen und verbessern Sie Ihren Wortschatz in mehreren Sprachen',
+    subtitle: 'Anpassbare Vokabelstapel und Karteikarten in allen Sprachen.',
     startLearning: 'Jetzt lernen',
     signInWithGoogle: 'Mit Google anmelden',
     signInTitle: 'Anmelden',
@@ -434,9 +434,9 @@ export const STATIC_TRANSLATIONS = {
     dragToReorder: 'Kacheln zum Sortieren ziehen'
   },
   ja: {
-    appTitle: '',
-    tagline: 'どんな言語も、1枚のカードからマスター。',
-    subtitle: 'あなたのペースに合わせた単語帳フラッシュカード。',
+    appTitle: 'monogenesis',
+    tagline: '複数言語の語彙力を記録・向上させる',
+    subtitle: 'すべての言語に対応した、カスタマイズ可能な単語帳とフラッシュカード。',
     startLearning: '学習を始める',
     signInWithGoogle: 'Googleでログイン',
     signInTitle: 'ログイン',
