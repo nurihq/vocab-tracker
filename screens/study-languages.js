@@ -6,12 +6,25 @@ import { Modal } from '../components/modal.js';
 export async function renderStudyLanguagesScreen(container) {
   let showHidden = false;
   let languages = [];
+  let vocabCounts = {};
   const currentBase = getI18nBaseLang();
 
   async function loadData() {
     try {
       const res = await Api.getLanguages();
       languages = res.languages || [];
+
+      // Fetch word counts for each language
+      const countPromises = languages.map(async (l) => {
+        try {
+          const wordsRes = await Api.getWords(l.code, 'all');
+          vocabCounts[l.code] = (wordsRes.words || []).length;
+        } catch (e) {
+          vocabCounts[l.code] = 0;
+        }
+      });
+      await Promise.all(countPromises);
+
       render();
     } catch (err) {
       console.error('Failed to load languages:', err);
@@ -26,9 +39,8 @@ export async function renderStudyLanguagesScreen(container) {
       <div class="screen-header">
         <div class="screen-title-group">
           <h2 class="screen-title">
-            <span>🌍</span> <span>${t('studyLanguages')}</span>
+            <span>${t('studyLanguages')}</span>
           </h2>
-          <p class="screen-subtitle">${t('dragToReorder')}</p>
         </div>
         <div class="screen-actions">
           ${hasHidden ? `
@@ -37,7 +49,7 @@ export async function renderStudyLanguagesScreen(container) {
             </button>
           ` : ''}
           <button class="btn btn-primary" id="add-lang-btn">
-            <span>+</span> <span>${t('addLanguage')}</span>
+            + ${t('addLanguage')}
           </button>
         </div>
       </div>
@@ -46,6 +58,8 @@ export async function renderStudyLanguagesScreen(container) {
         ${visibleLanguages.map((lang, index) => {
           const langInfo = getLanguageByCode(lang.code) || lang;
           const localizedTitle = getLocalizedLanguageName(lang.code, currentBase);
+          const totalWords = vocabCounts[lang.code] || 0;
+
           return `
             <div class="tile ${lang.hidden ? 'is-hidden-item' : ''}" 
                  draggable="true" 
@@ -54,6 +68,7 @@ export async function renderStudyLanguagesScreen(container) {
               <div class="tile-top">
                 <span class="tile-flag">${langInfo.flag || lang.flag || '🌐'}</span>
                 <div class="tile-actions">
+                  <span class="tile-badge">${totalWords} ${totalWords === 1 ? t('word') : t('words')}</span>
                   <button class="tile-action-btn hide-toggle-btn" 
                           data-code="${lang.code}" 
                           data-hidden="${lang.hidden ? 'true' : 'false'}" 
@@ -80,7 +95,6 @@ export async function renderStudyLanguagesScreen(container) {
 
       ${languages.length === 0 ? `
         <div class="empty-state">
-          <div class="empty-icon">🌐</div>
           <p>${t('noLanguagesYet')}</p>
         </div>
       ` : ''}
@@ -100,7 +114,6 @@ export async function renderStudyLanguagesScreen(container) {
       });
     }
 
-    // Tile Click
     container.querySelectorAll('.tile[data-code]').forEach(tile => {
       tile.addEventListener('click', () => {
         const code = tile.getAttribute('data-code');
@@ -108,7 +121,6 @@ export async function renderStudyLanguagesScreen(container) {
       });
     });
 
-    // Hide / Unhide Click
     container.querySelectorAll('.hide-toggle-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();

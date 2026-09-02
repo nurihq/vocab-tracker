@@ -68,11 +68,9 @@ export async function renderDeckWordsScreen(container, params = {}) {
               ${t('studyDeck')}
             </a>
           ` : ''}
-          ${!isAllDeck ? `
-            <button class="btn btn-secondary" id="add-word-btn">
-              + ${t('addWord')}
-            </button>
-          ` : ''}
+          <button class="btn btn-secondary" id="add-word-btn">
+            + ${t('addWord')}
+          </button>
         </div>
       </div>
 
@@ -114,13 +112,12 @@ export async function renderDeckWordsScreen(container, params = {}) {
                     `).join('')}
                   </select>
 
-                  ${!isAllDeck ? `
-                    <button class="tile-action-btn delete-hover delete-word-btn" 
-                            data-word-id="${w.wordId}" 
-                            title="${t('delete')}">
-                      🗑️
-                    </button>
-                  ` : ''}
+                  <button class="tile-action-btn delete-hover delete-word-btn" 
+                          data-word-id="${w.wordId}" 
+                          data-deck-id="${w.deckId || 'practicing'}"
+                          title="${t('delete')}">
+                    🗑️
+                  </button>
                 </div>
               </div>
             `;
@@ -164,8 +161,9 @@ export async function renderDeckWordsScreen(container, params = {}) {
     container.querySelectorAll('.delete-word-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const wordId = btn.getAttribute('data-word-id');
+        const targetDeck = btn.getAttribute('data-deck-id') || deckId;
         try {
-          await Api.deleteWord(langCode, deckId, wordId);
+          await Api.deleteWord(langCode, targetDeck, wordId);
           await loadData();
         } catch (err) {
           console.error('Failed to delete word:', err);
@@ -265,6 +263,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
   function openAddWordModal() {
     const baseExample = getBaseExample();
     const studyExample = getStudyExample();
+    const targetDestinationDeck = deckId.toLowerCase() === 'all' ? 'practicing' : deckId;
 
     const contentHtml = `
       <div class="form-group">
@@ -299,7 +298,7 @@ export async function renderDeckWordsScreen(container, params = {}) {
         if (!baseWord && !studyWord) return false;
 
         try {
-          await Api.addWord(langCode, deckId, baseWord, studyWord, pronunciation);
+          await Api.addWord(langCode, targetDestinationDeck, baseWord, studyWord, pronunciation);
           await loadData();
           return true;
         } catch (err) {

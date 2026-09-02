@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="24" fill="#4f46e5"/>
-  <rect x="20" y="24" width="60" height="42" rx="8" fill="#ffffff" opacity="0.95"/>
-  <rect x="26" y="34" width="48" height="6" rx="3" fill="#4f46e5"/>
-  <rect x="26" y="46" width="32" height="6" rx="3" fill="#94a3b8"/>
-  <circle cx="70" cy="74" r="14" fill="#10b981"/>
-  <path d="M65 74l3.5 3.5 7-7" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Soft zen enso ring -->
+  <circle cx="32" cy="32" r="30" fill="#f4f3f7"/>
+  <circle cx="32" cy="32" r="23" stroke="#756c88" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="115 25" transform="rotate(-45 32 32)"/>
+  <!-- Minimalist calm leaf/petal inside -->
+  <path d="M32 18 C32 18, 42 26, 42 34 C42 40, 37 44, 32 44 C27 44, 22 40, 22 34 C22 26, 32 18, 32 18 Z" fill="#8c82a2" opacity="0.85"/>
+  <path d="M32 23 V39" stroke="#f4f3f7" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
 </svg>
