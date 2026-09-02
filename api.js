@@ -130,32 +130,44 @@ async function fetchWithAuth(url, options = {}) {
   return response.json();
 }
 
-// Sync local data to cloud on login
+// Two-way intelligent merge and sync between local and cloud
 async function syncLocalToCloud() {
   if (!shouldUseCloud()) return;
   try {
     const store = getLocalStore();
     const cloudLangs = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
-    
-    if (!cloudLangs.languages || cloudLangs.languages.length === 0) {
-      for (const l of store.languages) {
+    const existingCloudCodes = new Set((cloudLangs.languages || []).map(l => l.code));
+
+    // Upload any local languages that are missing in the cloud
+    for (const l of store.languages) {
+      if (!existingCloudCodes.has(l.code)) {
         await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, {
           method: 'POST',
           body: JSON.stringify({ action: 'add', code: l.code, name: l.name, flag: l.flag })
         });
+      }
 
-        const decks = store.decks[l.code] || [];
-        for (const d of decks) {
-          if (!['practicing', 'mastered', 'all'].includes(d.deckId.toLowerCase())) {
-            await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
-              method: 'POST',
-              body: JSON.stringify({ action: 'add', langCode: l.code, name: d.name })
-            });
-          }
+      // Check and sync custom decks
+      const localDecks = store.decks[l.code] || [];
+      const cloudDecksRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(l.code)}`, { method: 'GET' }).catch(() => ({ decks: [] }));
+      const existingCloudDeckNames = new Set((cloudDecksRes.decks || []).map(d => d.name.toLowerCase()));
+
+      for (const d of localDecks) {
+        if (!['practicing', 'mastered', 'all'].includes(d.deckId.toLowerCase()) && !existingCloudDeckNames.has(d.name.toLowerCase())) {
+          await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'add', langCode: l.code, name: d.name })
+          }).catch(() => {});
         }
+      }
 
-        const words = store.words[l.code] || [];
-        for (const w of words) {
+      // Check and sync words
+      const localWords = store.words[l.code] || [];
+      const cloudWordsRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(l.code)}&deckId=all`, { method: 'GET' }).catch(() => ({ words: [] }));
+      const existingCloudWords = new Set((cloudWordsRes.words || []).map(w => (w.studyWord || '').toLowerCase().trim()));
+
+      for (const w of localWords) {
+        if (w.studyWord && !existingCloudWords.has(w.studyWord.toLowerCase().trim())) {
           await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
             method: 'POST',
             body: JSON.stringify({
@@ -166,7 +178,7 @@ async function syncLocalToCloud() {
               studyWord: w.studyWord,
               pronunciation: w.pronunciation || ''
             })
-          });
+          }).catch(() => {});
         }
       }
     }
@@ -208,7 +220,6 @@ export const Api = {
       try {
         const cloudRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
         if (cloudRes.languages && cloudRes.languages.length > 0) {
-          // Update local store with cloud data
           const store = getLocalStore();
           store.languages = cloudRes.languages;
           saveLocalStore(store);
@@ -430,7 +441,12 @@ export const Api = {
         const res = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(langCode)}&deckId=${encodeURIComponent(deckId)}&sort=${encodeURIComponent(sort)}`, {
           method: 'GET'
         });
-        if (res.words) return res;
+        if (res.words) {
+          const store = getLocalStore();
+          store.words[langCode] = res.words;
+          saveLocalStore(store);
+          return res;
+        }
       } catch (e) {}
     }
     const store = getLocalStore();
