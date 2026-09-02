@@ -10,6 +10,7 @@ export function renderDecksScreen(container, params = {}) {
   const langInfo = getLanguageByCode(langCode);
   const currentBase = getI18nBaseLang();
   const localizedLangName = getLocalizedLanguageName(langCode, currentBase);
+  const isStillMounted = () => window.location.hash.startsWith(`#/languages/${langCode}/decks`);
 
   let showHidden = false;
 
@@ -36,6 +37,7 @@ export function renderDecksScreen(container, params = {}) {
 
   // Background async refresh from DynamoDB
   async function refreshBackground() {
+    if (!isStillMounted()) return;
     try {
       const res = await Api.getDecks(langCode);
       if (res.decks) {
@@ -63,6 +65,7 @@ export function renderDecksScreen(container, params = {}) {
   }
 
   function render() {
+    if (!isStillMounted()) return;
     const visibleDecks = showHidden ? decks : decks.filter(d => !d.hidden);
     const hasHidden = decks.some(d => d.hidden);
 
@@ -161,7 +164,7 @@ export function renderDecksScreen(container, params = {}) {
       tile.addEventListener('click', () => {
         const deckId = tile.getAttribute('data-deck-id');
         trackEvent('select_deck', { langCode, deckId });
-        navigate(`/languages/${langCode}/decks/${deckId}`);
+        navigate(`#/languages/${langCode}/decks/${deckId}`);
       });
     });
 

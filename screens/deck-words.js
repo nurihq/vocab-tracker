@@ -12,6 +12,7 @@ export function renderDeckWordsScreen(container, params = {}) {
   const currentBase = getI18nBaseLang();
   const localizedStudyLangName = getLocalizedLanguageName(langCode, currentBase);
   const localizedBaseLangName = getLocalizedLanguageName(currentBase, currentBase);
+  const isStillMounted = () => window.location.hash.startsWith(`#/languages/${langCode}/decks/${deckId}`) && !window.location.hash.endsWith('/study');
 
   let currentSort = 'newest';
 
@@ -29,6 +30,7 @@ export function renderDeckWordsScreen(container, params = {}) {
 
   // Background async refresh from DynamoDB
   async function refreshBackground() {
+    if (!isStillMounted()) return;
     try {
       const [wordsRes, decksRes] = await Promise.all([
         Api.getWords(langCode, deckId, currentSort),
@@ -65,6 +67,7 @@ export function renderDeckWordsScreen(container, params = {}) {
   }
 
   function render() {
+    if (!isStillMounted()) return;
     const isAllDeck = deckId.toLowerCase() === 'all';
     const deckName = getDeckDisplayName(deckId);
 
@@ -170,7 +173,7 @@ export function renderDeckWordsScreen(container, params = {}) {
       studyDeckBtn.addEventListener('click', (e) => {
         e.preventDefault();
         trackEvent('study_deck_click', { langCode, deckId, wordCount: words.length });
-        navigate(`/languages/${langCode}/decks/${deckId}/study`);
+        navigate(`#/languages/${langCode}/decks/${deckId}/study`);
       });
     }
 
