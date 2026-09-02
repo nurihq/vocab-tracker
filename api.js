@@ -57,17 +57,11 @@ export function getLocalStore() {
     },
     words: {
       'ja': [
-        { wordId: 'w1', studyWord: 'こんにちは', baseWord: 'Hello', pronunciation: 'Konnichiwa', langCode: 'ja', deckId: 'practicing', order: 0, createdAt: new Date(Date.now() - 3000000).toISOString() },
-        { wordId: 'w2', studyWord: 'ありがとう', baseWord: 'Thank you', pronunciation: 'Arigatou', langCode: 'ja', deckId: 'practicing', order: 1, createdAt: new Date(Date.now() - 2000000).toISOString() },
-        { wordId: 'w3', studyWord: 'さようなら', baseWord: 'Goodbye', pronunciation: 'Sayounara', langCode: 'ja', deckId: 'mastered', order: 0, createdAt: new Date(Date.now() - 1000000).toISOString() }
+        { wordId: 'w1', studyWord: 'こんにちは\nkonnichiwa', baseWord: 'Hello', pronunciation: 'Greeting used during the daytime', langCode: 'ja', deckId: 'practicing', order: 0, createdAt: new Date(Date.now() - 3000000).toISOString() },
+        { wordId: 'w2', studyWord: 'ありがとう\narigatou', baseWord: 'Thank you', pronunciation: 'Casual form of thank you', langCode: 'ja', deckId: 'practicing', order: 1, createdAt: new Date(Date.now() - 2000000).toISOString() }
       ],
       'es': [
-        { wordId: 'w4', studyWord: 'Hola', baseWord: 'Hello', pronunciation: 'OH-lah', langCode: 'es', deckId: 'practicing', order: 0, createdAt: new Date().toISOString() },
-        { wordId: 'w5', studyWord: 'Gracias', baseWord: 'Thank you', pronunciation: 'GRAH-syahs', langCode: 'es', deckId: 'mastered', order: 0, createdAt: new Date().toISOString() }
-      ],
-      'ka': [
-        { wordId: 'w6', studyWord: 'გამარჯობა', baseWord: 'Hello', pronunciation: 'Gamarjoba', langCode: 'ka', deckId: 'practicing', order: 0, createdAt: new Date().toISOString() },
-        { wordId: 'w7', studyWord: 'მადლობა', baseWord: 'Thank you', pronunciation: 'Madloba', langCode: 'ka', deckId: 'practicing', order: 1, createdAt: new Date().toISOString() }
+        { wordId: 'w3', studyWord: 'Hola', baseWord: 'Hello', pronunciation: 'Silent H', langCode: 'es', deckId: 'practicing', order: 0, createdAt: new Date().toISOString() }
       ]
     }
   };
@@ -124,7 +118,6 @@ async function fetchWithAuth(url, options = {}) {
   });
 
   if (response.status === 401) {
-    // If token expired or invalid, clear token so app falls back to local data gracefully
     Auth.setToken(null);
     throw new Error('Authentication expired. Switched to local mode.');
   }
@@ -137,7 +130,7 @@ async function fetchWithAuth(url, options = {}) {
   return response.json();
 }
 
-// Sync local data to cloud on first login
+// Sync local data to cloud on login
 async function syncLocalToCloud() {
   if (!shouldUseCloud()) return;
   try {
@@ -145,14 +138,12 @@ async function syncLocalToCloud() {
     const cloudLangs = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
     
     if (!cloudLangs.languages || cloudLangs.languages.length === 0) {
-      // Migrate all local languages, decks, and words to cloud
       for (const l of store.languages) {
         await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, {
           method: 'POST',
           body: JSON.stringify({ action: 'add', code: l.code, name: l.name, flag: l.flag })
         });
 
-        // Add custom decks
         const decks = store.decks[l.code] || [];
         for (const d of decks) {
           if (!['practicing', 'mastered', 'all'].includes(d.deckId.toLowerCase())) {
@@ -163,7 +154,6 @@ async function syncLocalToCloud() {
           }
         }
 
-        // Add words
         const words = store.words[l.code] || [];
         for (const w of words) {
           await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
@@ -172,8 +162,8 @@ async function syncLocalToCloud() {
               action: 'add',
               langCode: l.code,
               deckId: w.deckId || 'practicing',
-              studyWord: w.studyWord,
               baseWord: w.baseWord,
+              studyWord: w.studyWord,
               pronunciation: w.pronunciation || ''
             })
           });
@@ -181,7 +171,7 @@ async function syncLocalToCloud() {
       }
     }
   } catch (e) {
-    console.warn('Sync to cloud note:', e);
+    console.warn('Sync note:', e);
   }
 }
 
@@ -220,15 +210,12 @@ export const Api = {
         if (cloudRes.languages && cloudRes.languages.length > 0) {
           return cloudRes;
         }
-        // If cloud is empty, sync local store to cloud
         await syncLocalToCloud();
         const retryRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
         if (retryRes.languages && retryRes.languages.length > 0) {
           return retryRes;
         }
-      } catch (e) {
-        console.warn('Cloud languages fallback to local:', e);
-      }
+      } catch (e) {}
     }
     const store = getLocalStore();
     return { languages: store.languages || [] };
@@ -263,9 +250,7 @@ export const Api = {
           method: 'POST',
           body: JSON.stringify({ action: 'add', ...lang })
         });
-      } catch (e) {
-        console.warn('Cloud addLanguage failed, saved locally:', e);
-      }
+      } catch (e) {}
     }
     return { language: store.languages.find(l => l.code === lang.code) };
   },
@@ -314,9 +299,7 @@ export const Api = {
       try {
         const res = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}`, { method: 'GET' });
         if (res.decks && res.decks.length > 0) return res;
-      } catch (e) {
-        console.warn('Cloud decks fallback to local:', e);
-      }
+      } catch (e) {}
     }
     const store = getLocalStore();
     const decks = store.decks[langCode] || [
@@ -436,9 +419,7 @@ export const Api = {
           method: 'GET'
         });
         if (res.words && res.words.length > 0) return res;
-      } catch (e) {
-        console.warn('Cloud words fallback to local:', e);
-      }
+      } catch (e) {}
     }
     const store = getLocalStore();
     let words = (store.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
@@ -453,17 +434,27 @@ export const Api = {
     return { words };
   },
 
-  async addWord(langCode, deckId, studyWord, pronunciation = '') {
+  async addWord(langCode, deckId, baseWord, studyWord, pronunciation = '') {
     const baseLang = getI18nBaseLang();
-    const autoTranslated = await clientAutoTranslate(studyWord, langCode, baseLang);
+    
+    // Auto-fill if one is empty
+    let finalBase = (baseWord || '').trim();
+    let finalStudy = (studyWord || '').trim();
+
+    if (!finalStudy && finalBase) {
+      finalStudy = await clientAutoTranslate(finalBase, baseLang, langCode);
+    } else if (!finalBase && finalStudy) {
+      finalBase = await clientAutoTranslate(finalStudy, langCode, baseLang);
+    }
+
     const wordId = 'w_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
 
     const store = getLocalStore();
     if (!store.words[langCode]) store.words[langCode] = [];
     const newWord = {
       wordId,
-      studyWord: studyWord.trim(),
-      baseWord: autoTranslated,
+      baseWord: finalBase,
+      studyWord: finalStudy,
       pronunciation: (pronunciation || '').trim(),
       langCode,
       deckId,
@@ -481,15 +472,14 @@ export const Api = {
             action: 'add',
             langCode,
             deckId,
-            studyWord,
+            baseWord: finalBase,
+            studyWord: finalStudy,
             pronunciation,
             baseLang
           })
         });
         if (cloudRes.word) return cloudRes;
-      } catch (e) {
-        console.warn('Cloud addWord failed, saved locally:', e);
-      }
+      } catch (e) {}
     }
     return { word: newWord };
   },
