@@ -24,12 +24,15 @@ async function clientAutoTranslate(text, fromLang, toLang) {
   return text;
 }
 
-function getLocalStore() {
+export function getLocalStore() {
   const raw = localStorage.getItem(LOCAL_DATA_KEY);
   if (raw) {
-    try { return JSON.parse(raw); } catch (e) {}
+    try { 
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.languages)) return parsed;
+    } catch (e) {}
   }
-  return {
+  const defaultStore = {
     languages: [
       { code: 'ja', name: 'Japanese', flag: '🇯🇵', order: 0, hidden: false, createdAt: new Date().toISOString() },
       { code: 'es', name: 'Spanish', flag: '🇪🇸', order: 1, hidden: false, createdAt: new Date().toISOString() },
@@ -68,9 +71,11 @@ function getLocalStore() {
       ]
     }
   };
+  saveLocalStore(defaultStore);
+  return defaultStore;
 }
 
-function saveLocalStore(store) {
+export function saveLocalStore(store) {
   localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify(store));
 }
 
@@ -79,14 +84,16 @@ export const Auth = {
     return localStorage.getItem(AUTH_TOKEN_KEY);
   },
   setToken(token) {
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
+    else localStorage.removeItem(AUTH_TOKEN_KEY);
   },
   getUser() {
     const raw = localStorage.getItem(USER_KEY);
     try { return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
   },
   setUser(user) {
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
+    else localStorage.removeItem(USER_KEY);
   },
   isAuthenticated() {
     return !!this.getToken() || !!this.getUser();
@@ -96,6 +103,10 @@ export const Auth = {
     localStorage.removeItem(USER_KEY);
   }
 };
+
+function shouldUseCloud() {
+  return !!CONFIG.API_ENDPOINTS.languages && !!Auth.getToken();
+}
 
 async function fetchWithAuth(url, options = {}) {
   const token = Auth.getToken();
@@ -113,9 +124,9 @@ async function fetchWithAuth(url, options = {}) {
   });
 
   if (response.status === 401) {
-    Auth.signOut();
-    window.location.hash = '#/signin';
-    throw new Error('Session expired. Please sign in again.');
+    // If token expired or invalid, clear token so app falls back to local data gracefully
+    Auth.setToken(null);
+    throw new Error('Authentication expired. Switched to local mode.');
   }
 
   if (!response.ok) {
@@ -126,21 +137,75 @@ async function fetchWithAuth(url, options = {}) {
   return response.json();
 }
 
+// Sync local data to cloud on first login
+async function syncLocalToCloud() {
+  if (!shouldUseCloud()) return;
+  try {
+    const store = getLocalStore();
+    const cloudLangs = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
+    
+    if (!cloudLangs.languages || cloudLangs.languages.length === 0) {
+      // Migrate all local languages, decks, and words to cloud
+      for (const l of store.languages) {
+        await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'add', code: l.code, name: l.name, flag: l.flag })
+        });
+
+        // Add custom decks
+        const decks = store.decks[l.code] || [];
+        for (const d of decks) {
+          if (!['practicing', 'mastered', 'all'].includes(d.deckId.toLowerCase())) {
+            await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
+              method: 'POST',
+              body: JSON.stringify({ action: 'add', langCode: l.code, name: d.name })
+            });
+          }
+        }
+
+        // Add words
+        const words = store.words[l.code] || [];
+        for (const w of words) {
+          await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
+            method: 'POST',
+            body: JSON.stringify({
+              action: 'add',
+              langCode: l.code,
+              deckId: w.deckId || 'practicing',
+              studyWord: w.studyWord,
+              baseWord: w.baseWord,
+              pronunciation: w.pronunciation || ''
+            })
+          });
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Sync to cloud note:', e);
+  }
+}
+
 export const Api = {
+  syncLocalToCloud,
+
   async getProfile() {
-    if (CONFIG.API_ENDPOINTS.profile) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.profile, { method: 'GET' });
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.profile) {
+      try {
+        return await fetchWithAuth(CONFIG.API_ENDPOINTS.profile, { method: 'GET' });
+      } catch (e) {}
     }
     const user = Auth.getUser() || { sub: 'local-user', name: 'Learner', email: 'user@vocab.app' };
     return { profile: user };
   },
 
   async updateProfile(profileData) {
-    if (CONFIG.API_ENDPOINTS.profile) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.profile, {
-        method: 'POST',
-        body: JSON.stringify(profileData)
-      });
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.profile) {
+      try {
+        return await fetchWithAuth(CONFIG.API_ENDPOINTS.profile, {
+          method: 'POST',
+          body: JSON.stringify(profileData)
+        });
+      } catch (e) {}
     }
     const current = Auth.getUser() || {};
     const updated = { ...current, ...profileData };
@@ -149,20 +214,27 @@ export const Api = {
   },
 
   async getLanguages() {
-    if (CONFIG.API_ENDPOINTS.languages) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.languages) {
+      try {
+        const cloudRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
+        if (cloudRes.languages && cloudRes.languages.length > 0) {
+          return cloudRes;
+        }
+        // If cloud is empty, sync local store to cloud
+        await syncLocalToCloud();
+        const retryRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
+        if (retryRes.languages && retryRes.languages.length > 0) {
+          return retryRes;
+        }
+      } catch (e) {
+        console.warn('Cloud languages fallback to local:', e);
+      }
     }
     const store = getLocalStore();
     return { languages: store.languages || [] };
   },
 
   async addLanguage(lang) {
-    if (CONFIG.API_ENDPOINTS.languages) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.languages, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'add', ...lang })
-      });
-    }
     const store = getLocalStore();
     if (!store.languages.find(l => l.code === lang.code)) {
       const newLang = {
@@ -174,25 +246,31 @@ export const Api = {
         createdAt: new Date().toISOString()
       };
       store.languages.push(newLang);
-      store.decks[lang.code] = [
-        { deckId: 'practicing', name: 'Practicing', langCode: lang.code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'mastered', name: 'Mastered', langCode: lang.code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'all', name: 'All', langCode: lang.code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
-      ];
-      store.words[lang.code] = [];
+      if (!store.decks[lang.code]) {
+        store.decks[lang.code] = [
+          { deckId: 'practicing', name: 'Practicing', langCode: lang.code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'mastered', name: 'Mastered', langCode: lang.code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'all', name: 'All', langCode: lang.code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+        ];
+      }
+      if (!store.words[lang.code]) store.words[lang.code] = [];
       saveLocalStore(store);
-      return { language: newLang };
+    }
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.languages) {
+      try {
+        return await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'add', ...lang })
+        });
+      } catch (e) {
+        console.warn('Cloud addLanguage failed, saved locally:', e);
+      }
     }
     return { language: store.languages.find(l => l.code === lang.code) };
   },
 
   async reorderLanguages(orderList) {
-    if (CONFIG.API_ENDPOINTS.languages) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.languages, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'reorder', orderList })
-      });
-    }
     const store = getLocalStore();
     for (const item of orderList) {
       const target = store.languages.find(l => l.code === item.code);
@@ -200,32 +278,55 @@ export const Api = {
     }
     store.languages.sort((a, b) => a.order - b.order);
     saveLocalStore(store);
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.languages) {
+      try {
+        await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'reorder', orderList })
+        });
+      } catch (e) {}
+    }
     return { message: 'Reordered' };
   },
 
   async toggleHideLanguage(code, hide) {
-    if (CONFIG.API_ENDPOINTS.languages) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.languages, {
-        method: 'POST',
-        body: JSON.stringify({ action: hide ? 'hide' : 'unhide', code })
-      });
-    }
     const store = getLocalStore();
     const target = store.languages.find(l => l.code === code);
     if (target) {
       target.hidden = hide;
       saveLocalStore(store);
-      return { language: target };
     }
-    throw new Error('Language not found');
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.languages) {
+      try {
+        await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, {
+          method: 'POST',
+          body: JSON.stringify({ action: hide ? 'hide' : 'unhide', code })
+        });
+      } catch (e) {}
+    }
+    return { language: target };
   },
 
   async getDecks(langCode) {
-    if (CONFIG.API_ENDPOINTS.decks) {
-      return fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}`, { method: 'GET' });
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.decks) {
+      try {
+        const res = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}`, { method: 'GET' });
+        if (res.decks && res.decks.length > 0) return res;
+      } catch (e) {
+        console.warn('Cloud decks fallback to local:', e);
+      }
     }
     const store = getLocalStore();
-    const decks = store.decks[langCode] || [];
+    const decks = store.decks[langCode] || [
+      { deckId: 'practicing', name: 'Practicing', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+      { deckId: 'mastered', name: 'Mastered', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+      { deckId: 'all', name: 'All', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+    ];
+    store.decks[langCode] = decks;
+    saveLocalStore(store);
+
     const words = store.words[langCode] || [];
     const counts = {};
     for (const w of words) {
@@ -239,12 +340,6 @@ export const Api = {
   },
 
   async addDeck(langCode, name) {
-    if (CONFIG.API_ENDPOINTS.decks) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'add', langCode, name })
-      });
-    }
     const store = getLocalStore();
     if (!store.decks[langCode]) store.decks[langCode] = [];
     const deckId = 'deck_' + Date.now().toString(36);
@@ -259,16 +354,19 @@ export const Api = {
     };
     store.decks[langCode].push(newDeck);
     saveLocalStore(store);
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.decks) {
+      try {
+        return await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'add', langCode, name })
+        });
+      } catch (e) {}
+    }
     return { deck: newDeck };
   },
 
   async reorderDecks(langCode, orderList) {
-    if (CONFIG.API_ENDPOINTS.decks) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'reorder', langCode, orderList })
-      });
-    }
     const store = getLocalStore();
     const decks = store.decks[langCode] || [];
     for (const item of orderList) {
@@ -277,33 +375,39 @@ export const Api = {
     }
     decks.sort((a, b) => a.order - b.order);
     saveLocalStore(store);
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.decks) {
+      try {
+        await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'reorder', langCode, orderList })
+        });
+      } catch (e) {}
+    }
     return { message: 'Decks reordered' };
   },
 
   async toggleHideDeck(langCode, deckId, hide) {
-    if (CONFIG.API_ENDPOINTS.decks) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
-        method: 'POST',
-        body: JSON.stringify({ action: hide ? 'hide' : 'unhide', langCode, deckId })
-      });
-    }
     const store = getLocalStore();
     const decks = store.decks[langCode] || [];
     const target = decks.find(d => d.deckId === deckId);
     if (target) {
       target.hidden = hide;
       saveLocalStore(store);
-      return { deck: target };
     }
-    throw new Error('Deck not found');
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.decks) {
+      try {
+        await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
+          method: 'POST',
+          body: JSON.stringify({ action: hide ? 'hide' : 'unhide', langCode, deckId })
+        });
+      } catch (e) {}
+    }
+    return { deck: target };
   },
 
   async deleteDeck(langCode, deckId) {
-    if (CONFIG.API_ENDPOINTS.decks) {
-      return fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}&deckId=${encodeURIComponent(deckId)}`, {
-        method: 'DELETE'
-      });
-    }
     const store = getLocalStore();
     if (['practicing', 'mastered', 'all'].includes(deckId.toLowerCase())) {
       throw new Error('Default decks cannot be deleted');
@@ -314,14 +418,27 @@ export const Api = {
       if (w.deckId === deckId) w.deckId = 'practicing';
     }
     saveLocalStore(store);
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.decks) {
+      try {
+        await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}&deckId=${encodeURIComponent(deckId)}`, {
+          method: 'DELETE'
+        });
+      } catch (e) {}
+    }
     return { message: 'Deleted' };
   },
 
   async getWords(langCode, deckId, sort = 'newest') {
-    if (CONFIG.API_ENDPOINTS.words) {
-      return fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(langCode)}&deckId=${encodeURIComponent(deckId)}&sort=${encodeURIComponent(sort)}`, {
-        method: 'GET'
-      });
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.words) {
+      try {
+        const res = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(langCode)}&deckId=${encodeURIComponent(deckId)}&sort=${encodeURIComponent(sort)}`, {
+          method: 'GET'
+        });
+        if (res.words && res.words.length > 0) return res;
+      } catch (e) {
+        console.warn('Cloud words fallback to local:', e);
+      }
     }
     const store = getLocalStore();
     let words = (store.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
@@ -338,23 +455,11 @@ export const Api = {
 
   async addWord(langCode, deckId, studyWord, pronunciation = '') {
     const baseLang = getI18nBaseLang();
-    if (CONFIG.API_ENDPOINTS.words) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'add',
-          langCode,
-          deckId,
-          studyWord,
-          pronunciation,
-          baseLang
-        })
-      });
-    }
-    const store = getLocalStore();
-    if (!store.words[langCode]) store.words[langCode] = [];
     const autoTranslated = await clientAutoTranslate(studyWord, langCode, baseLang);
     const wordId = 'w_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+
+    const store = getLocalStore();
+    if (!store.words[langCode]) store.words[langCode] = [];
     const newWord = {
       wordId,
       studyWord: studyWord.trim(),
@@ -367,16 +472,29 @@ export const Api = {
     };
     store.words[langCode].unshift(newWord);
     saveLocalStore(store);
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.words) {
+      try {
+        const cloudRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'add',
+            langCode,
+            deckId,
+            studyWord,
+            pronunciation,
+            baseLang
+          })
+        });
+        if (cloudRes.word) return cloudRes;
+      } catch (e) {
+        console.warn('Cloud addWord failed, saved locally:', e);
+      }
+    }
     return { word: newWord };
   },
 
   async moveWord(langCode, wordId, fromDeckId, toDeckId) {
-    if (CONFIG.API_ENDPOINTS.words) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'move', langCode, wordId, fromDeckId, toDeckId })
-      });
-    }
     const store = getLocalStore();
     const words = store.words[langCode] || [];
     const target = words.find(w => w.wordId === wordId);
@@ -384,18 +502,20 @@ export const Api = {
       target.deckId = toDeckId;
       target.updatedAt = new Date().toISOString();
       saveLocalStore(store);
-      return { word: target };
     }
-    throw new Error('Word not found');
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.words) {
+      try {
+        await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'move', langCode, wordId, fromDeckId, toDeckId })
+        });
+      } catch (e) {}
+    }
+    return { word: target };
   },
 
   async reorderWords(langCode, deckId, orderList) {
-    if (CONFIG.API_ENDPOINTS.words) {
-      return fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'reorder', langCode, deckId, orderList })
-      });
-    }
     const store = getLocalStore();
     const words = store.words[langCode] || [];
     for (const item of orderList) {
@@ -403,18 +523,30 @@ export const Api = {
       if (target) target.order = item.order;
     }
     saveLocalStore(store);
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.words) {
+      try {
+        await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'reorder', langCode, deckId, orderList })
+        });
+      } catch (e) {}
+    }
     return { message: 'Words reordered' };
   },
 
   async deleteWord(langCode, deckId, wordId) {
-    if (CONFIG.API_ENDPOINTS.words) {
-      return fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(langCode)}&deckId=${encodeURIComponent(deckId)}&wordId=${encodeURIComponent(wordId)}`, {
-        method: 'DELETE'
-      });
-    }
     const store = getLocalStore();
     store.words[langCode] = (store.words[langCode] || []).filter(w => w.wordId !== wordId);
     saveLocalStore(store);
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.words) {
+      try {
+        await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(langCode)}&deckId=${encodeURIComponent(deckId)}&wordId=${encodeURIComponent(wordId)}`, {
+          method: 'DELETE'
+        });
+      } catch (e) {}
+    }
     return { message: 'Word deleted' };
   }
 };
