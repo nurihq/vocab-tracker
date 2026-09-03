@@ -55,8 +55,33 @@ class App {
       }
     });
 
-    // Start background sync
+    // Start initial background sync
     syncLocalToCloud();
+
+    // Auto-sync from cloud when switching back to tab/window or unlocking screen
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && Auth.isAuthenticated()) {
+        syncLocalToCloud().then(() => this.handleRoute());
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      if (Auth.isAuthenticated()) {
+        syncLocalToCloud().then(() => this.handleRoute());
+      }
+    });
+
+    // Periodic live sync every 15 seconds if active
+    setInterval(() => {
+      if (document.visibilityState === 'visible' && Auth.isAuthenticated()) {
+        syncLocalToCloud().then(() => {
+          const currentHash = window.location.hash || '';
+          if (currentHash.startsWith('#/languages')) {
+            this.handleRoute();
+          }
+        });
+      }
+    }, 15000);
   }
 
   init() {

@@ -24,25 +24,30 @@ export function renderStudyLanguagesScreen(container) {
   // Background async refresh from DynamoDB
   async function refreshBackground() {
     try {
+      const oldDataStr = JSON.stringify(languages.map(l => ({ code: l.code, count: vocabCounts[l.code] || 0, hidden: l.hidden })));
+      
       const res = await Api.getLanguages();
       if (!isStillMounted()) return;
       if (res.languages) {
+        const newCounts = {};
         const countPromises = res.languages.map(async (l) => {
           try {
             const wordsRes = await Api.getWords(l.code, 'all');
-            vocabCounts[l.code] = (wordsRes.words || []).length;
+            newCounts[l.code] = (wordsRes.words || []).length;
           } catch (e) {
-            vocabCounts[l.code] = (store.words[l.code] || []).length;
+            newCounts[l.code] = (store.words[l.code] || []).length;
           }
         });
         await Promise.all(countPromises);
         if (!isStillMounted()) return;
 
-        // Check if data actually changed before re-rendering
-        const currentDataStr = JSON.stringify(languages.map(l => ({ code: l.code, count: vocabCounts[l.code], hidden: l.hidden })));
-        const newDataStr = JSON.stringify(res.languages.map(l => ({ code: l.code, count: vocabCounts[l.code], hidden: l.hidden })));
-        if (currentDataStr !== newDataStr) {
-          languages = res.languages;
+        const newDataStr = JSON.stringify(res.languages.map(l => ({ code: l.code, count: newCounts[l.code] || 0, hidden: l.hidden })));
+        
+        vocabCounts = newCounts;
+        languages = res.languages;
+
+        // If counts or languages changed, immediately update UI
+        if (oldDataStr !== newDataStr) {
           render();
         }
       }

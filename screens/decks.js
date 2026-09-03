@@ -39,16 +39,30 @@ export function renderDecksScreen(container, params = {}) {
   async function refreshBackground() {
     if (!isStillMounted()) return;
     try {
-      const res = await Api.getDecks(langCode);
+      const oldDataStr = JSON.stringify(decks.map(d => ({ id: d.deckId, count: d.wordCount, hidden: d.hidden })));
+
+      const [decksRes, wordsRes] = await Promise.all([
+        Api.getDecks(langCode),
+        Api.getWords(langCode, 'all')
+      ]);
       if (!isStillMounted()) return;
-      if (res.decks) {
-        // Only re-render if data actually changed to avoid interrupting clicks
-        const currentDataStr = JSON.stringify(decks.map(d => ({ id: d.deckId, count: d.wordCount, hidden: d.hidden })));
-        const newDataStr = JSON.stringify(res.decks.map(d => ({ id: d.deckId, count: d.wordCount, hidden: d.hidden })));
-        if (currentDataStr !== newDataStr) {
-          decks = res.decks;
-          render();
-        }
+
+      const latestWords = wordsRes.words || [];
+      const counts = {};
+      for (const w of latestWords) {
+        counts[w.deckId] = (counts[w.deckId] || 0) + 1;
+      }
+
+      const newDecks = (decksRes.decks || decks).map(d => ({
+        ...d,
+        wordCount: d.deckId === 'all' ? latestWords.length : (counts[d.deckId] || 0)
+      }));
+
+      const newDataStr = JSON.stringify(newDecks.map(d => ({ id: d.deckId, count: d.wordCount, hidden: d.hidden })));
+      decks = newDecks;
+
+      if (oldDataStr !== newDataStr) {
+        render();
       }
     } catch (err) {
       console.warn('Background deck refresh:', err);
