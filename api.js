@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260906_1788696866923';
-import { getI18nBaseLang } from './i18n.js?v=20260906_1788696866923';
+import { CONFIG } from './config.js?v=20260906_1788696935952';
+import { getI18nBaseLang } from './i18n.js?v=20260906_1788696935952';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;

@@ -1,15 +1,15 @@
-import { Navbar } from './components/navbar.js?v=20260906_1788696866923';
-import { detectBrowserLanguage } from './languages.js?v=20260906_1788696866923';
-import { setI18nBaseLang } from './i18n.js?v=20260906_1788696866923';
-import { Auth, syncLocalToCloud } from './api.js?v=20260906_1788696866923';
-import { trackPageView } from './analytics.js?v=20260906_1788696866923';
+import { Navbar } from './components/navbar.js?v=20260906_1788696935952';
+import { detectBrowserLanguage } from './languages.js?v=20260906_1788696935952';
+import { setI18nBaseLang } from './i18n.js?v=20260906_1788696935952';
+import { Auth, syncLocalToCloud } from './api.js?v=20260906_1788696935952';
+import { trackPageView } from './analytics.js?v=20260906_1788696935952';
 
-import { renderHomeScreen } from './screens/home.js?v=20260906_1788696866923';
-import { renderSignInScreen } from './screens/signin.js?v=20260906_1788696866923';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260906_1788696866923';
-import { renderDecksScreen } from './screens/decks.js?v=20260906_1788696866923';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260906_1788696866923';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260906_1788696866923';
+import { renderHomeScreen } from './screens/home.js?v=20260906_1788696935952';
+import { renderSignInScreen } from './screens/signin.js?v=20260906_1788696935952';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260906_1788696935952';
+import { renderDecksScreen } from './screens/decks.js?v=20260906_1788696935952';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260906_1788696935952';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260906_1788696935952';
 
 export function navigate(to) {
   let cleanTo = to;
@@ -87,7 +87,6 @@ class App {
           const currentHash = window.location.hash || '';
           if (currentHash.startsWith('#/languages')) {
             this.handleRoute();
-    initSilentGoogleAuth();
           }
         });
       }
@@ -167,29 +166,3 @@ document.addEventListener('DOMContentLoaded', () => {
   const app = new App();
   app.init();
 });
-
-
-import { CONFIG } from './config.js?v=20260906_1788696866923';
-
-function initSilentGoogleAuth() {
-  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-    google.accounts.id.initialize({
-      client_id: CONFIG.GOOGLE_CLIENT_ID,
-      callback: (response) => {
-        if (response && response.credential) {
-          Auth.setToken(response.credential);
-          try {
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            Auth.setUser({ sub: payload.sub, name: payload.name, email: payload.email, picture: payload.picture });
-          } catch (e) {}
-          syncLocalToCloud();
-        }
-      },
-      auto_select: true,
-      cancel_on_tap_outside: true
-    });
-    google.accounts.id.prompt();
-  } else {
-    setTimeout(initSilentGoogleAuth, 500);
-  }
-}
