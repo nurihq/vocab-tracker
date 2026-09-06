@@ -1,3 +1,4 @@
+import { syncLocalToCloud } from '../api.js';
 import { LANGUAGES } from '../languages.js';
 import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js';
 import { Auth, Api } from '../api.js';
@@ -96,6 +97,7 @@ export class Navbar {
           </button>
 
           ${isAuthed ? `
+            <button class="icon-btn" id="nav-sync-btn" title="Sync with Cloud" style="font-size: 0.9rem;">🔄</button>
             <button class="btn-signout" id="nav-signout-btn" data-i18n="signOut">
               ${t('signOut')}
             </button>
@@ -143,6 +145,16 @@ export class Navbar {
         themeBtn.textContent = this.theme === 'dark' ? '☀️' : '🌙';
         trackEvent('theme_change', { theme: this.theme });
         if (this.onThemeChange) this.onThemeChange(this.theme);
+      });
+    }
+
+    const syncBtn = container.querySelector('#nav-sync-btn');
+    if (syncBtn) {
+      syncBtn.addEventListener('click', async () => {
+        syncBtn.style.animation = 'spin 0.8s linear infinite';
+        await syncLocalToCloud();
+        syncBtn.style.animation = 'none';
+        if (this.onBaseLangChange) this.onBaseLangChange(getI18nBaseLang());
       });
     }
 

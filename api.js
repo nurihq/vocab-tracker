@@ -214,31 +214,54 @@ export async function syncLocalToCloud() {
 
       const localWords = store.words[l.code] || [];
       
-      // Upload ONLY brand new un-synced local words that have temporary IDs
-      for (const lw of localWords) {
-        if (lw._needsSync && lw.wordId && lw.wordId.startsWith('w_') && lw.studyWord) {
-          const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
-            method: 'POST',
-            body: JSON.stringify({
-              action: 'add',
-              langCode: l.code,
-              deckId: lw.deckId || 'practicing',
-              baseWord: lw.baseWord,
-              studyWord: lw.studyWord,
-              pronunciation: lw.pronunciation || ''
-            })
-          }).catch(() => null);
+      // 1. Build lookup sets of existing cloud words
+      const cloudStudyMap = new Map();
+      const cloudIdSet = new Set();
+      for (const cw of cloudWords) {
+        if (cw.wordId) cloudIdSet.add(cw.wordId);
+        const cleanStudy = (cw.studyWord || '').toLowerCase().trim();
+        if (cleanStudy) cloudStudyMap.set(`${cw.deckId || 'practicing'}:${cleanStudy}`, cw);
+      }
 
-          if (res && res.word) {
-            delete lw._needsSync;
-            lw.wordId = res.word.wordId;
+      // 2. Identify any word present in local store that is missing in DynamoDB -> UPLOAD TO CLOUD!
+      const mergedList = [...cloudWords];
+      for (const lw of localWords) {
+        if (!lw || !lw.studyWord) continue;
+        const key = `${lw.deckId || 'practicing'}:${lw.studyWord.toLowerCase().trim()}`;
+        
+        // If not in cloud by ID or studyWord key, upload it to DynamoDB!
+        if (!cloudIdSet.has(lw.wordId) && !cloudStudyMap.has(key)) {
+          try {
+            const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
+              method: 'POST',
+              body: JSON.stringify({
+                action: 'add',
+                langCode: l.code,
+                deckId: lw.deckId || 'practicing',
+                baseWord: lw.baseWord,
+                studyWord: lw.studyWord,
+                pronunciation: lw.pronunciation || ''
+              })
+            });
+
+            if (res && res.word) {
+              delete lw._needsSync;
+              lw.wordId = res.word.wordId;
+              mergedList.push(res.word);
+              cloudIdSet.add(res.word.wordId);
+              cloudStudyMap.set(key, res.word);
+            } else {
+              mergedList.push(lw);
+            }
+          } catch (err) {
+            console.warn('Failed to upload local word to cloud:', lw.studyWord, err);
+            mergedList.push(lw);
           }
         }
       }
 
-      // Cloud words are the single source of truth for all persisted words
-      const unsyncedTemporary = localWords.filter(lw => lw._needsSync && lw.wordId && lw.wordId.startsWith('w_'));
-      store.words[l.code] = deduplicateWords([...cloudWords, ...unsyncedTemporary]);
+      // 3. Save fully unified and deduplicated word list
+      store.words[l.code] = deduplicateWords(mergedList);
     }
 
     saveLocalStore(store);
@@ -247,12 +270,6 @@ export async function syncLocalToCloud() {
   } finally {
     isSyncing = false;
   }
-}
-
-// Background sync loop every 15 seconds
-if (typeof window !== 'undefined') {
-  window.addEventListener('online', () => syncLocalToCloud());
-  setInterval(() => syncLocalToCloud(), 15000);
 }
 
 export const Api = {

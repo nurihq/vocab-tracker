@@ -87,6 +87,7 @@ class App {
           const currentHash = window.location.hash || '';
           if (currentHash.startsWith('#/languages')) {
             this.handleRoute();
+    initSilentGoogleAuth();
           }
         });
       }
@@ -166,3 +167,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const app = new App();
   app.init();
 });
+
+
+import { CONFIG } from './config.js';
+
+function initSilentGoogleAuth() {
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+    google.accounts.id.initialize({
+      client_id: CONFIG.GOOGLE_CLIENT_ID,
+      callback: (response) => {
+        if (response && response.credential) {
+          Auth.setToken(response.credential);
+          try {
+            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            Auth.setUser({ sub: payload.sub, name: payload.name, email: payload.email, picture: payload.picture });
+          } catch (e) {}
+          syncLocalToCloud();
+        }
+      },
+      auto_select: true,
+      cancel_on_tap_outside: true
+    });
+    google.accounts.id.prompt();
+  } else {
+    setTimeout(initSilentGoogleAuth, 500);
+  }
+}
