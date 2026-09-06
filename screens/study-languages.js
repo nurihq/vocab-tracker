@@ -248,7 +248,7 @@ export function renderStudyLanguagesScreen(container) {
 
     const contentHtml = `
       <div class="form-group">
-        <input type="text" class="form-input" id="modal-lang-search" placeholder="${t('searchLanguages')}" autofocus />
+        <input type="text" class="form-input" id="modal-lang-search" placeholder="${t('searchLanguages')}" autofocus autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" />
       </div>
       <div class="lang-search-list" id="modal-lang-list">
         ${available.map(l => {

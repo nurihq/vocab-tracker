@@ -338,17 +338,17 @@ export function renderDeckWordsScreen(container, params = {}) {
     const contentHtml = `
       <div class="form-group">
         <label class="form-label">${t('wordInBase', { lang: localizedBaseLangName })}</label>
-        <input type="text" class="form-input" id="new-base-word-input" placeholder="${baseExample}" autofocus />
+        <input type="text" class="form-input" id="new-base-word-input" placeholder="${baseExample}" autofocus autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" />
       </div>
 
       <div class="form-group">
         <label class="form-label">${localizedStudyLangName} Translation</label>
-        <textarea class="form-input" id="new-study-word-input" rows="2" placeholder="${studyExample}"></textarea>
+        <textarea class="form-input" id="new-study-word-input" rows="2" placeholder="${studyExample}" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off"></textarea>
       </div>
 
       <div class="form-group">
         <label class="form-label">${t('pronunciationNotes')}</label>
-        <textarea class="form-input" id="new-pronunciation-input" rows="2" placeholder="e.g. Tone, phonetic hints, or context notes"></textarea>
+        <textarea class="form-input" id="new-pronunciation-input" rows="2" placeholder="e.g. Tone, phonetic hints, or context notes" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off"></textarea>
       </div>
     `;
 
@@ -391,17 +391,17 @@ export function renderDeckWordsScreen(container, params = {}) {
     const contentHtml = `
       <div class="form-group">
         <label class="form-label">${t('wordInBase', { lang: localizedBaseLangName })}</label>
-        <input type="text" class="form-input" id="edit-base-word-input" value="${(word.baseWord || '').replace(/"/g, '&quot;')}" placeholder="${baseExample}" autofocus />
+        <input type="text" class="form-input" id="edit-base-word-input" value="${(word.baseWord || '').replace(/"/g, '&quot;')}" placeholder="${baseExample}" autofocus autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" />
       </div>
 
       <div class="form-group">
         <label class="form-label">${localizedStudyLangName} Translation</label>
-        <textarea class="form-input" id="edit-study-word-input" rows="2" placeholder="${studyExample}">${word.studyWord || ''}</textarea>
+        <textarea class="form-input" id="edit-study-word-input" rows="2" placeholder="${studyExample}" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off">${word.studyWord || ''}</textarea>
       </div>
 
       <div class="form-group">
         <label class="form-label">${t('pronunciationNotes')}</label>
-        <textarea class="form-input" id="edit-pronunciation-input" rows="2" placeholder="e.g. Tone, phonetic hints, or context notes">${word.pronunciation || ''}</textarea>
+        <textarea class="form-input" id="edit-pronunciation-input" rows="2" placeholder="e.g. Tone, phonetic hints, or context notes" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off">${word.pronunciation || ''}</textarea>
       </div>
     `;
 

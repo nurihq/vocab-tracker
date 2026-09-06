@@ -40,6 +40,15 @@ class App {
       () => this.handleSignOut()
     );
 
+    // Global safeguard: prevent auto-capitalization and auto-correction on mobile inputs
+    document.addEventListener('focusin', (e) => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+        if (!e.target.hasAttribute('autocapitalize')) e.target.setAttribute('autocapitalize', 'none');
+        if (!e.target.hasAttribute('autocorrect')) e.target.setAttribute('autocorrect', 'off');
+        if (!e.target.hasAttribute('spellcheck')) e.target.setAttribute('spellcheck', 'false');
+      }
+    });
+
     window.addEventListener('hashchange', () => this.handleRoute());
     window.addEventListener('popstate', () => this.handleRoute());
 

@@ -300,7 +300,7 @@ export function renderDecksScreen(container, params = {}) {
     const contentHtml = `
       <div class="form-group">
         <label class="form-label" data-i18n="deckName">${t('deckName')}</label>
-        <input type="text" class="form-input" id="new-deck-name-input" placeholder="e.g. Travel, Food, Expressions..." autofocus />
+        <input type="text" class="form-input" id="new-deck-name-input" placeholder="e.g. Travel, Food, Expressions..." autofocus autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" />
       </div>
     `;
 

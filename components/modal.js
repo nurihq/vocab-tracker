@@ -74,7 +74,7 @@ export const Modal = {
       <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">${warning}</p>
       <div class="form-group">
         <label class="form-label">${typePrompt}</label>
-        <input type="text" class="form-input" id="confirm-deck-name-input" placeholder="${deckName}" autocomplete="off" />
+        <input type="text" class="form-input" id="confirm-deck-name-input" placeholder="${deckName}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" />
       </div>
     `;
 
