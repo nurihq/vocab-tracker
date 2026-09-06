@@ -21,6 +21,8 @@ export function renderStudyLanguagesScreen(container) {
   // Render on frame 0 (0ms latency!)
   render();
 
+  Api.syncLocalToCloud().catch(() => {});
+
   // Background async refresh from DynamoDB
   async function refreshBackground() {
     try {
@@ -76,6 +78,7 @@ export function renderStudyLanguagesScreen(container) {
               ${showHidden ? `👁️ ${t('hideHidden')}` : `👁️ ${t('showHidden')}`}
             </button>
           ` : ''}
+          <button class="btn btn-secondary" id="sync-cloud-btn" style="display: inline-flex; align-items: center; gap: 0.35rem;">🔄 <span>Sync</span></button>
           <button class="btn btn-primary" id="add-lang-btn">
             + <span data-i18n="addLanguage">${t('addLanguage')}</span>
           </button>
@@ -135,6 +138,15 @@ export function renderStudyLanguagesScreen(container) {
     autoTranslateUi(container);
 
     // Event Bindings
+    const syncBtn = container.querySelector('#sync-cloud-btn');
+    if (syncBtn) {
+      syncBtn.addEventListener('click', async () => {
+        syncBtn.innerHTML = '⏳ <span>Syncing...</span>';
+        await Api.syncLocalToCloud();
+        refreshBackground();
+      });
+    }
+
     const addBtn = container.querySelector('#add-lang-btn');
     const addCard = container.querySelector('#tile-add-card');
     if (addBtn) addBtn.addEventListener('click', openAddLanguageModal);

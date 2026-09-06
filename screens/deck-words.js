@@ -29,6 +29,8 @@ export function renderDeckWordsScreen(container, params = {}) {
   render();
   translateWordMeanings();
 
+  Api.syncLocalToCloud().catch(() => {});
+
   // Background async refresh from DynamoDB
   async function refreshBackground() {
     if (!isStillMounted()) return;
@@ -94,6 +96,7 @@ export function renderDeckWordsScreen(container, params = {}) {
             </a>
           ` : ''}
           <button class="btn btn-secondary btn-sm" id="deck-sync-btn" title="Sync with Cloud" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.75rem;">🔄 <span>Sync</span></button>
+          <button class="btn btn-secondary" id="sync-cloud-btn" style="display: inline-flex; align-items: center; gap: 0.35rem;">🔄 <span>Sync</span></button>
           <button class="btn btn-secondary" id="add-word-btn">
             + <span data-i18n="addWord">${t('addWord')}</span>
           </button>
@@ -179,6 +182,15 @@ export function renderDeckWordsScreen(container, params = {}) {
     if (deckSyncBtn) {
       deckSyncBtn.addEventListener('click', async () => {
         deckSyncBtn.textContent = '⏳ Syncing...';
+        await Api.syncLocalToCloud();
+        refreshBackground();
+      });
+    }
+
+    const syncBtn = container.querySelector('#sync-cloud-btn');
+    if (syncBtn) {
+      syncBtn.addEventListener('click', async () => {
+        syncBtn.innerHTML = '⏳ <span>Syncing...</span>';
         await Api.syncLocalToCloud();
         refreshBackground();
       });

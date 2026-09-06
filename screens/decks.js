@@ -35,6 +35,8 @@ export function renderDecksScreen(container, params = {}) {
   // Render immediately (0ms!)
   render();
 
+  Api.syncLocalToCloud().catch(() => {});
+
   // Background async refresh from DynamoDB
   async function refreshBackground() {
     if (!isStillMounted()) return;
@@ -105,6 +107,7 @@ export function renderDecksScreen(container, params = {}) {
               ${showHidden ? `👁️ ${t('hideHidden')}` : `👁️ ${t('showHidden')}`}
             </button>
           ` : ''}
+          <button class="btn btn-secondary" id="sync-cloud-btn" style="display: inline-flex; align-items: center; gap: 0.35rem;">🔄 <span>Sync</span></button>
           <button class="btn btn-primary" id="add-deck-btn">
             + <span data-i18n="addDeck">${t('addDeck')}</span>
           </button>
@@ -167,6 +170,15 @@ export function renderDecksScreen(container, params = {}) {
     autoTranslateUi(container);
 
     // Event Bindings
+    const syncBtn = container.querySelector('#sync-cloud-btn');
+    if (syncBtn) {
+      syncBtn.addEventListener('click', async () => {
+        syncBtn.innerHTML = '⏳ <span>Syncing...</span>';
+        await Api.syncLocalToCloud();
+        refreshBackground();
+      });
+    }
+
     const addBtn = container.querySelector('#add-deck-btn');
     const addCard = container.querySelector('#tile-add-deck-card');
     if (addBtn) addBtn.addEventListener('click', openAddDeckModal);
