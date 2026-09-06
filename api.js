@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260906_1788696113709';
-import { getI18nBaseLang } from './i18n.js?v=20260906_1788696113709';
+import { CONFIG } from './config.js?v=20260906_1788696600850';
+import { getI18nBaseLang } from './i18n.js?v=20260906_1788696600850';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -115,8 +115,18 @@ export const Auth = {
     if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
     else localStorage.removeItem(USER_KEY);
   },
+  isTokenValid() {
+    const token = this.getToken();
+    if (!token) return false;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return typeof payload.exp === 'number' && (payload.exp * 1000) > Date.now();
+    } catch (e) {
+      return false;
+    }
+  },
   isAuthenticated() {
-    return !!this.getToken() || !!this.getUser();
+    return this.isTokenValid() && !!this.getUser();
   },
   signOut() {
     localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -124,11 +134,64 @@ export const Auth = {
   }
 };
 
+let isRefreshingToken = false;
+export async function attemptSilentGoogleRefresh() {
+  if (isRefreshingToken) return false;
+  isRefreshingToken = true;
+
+  return new Promise((resolve) => {
+    if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+      google.accounts.id.initialize({
+        client_id: CONFIG.GOOGLE_CLIENT_ID,
+        callback: (response) => {
+          if (response && response.credential) {
+            Auth.setToken(response.credential);
+            try {
+              const payload = JSON.parse(atob(response.credential.split('.')[1]));
+              Auth.setUser({
+                sub: payload.sub,
+                name: payload.name,
+                email: payload.email,
+                picture: payload.picture
+              });
+            } catch (e) {}
+            syncLocalToCloud().catch(() => {});
+            isRefreshingToken = false;
+            resolve(true);
+            return;
+          }
+          isRefreshingToken = false;
+          resolve(false);
+        },
+        auto_select: true,
+        cancel_on_tap_outside: true
+      });
+      google.accounts.id.prompt((notification) => {
+        if (notification && (notification.isNotDisplayed() || notification.isSkippedMoment())) {
+          isRefreshingToken = false;
+          resolve(false);
+        }
+      });
+      setTimeout(() => {
+        isRefreshingToken = false;
+        resolve(false);
+      }, 3500);
+    } else {
+      isRefreshingToken = false;
+      resolve(false);
+    }
+  });
+}
+
 function shouldUseCloud() {
   return !!CONFIG.API_ENDPOINTS.languages && !!Auth.getToken();
 }
 
 async function fetchWithAuth(url, options = {}) {
+  if (!Auth.isTokenValid()) {
+    await attemptSilentGoogleRefresh();
+  }
+
   const token = Auth.getToken();
   const headers = {
     'Content-Type': 'application/json',
@@ -144,8 +207,11 @@ async function fetchWithAuth(url, options = {}) {
   });
 
   if (response.status === 401) {
-    Auth.setToken(null);
-    throw new Error('Authentication expired. Switched to local mode.');
+    Auth.signOut();
+    if (window.location.hash && !['#/', '#/signin', '#'].includes(window.location.hash)) {
+      window.location.hash = '#/signin';
+    }
+    throw new Error('Authentication expired. Redirected to sign-in.');
   }
 
   if (!response.ok) {

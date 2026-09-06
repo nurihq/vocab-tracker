@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788696113709';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696113709';
-import { Api, getLocalStore } from '../api.js?v=20260906_1788696113709';
-import { Modal } from '../components/modal.js?v=20260906_1788696113709';
-import { trackEvent } from '../analytics.js?v=20260906_1788696113709';
-import { navigate } from '../app.js?v=20260906_1788696113709';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788696600850';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696600850';
+import { Api, getLocalStore } from '../api.js?v=20260906_1788696600850';
+import { Modal } from '../components/modal.js?v=20260906_1788696600850';
+import { trackEvent } from '../analytics.js?v=20260906_1788696600850';
+import { navigate } from '../app.js?v=20260906_1788696600850';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -107,7 +107,6 @@ export function renderDecksScreen(container, params = {}) {
               ${showHidden ? `👁️ ${t('hideHidden')}` : `👁️ ${t('showHidden')}`}
             </button>
           ` : ''}
-          <button class="btn btn-secondary" id="sync-cloud-btn" style="display: inline-flex; align-items: center; gap: 0.35rem;">🔄 <span>Sync</span></button>
           <button class="btn btn-primary" id="add-deck-btn">
             + <span data-i18n="addDeck">${t('addDeck')}</span>
           </button>
@@ -170,51 +169,7 @@ export function renderDecksScreen(container, params = {}) {
     autoTranslateUi(container);
 
     // Event Bindings
-    const syncBtn = container.querySelector('#sync-cloud-btn');
-    if (syncBtn) {
-      syncBtn.addEventListener('click', async () => {
-        syncBtn.innerHTML = '⏳ <span>Syncing...</span>';
-        await Api.syncLocalToCloud();
-        refreshBackground();
-      });
-    }
-
-    const addBtn = container.querySelector('#add-deck-btn');
-    const addCard = container.querySelector('#tile-add-deck-card');
-    if (addBtn) addBtn.addEventListener('click', openAddDeckModal);
-    if (addCard) addCard.addEventListener('click', openAddDeckModal);
-
-    const toggleHiddenBtn = container.querySelector('#toggle-hidden-btn');
-    if (toggleHiddenBtn) {
-      toggleHiddenBtn.addEventListener('click', () => {
-        showHidden = !showHidden;
-        trackEvent('toggle_hidden_decks', { langCode, showHidden });
-        render();
-      });
-    }
-
-    container.querySelectorAll('.tile[data-deck-id]').forEach(tile => {
-      tile.addEventListener('click', (e) => {
-        if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
-        const deckId = tile.getAttribute('data-deck-id');
-        trackEvent('select_deck', { langCode, deckId });
-      });
-    });
-
-    container.querySelectorAll('.hide-toggle-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const deckId = btn.getAttribute('data-deck-id');
-        const isCurrentlyHidden = btn.getAttribute('data-hidden') === 'true';
-        try {
-          await Api.toggleHideDeck(langCode, deckId, !isCurrentlyHidden);
-          trackEvent(isCurrentlyHidden ? 'unhide_deck' : 'hide_deck', { langCode, deckId });
-          refreshBackground();
-        } catch (err) {
-          console.error(err);
-        }
-      });
+    );
     });
 
     container.querySelectorAll('.delete-deck-btn').forEach(btn => {

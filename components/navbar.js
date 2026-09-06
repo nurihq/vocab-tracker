@@ -1,9 +1,9 @@
-import { syncLocalToCloud } from '../api.js?v=20260906_1788696113709';
-import { LANGUAGES } from '../languages.js?v=20260906_1788696113709';
-import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788696113709';
-import { Auth, Api } from '../api.js?v=20260906_1788696113709';
-import { trackEvent } from '../analytics.js?v=20260906_1788696113709';
-import { navigate } from '../app.js?v=20260906_1788696113709';
+import { syncLocalToCloud } from '../api.js?v=20260906_1788696600850';
+import { LANGUAGES } from '../languages.js?v=20260906_1788696600850';
+import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788696600850';
+import { Auth, Api } from '../api.js?v=20260906_1788696600850';
+import { trackEvent } from '../analytics.js?v=20260906_1788696600850';
+import { navigate } from '../app.js?v=20260906_1788696600850';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {
@@ -96,10 +96,6 @@ export class Navbar {
             ${this.theme === 'dark' ? '☀️' : '🌙'}
           </button>
 
-          <button class="icon-btn" id="nav-sync-btn" title="${isAuthed ? 'Sync with Cloud' : 'Sign in to Sync'}" style="font-size: 0.9rem; display: flex; align-items: center; justify-content: center;">
-            🔄
-          </button>
-
           ${isAuthed ? `
             <button class="btn-signout" id="nav-signout-btn" data-i18n="signOut">
               ${t('signOut')}
@@ -155,32 +151,4 @@ export class Navbar {
       });
     }
 
-    const syncBtn = container.querySelector('#nav-sync-btn');
-    if (syncBtn) {
-      syncBtn.addEventListener('click', async () => {
-        if (!Auth.isAuthenticated()) {
-          navigate('#/signin');
-          return;
-        }
-        syncBtn.style.transform = 'rotate(360deg)';
-        syncBtn.style.transition = 'transform 0.6s ease';
-        await syncLocalToCloud();
-        setTimeout(() => {
-          syncBtn.style.transform = 'none';
-          syncBtn.style.transition = 'none';
-        }, 600);
-        if (this.onBaseLangChange) this.onBaseLangChange(getI18nBaseLang());
-      });
     }
-
-    const signOutBtn = container.querySelector('#nav-signout-btn');
-    if (signOutBtn) {
-      signOutBtn.addEventListener('click', () => {
-        trackEvent('sign_out');
-        Auth.signOut();
-        if (this.onSignOut) this.onSignOut();
-        navigate('#/');
-      });
-    }
-  }
-}

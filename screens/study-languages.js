@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788696113709';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696113709';
-import { Api, getLocalStore } from '../api.js?v=20260906_1788696113709';
-import { Modal } from '../components/modal.js?v=20260906_1788696113709';
-import { trackEvent } from '../analytics.js?v=20260906_1788696113709';
-import { navigate } from '../app.js?v=20260906_1788696113709';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788696600850';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696600850';
+import { Api, getLocalStore } from '../api.js?v=20260906_1788696600850';
+import { Modal } from '../components/modal.js?v=20260906_1788696600850';
+import { trackEvent } from '../analytics.js?v=20260906_1788696600850';
+import { navigate } from '../app.js?v=20260906_1788696600850';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
@@ -78,7 +78,6 @@ export function renderStudyLanguagesScreen(container) {
               ${showHidden ? `👁️ ${t('hideHidden')}` : `👁️ ${t('showHidden')}`}
             </button>
           ` : ''}
-          <button class="btn btn-secondary" id="sync-cloud-btn" style="display: inline-flex; align-items: center; gap: 0.35rem;">🔄 <span>Sync</span></button>
           <button class="btn btn-primary" id="add-lang-btn">
             + <span data-i18n="addLanguage">${t('addLanguage')}</span>
           </button>
@@ -128,12 +127,6 @@ export function renderStudyLanguagesScreen(container) {
         </div>
       </div>
 
-      <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border-color); display: flex; justify-content: center;">
-        <button class="btn btn-secondary btn-sm" id="export-backup-btn" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; padding: 0.45rem 0.9rem;">
-          💾 <span>Backup & Export Vocab</span>
-        </button>
-      </div>
-
       ${languages.length === 0 ? `
         <div class="empty-state">
           <p data-i18n="noLanguagesYet">${t('noLanguagesYet')}</p>
@@ -144,71 +137,12 @@ export function renderStudyLanguagesScreen(container) {
     autoTranslateUi(container);
 
     // Event Bindings
-    const syncBtn = container.querySelector('#sync-cloud-btn');
-    if (syncBtn) {
-      syncBtn.addEventListener('click', async () => {
-        syncBtn.innerHTML = '⏳ <span>Syncing...</span>';
-        await Api.syncLocalToCloud();
-        refreshBackground();
-      });
-    }
-
-    const addBtn = container.querySelector('#add-lang-btn');
-    const addCard = container.querySelector('#tile-add-card');
-    if (addBtn) addBtn.addEventListener('click', openAddLanguageModal);
-    if (addCard) addCard.addEventListener('click', openAddLanguageModal);
-
-    const toggleHiddenBtn = container.querySelector('#toggle-hidden-btn');
-    if (toggleHiddenBtn) {
-      toggleHiddenBtn.addEventListener('click', () => {
-        showHidden = !showHidden;
-        trackEvent('toggle_hidden_languages', { showHidden });
-        render();
-      });
-    }
-
-    container.querySelectorAll('.tile[data-code]').forEach(tile => {
-      tile.addEventListener('click', (e) => {
-        if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
-        const code = tile.getAttribute('data-code');
-        trackEvent('select_study_language', { langCode: code });
-      });
-    });
-
-    container.querySelectorAll('.hide-toggle-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const code = btn.getAttribute('data-code');
-        const isCurrentlyHidden = btn.getAttribute('data-hidden') === 'true';
-        try {
-          await Api.toggleHideLanguage(code, !isCurrentlyHidden);
-          trackEvent(isCurrentlyHidden ? 'unhide_language' : 'hide_language', { langCode: code });
-          refreshBackground();
-        } catch (err) {
-          console.error(err);
-        }
-      });
+    );
     });
 
     setupDragAndDrop();
 
-    const exportBtn = container.querySelector('#export-backup-btn');
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => {
-        const store = getLocalStore();
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(store, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `monogenesis_vocab_backup_${new Date().toISOString().slice(0, 10)}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-      });
-    }
-  }
-
-  function setupDragAndDrop() {
+    function setupDragAndDrop() {
     const grid = container.querySelector('#languages-grid');
     if (!grid) return;
 

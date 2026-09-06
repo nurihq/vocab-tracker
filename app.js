@@ -1,15 +1,15 @@
-import { Navbar } from './components/navbar.js?v=20260906_1788696113709';
-import { detectBrowserLanguage } from './languages.js?v=20260906_1788696113709';
-import { setI18nBaseLang } from './i18n.js?v=20260906_1788696113709';
-import { Auth, syncLocalToCloud } from './api.js?v=20260906_1788696113709';
-import { trackPageView } from './analytics.js?v=20260906_1788696113709';
+import { Navbar } from './components/navbar.js?v=20260906_1788696600850';
+import { detectBrowserLanguage } from './languages.js?v=20260906_1788696600850';
+import { setI18nBaseLang } from './i18n.js?v=20260906_1788696600850';
+import { Auth, syncLocalToCloud } from './api.js?v=20260906_1788696600850';
+import { trackPageView } from './analytics.js?v=20260906_1788696600850';
 
-import { renderHomeScreen } from './screens/home.js?v=20260906_1788696113709';
-import { renderSignInScreen } from './screens/signin.js?v=20260906_1788696113709';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260906_1788696113709';
-import { renderDecksScreen } from './screens/decks.js?v=20260906_1788696113709';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260906_1788696113709';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260906_1788696113709';
+import { renderHomeScreen } from './screens/home.js?v=20260906_1788696600850';
+import { renderSignInScreen } from './screens/signin.js?v=20260906_1788696600850';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260906_1788696600850';
+import { renderDecksScreen } from './screens/decks.js?v=20260906_1788696600850';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260906_1788696600850';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260906_1788696600850';
 
 export function navigate(to) {
   let cleanTo = to;
@@ -118,7 +118,7 @@ class App {
     // Re-render navbar with updated active state
     this.navbar.render(this.navContainer, hash);
 
-    // Protected Route Check
+    // Protected Route Check: Strictly check valid token & session
     const isPublic = path === '/' || path === '' || path === '/signin';
     if (!isPublic && !Auth.isAuthenticated()) {
       navigate('#/signin');
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-import { CONFIG } from './config.js?v=20260906_1788696113709';
+import { CONFIG } from './config.js?v=20260906_1788696600850';
 
 function initSilentGoogleAuth() {
   if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
