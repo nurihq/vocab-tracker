@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js';
-import { Api, getLocalStore } from '../api.js';
-import { Modal } from '../components/modal.js';
-import { trackEvent } from '../analytics.js';
-import { navigate } from '../app.js';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260906_1788696113709';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696113709';
+import { Api, getLocalStore } from '../api.js?v=20260906_1788696113709';
+import { Modal } from '../components/modal.js?v=20260906_1788696113709';
+import { trackEvent } from '../analytics.js?v=20260906_1788696113709';
+import { navigate } from '../app.js?v=20260906_1788696113709';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
