@@ -128,6 +128,12 @@ export function renderStudyLanguagesScreen(container) {
         </div>
       </div>
 
+      <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border-color); display: flex; justify-content: center;">
+        <button class="btn btn-secondary btn-sm" id="export-backup-btn" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; padding: 0.45rem 0.9rem;">
+          💾 <span>Backup & Export Vocab</span>
+        </button>
+      </div>
+
       ${languages.length === 0 ? `
         <div class="empty-state">
           <p data-i18n="noLanguagesYet">${t('noLanguagesYet')}</p>
@@ -186,6 +192,20 @@ export function renderStudyLanguagesScreen(container) {
     });
 
     setupDragAndDrop();
+
+    const exportBtn = container.querySelector('#export-backup-btn');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        const store = getLocalStore();
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(store, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `monogenesis_vocab_backup_${new Date().toISOString().slice(0, 10)}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+      });
+    }
   }
 
   function setupDragAndDrop() {
