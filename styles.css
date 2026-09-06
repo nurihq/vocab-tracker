@@ -485,15 +485,42 @@ body {
   color: var(--text-muted);
 }
 
+.tile.is-dragging {
+  opacity: 0.35 !important;
+  transform: scale(0.97) !important;
+  border: 2px dashed var(--primary) !important;
+}
+
+.tile.drag-over {
+  border-color: var(--primary) !important;
+  background: var(--accent-zen-light) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 0 0 2px var(--primary) !important;
+}
+
 .tile-drag-handle {
   cursor: grab;
   user-select: none;
   position: absolute;
-  bottom: 0.65rem;
-  right: 0.65rem;
+  bottom: 0.5rem;
+  right: 0.5rem;
   color: var(--text-muted);
-  font-size: 0.8rem;
-  opacity: 0.3;
+  font-size: 1.1rem;
+  padding: 0.35rem;
+  line-height: 1;
+  opacity: 0.45;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
+  border-radius: var(--radius-sm);
+}
+
+.tile-drag-handle:hover {
+  opacity: 1;
+  color: var(--primary);
+  background: var(--bg-hover);
+}
+
+.tile-drag-handle:active {
+  cursor: grabbing;
 }
 
 .tile-add {

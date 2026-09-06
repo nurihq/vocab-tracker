@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788696935952';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696935952';
-import { Api, getLocalStore } from '../api.js?v=20260906_1788696935952';
-import { Modal } from '../components/modal.js?v=20260906_1788696935952';
-import { trackEvent } from '../analytics.js?v=20260906_1788696935952';
-import { navigate } from '../app.js?v=20260906_1788696935952';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788697560271';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788697560271';
+import { Api, getLocalStore } from '../api.js?v=20260906_1788697560271';
+import { Modal } from '../components/modal.js?v=20260906_1788697560271';
+import { trackEvent } from '../analytics.js?v=20260906_1788697560271';
+import { navigate } from '../app.js?v=20260906_1788697560271';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
@@ -91,10 +91,11 @@ export function renderStudyLanguagesScreen(container) {
           const totalWords = vocabCounts[lang.code] || 0;
 
           return `
-            <a href="#/languages/${lang.code}/decks" 
-               class="tile ${lang.hidden ? 'is-hidden-item' : ''}" 
-               data-code="${lang.code}" 
-               data-index="${index}">
+            <div class="tile ${lang.hidden ? 'is-hidden-item' : ''}" 
+                 data-code="${lang.code}" 
+                 data-index="${index}"
+                 role="button"
+                 tabindex="0">
               <div class="tile-top">
                 <span class="tile-flag">${langInfo.flag || lang.flag || '🌐'}</span>
                 <div class="tile-actions" onclick="event.stopPropagation();">
@@ -116,8 +117,8 @@ export function renderStudyLanguagesScreen(container) {
                 <div class="tile-title">${localizedTitle}</div>
                 <div class="tile-subtitle">${langInfo.nativeName || lang.code.toUpperCase()}</div>
               </div>
-              <div class="tile-drag-handle" draggable="true" title="Drag to reorder" onclick="event.preventDefault(); event.stopPropagation();">⋮⋮</div>
-            </a>
+              <div class="tile-drag-handle" title="Drag to reorder" onclick="event.preventDefault(); event.stopPropagation();">⋮⋮</div>
+            </div>
           `;
         }).join('')}
 
@@ -151,14 +152,6 @@ export function renderStudyLanguagesScreen(container) {
       });
     }
 
-    container.querySelectorAll('.tile[data-code]').forEach(tile => {
-      tile.addEventListener('click', (e) => {
-        if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
-        const code = tile.getAttribute('data-code');
-        trackEvent('select_study_language', { langCode: code });
-      });
-    });
-
     container.querySelectorAll('.hide-toggle-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.preventDefault();
@@ -183,26 +176,42 @@ export function renderStudyLanguagesScreen(container) {
     if (!grid) return;
 
     let draggedTile = null;
+    let didDrag = false;
 
-    grid.querySelectorAll('.tile-drag-handle').forEach(handle => {
-      const tile = handle.closest('.tile');
-      if (!tile) return;
+    grid.querySelectorAll('.tile[data-code]').forEach(tile => {
+      const handle = tile.querySelector('.tile-drag-handle');
 
-      handle.addEventListener('dragstart', (e) => {
+      if (handle) {
+        handle.addEventListener('mouseenter', () => {
+          tile.setAttribute('draggable', 'true');
+        });
+        handle.addEventListener('mousedown', () => {
+          tile.setAttribute('draggable', 'true');
+        });
+        handle.addEventListener('mouseup', () => {
+          if (!didDrag) tile.removeAttribute('draggable');
+        });
+        handle.addEventListener('mouseleave', () => {
+          if (!didDrag) tile.removeAttribute('draggable');
+        });
+      }
+
+      tile.addEventListener('dragstart', (e) => {
         draggedTile = tile;
+        didDrag = true;
         tile.classList.add('is-dragging');
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', tile.getAttribute('data-code'));
       });
 
-      handle.addEventListener('dragend', () => {
-        if (draggedTile) draggedTile.classList.remove('is-dragging');
+      tile.addEventListener('dragend', () => {
+        tile.classList.remove('is-dragging');
+        tile.removeAttribute('draggable');
         grid.querySelectorAll('.tile').forEach(t => t.classList.remove('drag-over'));
         draggedTile = null;
+        setTimeout(() => { didDrag = false; }, 100);
       });
-    });
 
-    grid.querySelectorAll('.tile[data-code]').forEach(tile => {
       tile.addEventListener('dragover', (e) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
@@ -239,6 +248,22 @@ export function renderStudyLanguagesScreen(container) {
           } catch (err) {
             console.error('Failed to save reorder:', err);
           }
+        }
+      });
+
+      tile.addEventListener('click', (e) => {
+        if (didDrag) return;
+        if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
+        const code = tile.getAttribute('data-code');
+        trackEvent('select_study_language', { langCode: code });
+        navigate(`#/languages/${code}/decks`);
+      });
+
+      tile.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
+          const code = tile.getAttribute('data-code');
+          navigate(`#/languages/${code}/decks`);
         }
       });
     });

@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260906_1788696935952';
-import { getI18nBaseLang } from './i18n.js?v=20260906_1788696935952';
+import { CONFIG } from './config.js?v=20260906_1788697560271';
+import { getI18nBaseLang } from './i18n.js?v=20260906_1788697560271';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -62,28 +62,8 @@ export function getLocalStore() {
     } catch (e) {}
   }
   const defaultStore = {
-    languages: [
-      { code: 'ja', name: 'Japanese', flag: '🇯🇵', order: 0, hidden: false, createdAt: new Date().toISOString() },
-      { code: 'es', name: 'Spanish', flag: '🇪🇸', order: 1, hidden: false, createdAt: new Date().toISOString() },
-      { code: 'ka', name: 'Georgian', flag: '🇬🇪', order: 2, hidden: false, createdAt: new Date().toISOString() }
-    ],
-    decks: {
-      'ja': [
-        { deckId: 'practicing', name: 'Practicing', langCode: 'ja', order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'mastered', name: 'Mastered', langCode: 'ja', order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'all', name: 'All', langCode: 'ja', order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
-      ],
-      'es': [
-        { deckId: 'practicing', name: 'Practicing', langCode: 'es', order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'mastered', name: 'Mastered', langCode: 'es', order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'all', name: 'All', langCode: 'es', order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
-      ],
-      'ka': [
-        { deckId: 'practicing', name: 'Practicing', langCode: 'ka', order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'mastered', name: 'Mastered', langCode: 'ka', order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'all', name: 'All', langCode: 'ka', order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
-      ]
-    },
+    languages: [],
+    decks: {},
     words: {}
   };
   saveLocalStore(defaultStore);
