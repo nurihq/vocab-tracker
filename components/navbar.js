@@ -96,12 +96,19 @@ export class Navbar {
             ${this.theme === 'dark' ? '☀️' : '🌙'}
           </button>
 
+          <button class="icon-btn" id="nav-sync-btn" title="${isAuthed ? 'Sync with Cloud' : 'Sign in to Sync'}" style="font-size: 0.9rem; display: flex; align-items: center; justify-content: center;">
+            🔄
+          </button>
+
           ${isAuthed ? `
-            <button class="icon-btn" id="nav-sync-btn" title="Sync with Cloud" style="font-size: 0.9rem;">🔄</button>
             <button class="btn-signout" id="nav-signout-btn" data-i18n="signOut">
               ${t('signOut')}
             </button>
-          ` : ''}
+          ` : `
+            <a href="#/signin" class="btn btn-secondary btn-sm" style="padding: 0.35rem 0.75rem; font-size: 0.82rem; text-decoration: none;">
+              Sign In
+            </a>
+          `}
         </div>
       </header>
     `;
@@ -151,9 +158,17 @@ export class Navbar {
     const syncBtn = container.querySelector('#nav-sync-btn');
     if (syncBtn) {
       syncBtn.addEventListener('click', async () => {
-        syncBtn.style.animation = 'spin 0.8s linear infinite';
+        if (!Auth.isAuthenticated()) {
+          navigate('#/signin');
+          return;
+        }
+        syncBtn.style.transform = 'rotate(360deg)';
+        syncBtn.style.transition = 'transform 0.6s ease';
         await syncLocalToCloud();
-        syncBtn.style.animation = 'none';
+        setTimeout(() => {
+          syncBtn.style.transform = 'none';
+          syncBtn.style.transition = 'none';
+        }, 600);
         if (this.onBaseLangChange) this.onBaseLangChange(getI18nBaseLang());
       });
     }

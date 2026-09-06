@@ -93,6 +93,7 @@ export function renderDeckWordsScreen(container, params = {}) {
               ${t('studyDeck')}
             </a>
           ` : ''}
+          <button class="btn btn-secondary btn-sm" id="deck-sync-btn" title="Sync with Cloud" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.75rem;">🔄 <span>Sync</span></button>
           <button class="btn btn-secondary" id="add-word-btn">
             + <span data-i18n="addWord">${t('addWord')}</span>
           </button>
@@ -173,6 +174,15 @@ export function renderDeckWordsScreen(container, params = {}) {
     `;
 
     autoTranslateUi(container);
+
+    const deckSyncBtn = container.querySelector('#deck-sync-btn');
+    if (deckSyncBtn) {
+      deckSyncBtn.addEventListener('click', async () => {
+        deckSyncBtn.textContent = '⏳ Syncing...';
+        await Api.syncLocalToCloud();
+        refreshBackground();
+      });
+    }
 
     const addWordBtn = container.querySelector('#add-word-btn');
     if (addWordBtn) addWordBtn.addEventListener('click', openAddWordModal);
