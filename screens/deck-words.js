@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260906_1788696731291';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696731291';
-import { Api, getLocalStore } from '../api.js?v=20260906_1788696731291';
-import { Modal } from '../components/modal.js?v=20260906_1788696731291';
-import { trackEvent } from '../analytics.js?v=20260906_1788696731291';
-import { navigate } from '../app.js?v=20260906_1788696731291';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260906_1788696866923';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696866923';
+import { Api, getLocalStore } from '../api.js?v=20260906_1788696866923';
+import { Modal } from '../components/modal.js?v=20260906_1788696866923';
+import { trackEvent } from '../analytics.js?v=20260906_1788696866923';
+import { navigate } from '../app.js?v=20260906_1788696866923';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -95,7 +95,6 @@ export function renderDeckWordsScreen(container, params = {}) {
               ${t('studyDeck')}
             </a>
           ` : ''}
-          <button class="btn btn-secondary btn-sm" id="deck-sync-btn" title="Sync with Cloud" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.75rem;">🔄 <span>Sync</span></button>
           <button class="btn btn-secondary" id="add-word-btn">
             + <span data-i18n="addWord">${t('addWord')}</span>
           </button>
@@ -177,16 +176,41 @@ export function renderDeckWordsScreen(container, params = {}) {
 
     autoTranslateUi(container);
 
-    const deckSyncBtn = container.querySelector('#deck-sync-btn');
-    if (deckSyncBtn) {
-      deckSyncBtn.addEventListener('click', async () => {
-        deckSyncBtn.textContent = '⏳ Syncing...';
-        await Api.syncLocalToCloud();
+    const addWordBtn = container.querySelector('#add-word-btn');
+    if (addWordBtn) addWordBtn.addEventListener('click', openAddWordModal);
+
+    const studyDeckBtn = container.querySelector('#study-deck-btn');
+    if (studyDeckBtn) {
+      studyDeckBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        trackEvent('study_deck_click', { langCode, deckId, wordCount: words.length });
+        navigate(`#/languages/${langCode}/decks/${deckId}/study`);
+      });
+    }
+
+    const sortDropdown = container.querySelector('#sort-dropdown');
+    if (sortDropdown) {
+      sortDropdown.addEventListener('change', async (e) => {
+        currentSort = e.target.value;
+        trackEvent('sort_words', { langCode, deckId, sort: currentSort });
         refreshBackground();
       });
     }
 
-    );
+    container.querySelectorAll('.word-move-dropdown').forEach(select => {
+      select.addEventListener('change', async (e) => {
+        const wordId = select.getAttribute('data-word-id');
+        const toDeckId = e.target.value;
+        if (!toDeckId) return;
+
+        try {
+          await Api.moveWord(langCode, wordId, deckId, toDeckId);
+          trackEvent('move_word', { langCode, fromDeckId: deckId, toDeckId });
+          refreshBackground();
+        } catch (err) {
+          console.error('Failed to move word:', err);
+        }
+      });
     });
 
     // Edit Word Handlers

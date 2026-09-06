@@ -1,15 +1,15 @@
-import { Navbar } from './components/navbar.js?v=20260906_1788696731291';
-import { detectBrowserLanguage } from './languages.js?v=20260906_1788696731291';
-import { setI18nBaseLang } from './i18n.js?v=20260906_1788696731291';
-import { Auth, syncLocalToCloud } from './api.js?v=20260906_1788696731291';
-import { trackPageView } from './analytics.js?v=20260906_1788696731291';
+import { Navbar } from './components/navbar.js?v=20260906_1788696866923';
+import { detectBrowserLanguage } from './languages.js?v=20260906_1788696866923';
+import { setI18nBaseLang } from './i18n.js?v=20260906_1788696866923';
+import { Auth, syncLocalToCloud } from './api.js?v=20260906_1788696866923';
+import { trackPageView } from './analytics.js?v=20260906_1788696866923';
 
-import { renderHomeScreen } from './screens/home.js?v=20260906_1788696731291';
-import { renderSignInScreen } from './screens/signin.js?v=20260906_1788696731291';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260906_1788696731291';
-import { renderDecksScreen } from './screens/decks.js?v=20260906_1788696731291';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260906_1788696731291';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260906_1788696731291';
+import { renderHomeScreen } from './screens/home.js?v=20260906_1788696866923';
+import { renderSignInScreen } from './screens/signin.js?v=20260906_1788696866923';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260906_1788696866923';
+import { renderDecksScreen } from './screens/decks.js?v=20260906_1788696866923';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260906_1788696866923';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260906_1788696866923';
 
 export function navigate(to) {
   let cleanTo = to;
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-import { CONFIG } from './config.js?v=20260906_1788696731291';
+import { CONFIG } from './config.js?v=20260906_1788696866923';
 
 function initSilentGoogleAuth() {
   if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {

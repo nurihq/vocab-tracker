@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788696731291';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696731291';
-import { Api, getLocalStore } from '../api.js?v=20260906_1788696731291';
-import { Modal } from '../components/modal.js?v=20260906_1788696731291';
-import { trackEvent } from '../analytics.js?v=20260906_1788696731291';
-import { navigate } from '../app.js?v=20260906_1788696731291';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788696866923';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696866923';
+import { Api, getLocalStore } from '../api.js?v=20260906_1788696866923';
+import { Modal } from '../components/modal.js?v=20260906_1788696866923';
+import { trackEvent } from '../analytics.js?v=20260906_1788696866923';
+import { navigate } from '../app.js?v=20260906_1788696866923';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
@@ -137,12 +137,48 @@ export function renderStudyLanguagesScreen(container) {
     autoTranslateUi(container);
 
     // Event Bindings
-    );
+    const addBtn = container.querySelector('#add-lang-btn');
+    const addCard = container.querySelector('#tile-add-card');
+    if (addBtn) addBtn.addEventListener('click', openAddLanguageModal);
+    if (addCard) addCard.addEventListener('click', openAddLanguageModal);
+
+    const toggleHiddenBtn = container.querySelector('#toggle-hidden-btn');
+    if (toggleHiddenBtn) {
+      toggleHiddenBtn.addEventListener('click', () => {
+        showHidden = !showHidden;
+        trackEvent('toggle_hidden_languages', { showHidden });
+        render();
+      });
+    }
+
+    container.querySelectorAll('.tile[data-code]').forEach(tile => {
+      tile.addEventListener('click', (e) => {
+        if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
+        const code = tile.getAttribute('data-code');
+        trackEvent('select_study_language', { langCode: code });
+      });
+    });
+
+    container.querySelectorAll('.hide-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const code = btn.getAttribute('data-code');
+        const isCurrentlyHidden = btn.getAttribute('data-hidden') === 'true';
+        try {
+          await Api.toggleHideLanguage(code, !isCurrentlyHidden);
+          trackEvent(isCurrentlyHidden ? 'unhide_language' : 'hide_language', { langCode: code });
+          refreshBackground();
+        } catch (err) {
+          console.error(err);
+        }
+      });
     });
 
     setupDragAndDrop();
+  }
 
-    function setupDragAndDrop() {
+  function setupDragAndDrop() {
     const grid = container.querySelector('#languages-grid');
     if (!grid) return;
 

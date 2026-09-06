@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788696731291';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696731291';
-import { Api, getLocalStore } from '../api.js?v=20260906_1788696731291';
-import { Modal } from '../components/modal.js?v=20260906_1788696731291';
-import { trackEvent } from '../analytics.js?v=20260906_1788696731291';
-import { navigate } from '../app.js?v=20260906_1788696731291';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260906_1788696866923';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260906_1788696866923';
+import { Api, getLocalStore } from '../api.js?v=20260906_1788696866923';
+import { Modal } from '../components/modal.js?v=20260906_1788696866923';
+import { trackEvent } from '../analytics.js?v=20260906_1788696866923';
+import { navigate } from '../app.js?v=20260906_1788696866923';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -169,7 +169,42 @@ export function renderDecksScreen(container, params = {}) {
     autoTranslateUi(container);
 
     // Event Bindings
-    );
+    const addBtn = container.querySelector('#add-deck-btn');
+    const addCard = container.querySelector('#tile-add-deck-card');
+    if (addBtn) addBtn.addEventListener('click', openAddDeckModal);
+    if (addCard) addCard.addEventListener('click', openAddDeckModal);
+
+    const toggleHiddenBtn = container.querySelector('#toggle-hidden-btn');
+    if (toggleHiddenBtn) {
+      toggleHiddenBtn.addEventListener('click', () => {
+        showHidden = !showHidden;
+        trackEvent('toggle_hidden_decks', { langCode, showHidden });
+        render();
+      });
+    }
+
+    container.querySelectorAll('.tile[data-deck-id]').forEach(tile => {
+      tile.addEventListener('click', (e) => {
+        if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
+        const deckId = tile.getAttribute('data-deck-id');
+        trackEvent('select_deck', { langCode, deckId });
+      });
+    });
+
+    container.querySelectorAll('.hide-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const deckId = btn.getAttribute('data-deck-id');
+        const isCurrentlyHidden = btn.getAttribute('data-hidden') === 'true';
+        try {
+          await Api.toggleHideDeck(langCode, deckId, !isCurrentlyHidden);
+          trackEvent(isCurrentlyHidden ? 'unhide_deck' : 'hide_deck', { langCode, deckId });
+          refreshBackground();
+        } catch (err) {
+          console.error(err);
+        }
+      });
     });
 
     container.querySelectorAll('.delete-deck-btn').forEach(btn => {
