@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260907_1788773755238';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260907_1788773755238';
-import { Api, getLocalStore } from '../api.js?v=20260907_1788773755238';
-import { Modal } from '../components/modal.js?v=20260907_1788773755238';
-import { trackEvent } from '../analytics.js?v=20260907_1788773755238';
-import { navigate } from '../app.js?v=20260907_1788773755238';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260907_1788773946059';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260907_1788773946059';
+import { Api, getLocalStore } from '../api.js?v=20260907_1788773946059';
+import { Modal } from '../components/modal.js?v=20260907_1788773946059';
+import { trackEvent } from '../analytics.js?v=20260907_1788773946059';
+import { navigate } from '../app.js?v=20260907_1788773946059';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -80,6 +80,7 @@ export function renderDecksScreen(container, params = {}) {
   }
 
   function getDeckEmoji(deck) {
+    if (deck.icon) return deck.icon;
     if (deck.deckId === 'practicing') return '🌱';
     if (deck.deckId === 'mastered') return '✨';
     if (deck.deckId === 'all') return '📚';
@@ -324,10 +325,26 @@ export function renderDecksScreen(container, params = {}) {
   }
 
   function openAddDeckModal() {
+    const popularIcons = ['📁', '✈️', '🍜', '💼', '🗣️', '🏠', '🎨', '🎵', '🏃', '💡', '🛒', '❤️', '🩺', '💻', '🚗', '🌤️', '🐾', '🔢', '🎯', '🌿', '🔥', '📚', '☕', '🎬'];
+    let selectedIcon = '📁';
+
     const contentHtml = `
       <div class="form-group">
         <label class="form-label" data-i18n="deckName">${t('deckName')}</label>
         <input type="text" class="form-input" id="new-deck-name-input" placeholder="e.g. Travel, Food, Expressions..." autofocus autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Icon</label>
+        <div class="icon-selector-grid" id="deck-icon-grid">
+          ${popularIcons.map((icon, idx) => `
+            <button type="button" class="icon-picker-btn ${idx === 0 ? 'selected' : ''}" data-icon="${icon}">${icon}</button>
+          `).join('')}
+        </div>
+        <div style="margin-top: 0.65rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Custom emoji:</span>
+          <input type="text" class="form-input" id="custom-deck-icon-input" maxlength="4" style="width: 70px; text-align: center; font-size: 1.1rem; padding: 0.35rem;" placeholder="📁" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" />
+        </div>
       </div>
     `;
 
@@ -337,11 +354,15 @@ export function renderDecksScreen(container, params = {}) {
       confirmText: t('createDeck'),
       onConfirm: async (modalEl) => {
         const input = modalEl.querySelector('#new-deck-name-input');
+        const customIconInput = modalEl.querySelector('#custom-deck-icon-input');
         const name = input ? input.value.trim() : '';
+        const customIcon = customIconInput ? customIconInput.value.trim() : '';
+        const finalIcon = customIcon || selectedIcon || '📁';
+
         if (!name) return false;
         try {
-          await Api.addDeck(langCode, name);
-          trackEvent('add_deck', { langCode, name });
+          await Api.addDeck(langCode, name, finalIcon);
+          trackEvent('add_deck', { langCode, name, icon: finalIcon });
           refreshBackground();
           return true;
         } catch (err) {
@@ -350,6 +371,28 @@ export function renderDecksScreen(container, params = {}) {
         }
       }
     });
+
+    const grid = overlay.querySelector('#deck-icon-grid');
+    const customIconInput = overlay.querySelector('#custom-deck-icon-input');
+
+    if (grid) {
+      grid.querySelectorAll('.icon-picker-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          grid.querySelectorAll('.icon-picker-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          selectedIcon = btn.getAttribute('data-icon');
+          if (customIconInput) customIconInput.value = '';
+        });
+      });
+    }
+
+    if (customIconInput) {
+      customIconInput.addEventListener('input', () => {
+        if (customIconInput.value.trim()) {
+          grid?.querySelectorAll('.icon-picker-btn').forEach(b => b.classList.remove('selected'));
+        }
+      });
+    }
 
     const input = overlay.querySelector('#new-deck-name-input');
     setTimeout(() => input && input.focus(), 50);

@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260907_1788773755238';
-import { getI18nBaseLang } from './i18n.js?v=20260907_1788773755238';
+import { CONFIG } from './config.js?v=20260907_1788773946059';
+import { getI18nBaseLang } from './i18n.js?v=20260907_1788773946059';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -474,13 +474,14 @@ export const Api = {
     return { decks: decksWithCount };
   },
 
-  async addDeck(langCode, name) {
+  async addDeck(langCode, name, icon = '📁') {
     const store = getLocalStore();
     if (!store.decks[langCode]) store.decks[langCode] = [];
     const deckId = 'deck_' + Date.now().toString(36);
     const newDeck = {
       deckId,
       name: name.trim(),
+      icon: icon || '📁',
       langCode,
       order: store.decks[langCode].length,
       hidden: false,
@@ -494,7 +495,7 @@ export const Api = {
       try {
         return await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
           method: 'POST',
-          body: JSON.stringify({ action: 'add', langCode, name })
+          body: JSON.stringify({ action: 'add', langCode, name, icon: icon || '📁' })
         });
       } catch (e) {}
     }

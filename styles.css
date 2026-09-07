@@ -933,6 +933,45 @@ body {
   background: var(--bg-surface);
 }
 
+.icon-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 480px) {
+  .icon-selector-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.icon-picker-btn {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 1.35rem;
+  line-height: 1;
+  padding: 0.45rem 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.icon-picker-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--primary);
+  transform: scale(1.08);
+}
+
+.icon-picker-btn.selected {
+  border-color: var(--primary);
+  background: var(--accent-zen-light);
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
