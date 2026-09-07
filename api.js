@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260907_1788773946059';
-import { getI18nBaseLang } from './i18n.js?v=20260907_1788773946059';
+import { CONFIG } from './config.js?v=20260907_1788774040716';
+import { getI18nBaseLang } from './i18n.js?v=20260907_1788774040716';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -239,19 +239,10 @@ export async function syncLocalToCloud() {
 
     // 2. Sync Decks and Words for each language
     for (const l of store.languages) {
-      // Check cloud decks
-      const cloudDecksRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(l.code)}`, { method: 'GET' }).catch(() => ({ decks: [] }));
-      const cloudDecks = cloudDecksRes.decks || [];
-      const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
-
-      const localDecks = store.decks[l.code] || [];
-      for (const d of localDecks) {
-        if (!['practicing', 'mastered', 'all'].includes(d.deckId.toLowerCase()) && !cloudDeckIds.has(d.deckId)) {
-          await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'add', langCode: l.code, name: d.name })
-          }).catch(() => {});
-        }
+      // Check cloud decks (cloud is source of truth for decks)
+      const cloudDecksRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(l.code)}`, { method: 'GET' }).catch(() => null);
+      if (cloudDecksRes && Array.isArray(cloudDecksRes.decks)) {
+        store.decks[l.code] = cloudDecksRes.decks;
       }
 
       // Check cloud words
