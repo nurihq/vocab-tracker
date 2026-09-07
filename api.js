@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260906_1788697560271';
-import { getI18nBaseLang } from './i18n.js?v=20260906_1788697560271';
+import { CONFIG } from './config.js?v=20260907_1788773755238';
+import { getI18nBaseLang } from './i18n.js?v=20260907_1788773755238';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -681,10 +681,13 @@ export const Api = {
     const store = getLocalStore();
     const words = store.words[langCode] || [];
     const target = words.find(w => w.wordId === wordId);
+    const originalCreatedAt = target?.createdAt || new Date().toISOString();
+
     if (target) {
       target.baseWord = finalBase;
       target.studyWord = finalStudy;
       target.pronunciation = finalPron;
+      target.createdAt = originalCreatedAt;
       target.updatedAt = new Date().toISOString();
       target._needsSync = true;
       store.words[langCode] = deduplicateWords(words);
@@ -703,11 +706,14 @@ export const Api = {
             baseWord: finalBase,
             studyWord: finalStudy,
             pronunciation: finalPron,
-            baseLang
+            baseLang,
+            createdAt: originalCreatedAt
           })
         });
         if (cloudRes.word && target) {
           delete target._needsSync;
+          target.createdAt = originalCreatedAt;
+          cloudRes.word.createdAt = originalCreatedAt;
           saveLocalStore(store);
           return cloudRes;
         }
