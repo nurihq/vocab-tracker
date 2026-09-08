@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20260907_1788774040716';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260907_1788774040716';
-import { Auth } from '../api.js?v=20260907_1788774040716';
-import { trackEvent } from '../analytics.js?v=20260907_1788774040716';
-import { navigate } from '../app.js?v=20260907_1788774040716';
+import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20260908_1788858099638';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260908_1788858099638';
+import { Auth } from '../api.js?v=20260908_1788858099638';
+import { trackEvent } from '../analytics.js?v=20260908_1788858099638';
+import { navigate } from '../app.js?v=20260908_1788858099638';
 
 export function renderHomeScreen(container) {
   const currentBase = getI18nBaseLang();

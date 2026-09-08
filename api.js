@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260907_1788774040716';
-import { getI18nBaseLang } from './i18n.js?v=20260907_1788774040716';
+import { CONFIG } from './config.js?v=20260908_1788858099638';
+import { getI18nBaseLang } from './i18n.js?v=20260908_1788858099638';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -247,58 +247,35 @@ export async function syncLocalToCloud() {
 
       // Check cloud words
       const cloudWordsRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(l.code)}&deckId=all`, { method: 'GET' }).catch(() => ({ words: [] }));
-      const cloudWords = cloudWordsRes.words || [];
+      // 1. Upload ONLY pending offline words created locally with temporary IDs and _needsSync
+      const unsyncedOffline = localWords.filter(lw => lw && lw._needsSync && lw.wordId && lw.wordId.startsWith('w_'));
+      for (const lw of unsyncedOffline) {
+        try {
+          const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
+            method: 'POST',
+            body: JSON.stringify({
+              action: 'add',
+              langCode: l.code,
+              deckId: lw.deckId || 'practicing',
+              baseWord: lw.baseWord,
+              studyWord: lw.studyWord,
+              pronunciation: lw.pronunciation || ''
+            })
+          });
 
-      const localWords = store.words[l.code] || [];
-      
-      // 1. Build lookup sets of existing cloud words
-      const cloudStudyMap = new Map();
-      const cloudIdSet = new Set();
-      for (const cw of cloudWords) {
-        if (cw.wordId) cloudIdSet.add(cw.wordId);
-        const cleanStudy = (cw.studyWord || '').toLowerCase().trim();
-        if (cleanStudy) cloudStudyMap.set(`${cw.deckId || 'practicing'}:${cleanStudy}`, cw);
-      }
-
-      // 2. Identify any word present in local store that is missing in DynamoDB -> UPLOAD TO CLOUD!
-      const mergedList = [...cloudWords];
-      for (const lw of localWords) {
-        if (!lw || !lw.studyWord) continue;
-        const key = `${lw.deckId || 'practicing'}:${lw.studyWord.toLowerCase().trim()}`;
-        
-        // If not in cloud by ID or studyWord key, upload it to DynamoDB!
-        if (!cloudIdSet.has(lw.wordId) && !cloudStudyMap.has(key)) {
-          try {
-            const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
-              method: 'POST',
-              body: JSON.stringify({
-                action: 'add',
-                langCode: l.code,
-                deckId: lw.deckId || 'practicing',
-                baseWord: lw.baseWord,
-                studyWord: lw.studyWord,
-                pronunciation: lw.pronunciation || ''
-              })
-            });
-
-            if (res && res.word) {
-              delete lw._needsSync;
-              lw.wordId = res.word.wordId;
-              mergedList.push(res.word);
-              cloudIdSet.add(res.word.wordId);
-              cloudStudyMap.set(key, res.word);
-            } else {
-              mergedList.push(lw);
-            }
-          } catch (err) {
-            console.warn('Failed to upload local word to cloud:', lw.studyWord, err);
-            mergedList.push(lw);
+          if (res && res.word) {
+            delete lw._needsSync;
+            lw.wordId = res.word.wordId;
+            cloudWords.push(res.word);
           }
+        } catch (err) {
+          console.warn('Failed to upload unsynced word:', lw.studyWord, err);
         }
       }
 
-      // 3. Save fully unified and deduplicated word list
-      store.words[l.code] = deduplicateWords(mergedList);
+      // 2. Cloud words are the single source of truth for synced words
+      const stillPending = localWords.filter(lw => lw && lw._needsSync && lw.wordId && lw.wordId.startsWith('w_'));
+      store.words[l.code] = deduplicateWords([...cloudWords, ...stillPending]);
     }
 
     saveLocalStore(store);
@@ -567,8 +544,10 @@ export const Api = {
           const cloudWords = res.words;
           const localList = store.words[langCode] || [];
           
-          // Deduplicate and merge cloud words with true IDs
-          store.words[langCode] = deduplicateWords([...cloudWords, ...localList]);
+          // Only preserve pending offline additions that haven't synced to cloud yet
+          const pendingOffline = localList.filter(w => w && w._needsSync && w.wordId && w.wordId.startsWith('w_'));
+          
+          store.words[langCode] = deduplicateWords([...cloudWords, ...pendingOffline]);
           saveLocalStore(store);
           
           let filtered = store.words[langCode].filter(w => deckId === 'all' || w.deckId === deckId);
