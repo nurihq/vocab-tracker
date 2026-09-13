@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260908_1788858099638';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260908_1788858099638';
-import { Api, getLocalStore } from '../api.js?v=20260908_1788858099638';
-import { Modal } from '../components/modal.js?v=20260908_1788858099638';
-import { trackEvent } from '../analytics.js?v=20260908_1788858099638';
-import { navigate } from '../app.js?v=20260908_1788858099638';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260913_1789287072274';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260913_1789287072274';
+import { Api, getLocalStore } from '../api.js?v=20260913_1789287072274';
+import { Modal } from '../components/modal.js?v=20260913_1789287072274';
+import { trackEvent } from '../analytics.js?v=20260913_1789287072274';
+import { navigate } from '../app.js?v=20260913_1789287072274';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -226,18 +226,28 @@ export function renderDeckWordsScreen(container, params = {}) {
     });
 
     container.querySelectorAll('.delete-word-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const wordId = btn.getAttribute('data-word-id');
         const targetDeck = btn.getAttribute('data-deck-id') || deckId;
-        try {
-          words = words.filter(w => w.wordId !== wordId);
-          render();
-          await Api.deleteWord(langCode, targetDeck, wordId);
-          trackEvent('delete_word', { langCode, deckId: targetDeck, wordId });
-          refreshBackground();
-        } catch (err) {
-          console.error('Failed to delete word:', err);
-        }
+        const wordObj = words.find(w => w.wordId === wordId);
+        const displayName = wordObj ? (wordObj.studyWord || wordObj.baseWord || 'Word') : 'this word';
+
+        Modal.confirmDeleteWord({
+          wordName: displayName,
+          onConfirm: async () => {
+            try {
+              words = words.filter(w => w.wordId !== wordId);
+              render();
+              await Api.deleteWord(langCode, targetDeck, wordId);
+              trackEvent('delete_word', { langCode, deckId: targetDeck, wordId });
+              refreshBackground();
+            } catch (err) {
+              console.error('Failed to delete word:', err);
+            }
+          }
+        });
       });
     });
 

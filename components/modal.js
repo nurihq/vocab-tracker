@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20260908_1788858099638';
+import { t } from '../i18n.js?v=20260913_1789287072274';
 
 export const Modal = {
   activeOverlay: null,
@@ -108,6 +108,29 @@ export const Modal = {
       });
       setTimeout(() => input.focus(), 50);
     }
+  },
+
+  confirmDeleteWord({ wordName, onConfirm }) {
+    const title = t('deleteWord') || 'Delete Word';
+    const contentHtml = `
+      <p style="color: var(--text-primary); margin-bottom: 0.5rem; font-size: 1.02rem; font-weight: 500;">
+        Are you sure you want to delete <span style="color: var(--primary); font-weight: 600;">"${wordName}"</span>?
+      </p>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+        This word will be removed from your vocabulary deck.
+      </p>
+    `;
+
+    return this.open({
+      title,
+      contentHtml,
+      confirmText: t('delete') || 'Delete',
+      confirmClass: 'btn-danger',
+      onConfirm: async () => {
+        await onConfirm();
+        return true;
+      }
+    });
   },
 
   close() {
