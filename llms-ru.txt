@@ -1,0 +1,20 @@
+# monogenesis — Многоязычный трекер словарного запаса и флеш-карточки
+
+> monogenesis — минималистичная дзен-платформа для изучения и систематизации словарного запаса на более чем 100 языках с интерактивными 3D-карточками и настраиваемыми колодами.
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## Русский (Russian) — Capabilities & Features
+- Поддержка более 100 языков мира
+- Динамический перевод на родной язык
+- Словарная сетка уровней CEFR (от A1 до C2)
+- Настраиваемые колоды и сортировка перетаскиванием
+- Облачная синхронизация через AWS и Google OAuth
+- Мгновенный поиск по всем полям слов
+
+## Application Routes (Русский (Russian))
+- Главная: https://monogenesis.org/#/
+- О платформе: https://monogenesis.org/#/about
+- Языки изучения: https://monogenesis.org/#/languages
+- Войти: https://monogenesis.org/#/signin

@@ -1,0 +1,20 @@
+# monogenesis — Rastreador de Vocabulario y Tarjetas de Memoria Multilingües
+
+> monogenesis es una plataforma zen y minimalista para adquirir y mejorar vocabulario en más de 100 idiomas con mazos personalizables y tarjetas 3D interactivas traducidas dinámicamente.
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## Español (Spanish) — Capabilities & Features
+- Soporte para más de 100 idiomas mundiales
+- Traducción dinámica al idioma base de forma instantánea
+- Marco de vocabulario alineado con el MCER (A1 a C2)
+- Mazos personalizados y reordenación táctil mediante arrastrar y soltar
+- Sincronización en la nube segura con AWS y Google OAuth
+- Búsqueda instantánea en tiempo real en todos los campos
+
+## Application Routes (Español (Spanish))
+- Inicio: https://monogenesis.org/#/
+- Acerca de: https://monogenesis.org/#/about
+- Idiomas de estudio: https://monogenesis.org/#/languages
+- Iniciar sesión: https://monogenesis.org/#/signin

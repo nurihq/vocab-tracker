@@ -1,0 +1,20 @@
+# monogenesis — 多言語ボキャブラリートラッカー＆3D単語カード
+
+> monogenesisは、100以上の言語に対応したミニマルで洗練された語彙学習＆フラッシュカードプラットフォームです。カスタムデッキと動的翻訳で効率的に語彙をマスターできます。
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## 日本語 (Japanese) — Capabilities & Features
+- 100以上の世界言語をサポート
+- 母国語へのリアルタイム自動翻訳
+- CEFR基準の語彙マイルストーン（A1〜C2）
+- ドラッグ＆ドロップによる自由な並び替え
+- AWSおよびGoogle OAuthによるシームレスなクラウド同期
+- 発音メモと全フィールド対応のリアルタイム検索
+
+## Application Routes (日本語 (Japanese))
+- ホーム: https://monogenesis.org/#/
+- 概要・CEFRについて: https://monogenesis.org/#/about
+- 学習言語一覧: https://monogenesis.org/#/languages
+- ログイン: https://monogenesis.org/#/signin

@@ -1,16 +1,16 @@
-import { Navbar } from './components/navbar.js?v=20260915_1789464399478';
-import { detectBrowserLanguage } from './languages.js?v=20260915_1789464399478';
-import { setI18nBaseLang } from './i18n.js?v=20260915_1789464399478';
-import { Auth, syncLocalToCloud } from './api.js?v=20260915_1789464399478';
-import { trackPageView } from './analytics.js?v=20260915_1789464399478';
+import { Navbar } from './components/navbar.js?v=20260915_1789464730189';
+import { detectBrowserLanguage } from './languages.js?v=20260915_1789464730189';
+import { setI18nBaseLang } from './i18n.js?v=20260915_1789464730189';
+import { Auth, syncLocalToCloud } from './api.js?v=20260915_1789464730189';
+import { trackPageView } from './analytics.js?v=20260915_1789464730189';
 
-import { renderHomeScreen } from './screens/home.js?v=20260915_1789464399478';
-import { renderSignInScreen } from './screens/signin.js?v=20260915_1789464399478';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260915_1789464399478';
-import { renderDecksScreen } from './screens/decks.js?v=20260915_1789464399478';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260915_1789464399478';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260915_1789464399478';
-import { renderAboutScreen } from './screens/about.js?v=20260915_1789464399478';
+import { renderHomeScreen } from './screens/home.js?v=20260915_1789464730189';
+import { renderSignInScreen } from './screens/signin.js?v=20260915_1789464730189';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260915_1789464730189';
+import { renderDecksScreen } from './screens/decks.js?v=20260915_1789464730189';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260915_1789464730189';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260915_1789464730189';
+import { renderAboutScreen } from './screens/about.js?v=20260915_1789464730189';
 
 export function navigate(to) {
   let cleanTo = to;
@@ -112,9 +112,6 @@ class App {
     const hash = window.location.hash || '#/';
     const path = hash.replace(/^#/, '') || '/';
 
-    // Track SPA Page View in GA4
-    trackPageView(path);
-
     // Re-render navbar with updated active state
     this.navbar.render(this.navContainer, hash);
 
@@ -125,40 +122,56 @@ class App {
       return;
     }
 
-    // Router Pattern Matching
+    // Router Pattern Matching with Dynamic Title & GA4 Page View Tracking
     if (path === '/' || path === '') {
+      document.title = 'monogenesis — Track and improve your vocabulary in multiple languages';
+      trackPageView('/', document.title);
       renderHomeScreen(this.mainContainer);
     } else if (path === '/about') {
+      document.title = 'About — Vocabulary Growth & CEFR Milestones | monogenesis';
+      trackPageView('/about', document.title);
       renderAboutScreen(this.mainContainer);
     } else if (path === '/signin') {
       if (Auth.isAuthenticated()) {
         navigate('#/languages');
       } else {
+        document.title = 'Sign In | monogenesis';
+        trackPageView('/signin', document.title);
         renderSignInScreen(this.mainContainer);
       }
     } else if (path === '/languages') {
+      document.title = 'Study Languages | monogenesis';
+      trackPageView('/languages', document.title);
       renderStudyLanguagesScreen(this.mainContainer);
     } else {
       // Regex routes
       const studyMatch = path.match(/^\/languages\/([^/]+)\/decks\/([^/]+)\/study$/);
       if (studyMatch) {
+        document.title = `Study Flashcards (${studyMatch[1].toUpperCase()}) | monogenesis`;
+        trackPageView(path, document.title);
         renderFlashcardsScreen(this.mainContainer, { code: studyMatch[1], deckId: studyMatch[2] });
         return;
       }
 
       const deckWordsMatch = path.match(/^\/languages\/([^/]+)\/decks\/([^/]+)$/);
       if (deckWordsMatch) {
+        document.title = `Deck Words (${deckWordsMatch[1].toUpperCase()} - ${deckWordsMatch[2]}) | monogenesis`;
+        trackPageView(path, document.title);
         renderDeckWordsScreen(this.mainContainer, { code: deckWordsMatch[1], deckId: deckWordsMatch[2] });
         return;
       }
 
       const decksMatch = path.match(/^\/languages\/([^/]+)\/decks$/);
       if (decksMatch) {
+        document.title = `Decks (${decksMatch[1].toUpperCase()}) | monogenesis`;
+        trackPageView(path, document.title);
         renderDecksScreen(this.mainContainer, { code: decksMatch[1] });
         return;
       }
 
       // Fallback
+      document.title = 'monogenesis — Track and improve your vocabulary in multiple languages';
+      trackPageView('/', document.title);
       renderHomeScreen(this.mainContainer);
     }
   }

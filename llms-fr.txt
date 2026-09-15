@@ -1,0 +1,20 @@
+# monogenesis — Suivi de Vocabulaire et Cartes Mémoire Multilingues
+
+> monogenesis est une plateforme zen et minimaliste pour acquérir et maîtriser du vocabulaire dans plus de 100 langues avec des decks personnalisables et des flashcards 3D interactives.
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## Français (French) — Capabilities & Features
+- Prise en charge de plus de 100 langues mondiales
+- Traduction dynamique instantanée dans votre langue maternelle
+- Cadre de progression du vocabulaire CECRL (A1 à C2)
+- Organisation par decks et réorganisation par glisser-déposer
+- Synchronisation cloud sécurisée via AWS et Google OAuth
+- Recherche instantanée dans vos mots et prononciations
+
+## Application Routes (Français (French))
+- Accueil: https://monogenesis.org/#/
+- À propos: https://monogenesis.org/#/about
+- Langues d'étude: https://monogenesis.org/#/languages
+- Connexion: https://monogenesis.org/#/signin

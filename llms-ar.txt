@@ -1,0 +1,20 @@
+# monogenesis — متتبع المفردات متعدد اللغات والبطاقات التعليمية ثلاثية الأبعاد
+
+> monogenesis هي منصة بسيطة ومريحة لتعلم وحفظ المفردات في أكثر من 100 لغة مع مجموعات مخصصة وبطاقات تعليمية تفاعلية مترجمة تلقائيًا.
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## العربية (Arabic) — Capabilities & Features
+- دعم أكثر من 100 لغة عالمية
+- ترجمة ديناميكية إلى لغتك الأم
+- إطار المفردات وفق معايير CEFR (من A1 إلى C2)
+- ترتيب البطاقات والمجموعات بالسحب والإفلات
+- مزامنة سحابية مع AWS و Google OAuth
+- بحث فوري في جميع المفردات والملاحظات
+
+## Application Routes (العربية (Arabic))
+- الرئيسية: https://monogenesis.org/#/
+- حول المنصة: https://monogenesis.org/#/about
+- لغات الدراسة: https://monogenesis.org/#/languages
+- تسجيل الدخول: https://monogenesis.org/#/signin

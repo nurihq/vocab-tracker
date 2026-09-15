@@ -1,0 +1,20 @@
+# monogenesis — მრავალენოვანი ლექსიკონის ტრეკერი და 3D ბარათები
+
+> monogenesis არის მინიმალისტური პლატფორმა 100-ზე მეტ ენაში ლექსიკური მარაგის გასაზრდელად და დასამახსოვრებლად.
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## ქართული (Georgian) — Capabilities & Features
+- 100-ზე მეტი მსოფლიო ენის მხარდაჭერა
+- დინამიკური თარგმანი მშობლიურ ენაზე
+- CEFR დონეების ლექსიკური ჩარჩო (A1-დან C2-მდე)
+- მორგებადი დეკები და მარტივი გადაადგილება
+- ღრუბლოვანი სინქრონიზაცია AWS და Google OAuth-ით
+- მყისიერი ძიება ყველა ველში
+
+## Application Routes (ქართული (Georgian))
+- მთავარი: https://monogenesis.org/#/
+- შესახებ: https://monogenesis.org/#/about
+- სასწავლო ენები: https://monogenesis.org/#/languages
+- შესვლა: https://monogenesis.org/#/signin

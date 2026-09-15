@@ -1,0 +1,20 @@
+# monogenesis — 다국어 단어장 & 3D 플래시카드 학습 플랫폼
+
+> monogenesis는 100개 이상의 언어를 지원하는 미니멀리스트 단어 학습 및 플래시카드 플랫폼입니다. 맞춤형 덱과 실시간 모국어 번역 기능을 제공합니다.
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## 한국어 (Korean) — Capabilities & Features
+- 100개 이상의 세계 언어 지원
+- 모국어로 실시간 동적 번역
+- CEFR 기준 어휘 프레임워크 (A1 ~ C2)
+- 자유로운 드래그 앤 드롭 단어 정렬
+- AWS 및 Google OAuth 클라우드 자동 동기화
+- 실시간 단어 검색 및 발음 메모
+
+## Application Routes (한국어 (Korean))
+- 홈: https://monogenesis.org/#/
+- 소개 및 CEFR 안내: https://monogenesis.org/#/about
+- 학습 언어 목록: https://monogenesis.org/#/languages
+- 로그인: https://monogenesis.org/#/signin

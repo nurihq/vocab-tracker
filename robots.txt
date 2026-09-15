@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /llms-*.txt
 
 Sitemap: https://monogenesis.org/sitemap.xml

@@ -1,0 +1,20 @@
+# monogenesis — बहुभाषी शब्दावली ट्रैकर और 3D फ्लैशकार्ड
+
+> monogenesis 100 से अधिक विश्व भाषाओं में शब्दावली सीखने और याद रखने के लिए एक सुंदर और न्यूनतम प्लेटफॉर्म है।
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## हिन्दी (Hindi) — Capabilities & Features
+- 100+ विश्व भाषाओं का समर्थन
+- अपनी मातृभाषा में स्वचालित अनुवाद
+- CEFR शब्दावली ढांचा (A1 से C2)
+- कस्टम डेक और ड्रैग-एंड-ड्रॉप क्रमबद्धता
+- AWS और Google OAuth के साथ क्लाउड सिंक
+- त्वरित वास्तविक समय शब्द खोज
+
+## Application Routes (हिन्दी (Hindi))
+- मुख्य पृष्ठ: https://monogenesis.org/#/
+- परिचय एवं CEFR: https://monogenesis.org/#/about
+- अध्ययन भाषाएँ: https://monogenesis.org/#/languages
+- साइन इन करें: https://monogenesis.org/#/signin

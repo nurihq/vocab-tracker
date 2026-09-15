@@ -1,0 +1,20 @@
+# monogenesis — Tracker di Vocabolario Multilingue e Flashcard 3D
+
+> monogenesis è una piattaforma minimalista zen per apprendere e padroneggiare il vocabolario in oltre 100 lingue con mazzi personalizzati e flashcard 3D interattive.
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## Italiano (Italian) — Capabilities & Features
+- Supporto per oltre 100 lingue
+- Traduzione dinamica nella lingua madre
+- Quadro di progressione vocabolario QCER (A1-C2)
+- Mazzi personalizzabili con riordinamento drag-and-drop
+- Sincronizzazione cloud sicura con AWS e Google OAuth
+- Ricerca in tempo reale su tutti i campi
+
+## Application Routes (Italiano (Italian))
+- Home: https://monogenesis.org/#/
+- Informazioni: https://monogenesis.org/#/about
+- Lingue di Studio: https://monogenesis.org/#/languages
+- Accedi: https://monogenesis.org/#/signin

@@ -1,0 +1,20 @@
+# monogenesis — Pelacak Kosakata Multi-Bahasa & Kartu Flash 3D
+
+> monogenesis adalah platform minimalis bergaya zen untuk menguasai kosakata dalam lebih dari 100 bahasa dunia dengan dek kartu yang dapat disesuaikan dan terjemahan dinamis.
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## Bahasa Indonesia (Indonesian) — Capabilities & Features
+- Mendukung 100+ bahasa dunia
+- Terjemahan dinamis ke bahasa ibu
+- Kerangka kosakata standar CEFR (A1 hingga C2)
+- Pengaturan urutan kata dan dek fleksibel
+- Sinkronisasi awan otomatis dengan AWS & Google OAuth
+- Pencarian kata instan dan catatan pelafalan
+
+## Application Routes (Bahasa Indonesia (Indonesian))
+- Beranda: https://monogenesis.org/#/
+- Tentang & CEFR: https://monogenesis.org/#/about
+- Bahasa Belajar: https://monogenesis.org/#/languages
+- Masuk: https://monogenesis.org/#/signin

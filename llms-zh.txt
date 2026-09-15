@@ -1,0 +1,20 @@
+# monogenesis — 多语言词汇追踪与3D互动单词卡
+
+> monogenesis 是一个极简主义的多语言词汇学习与记忆卡片平台，支持100多种全球语言，提供自定义牌组、实时翻译与发音笔记。
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## 简体中文 (Chinese) — Capabilities & Features
+- 支持100多种世界语言
+- 母语实时动态翻译
+- 欧洲共同语言参考标准（CEFR A1 至 C2）词汇框架
+- 拖拽自由排序与自定义卡组
+- 基于 AWS 和 Google OAuth 的云端跨设备同步
+- 全字段实时即时搜索
+
+## Application Routes (简体中文 (Chinese))
+- 首页: https://monogenesis.org/#/
+- 关于与CEFR框架: https://monogenesis.org/#/about
+- 学习语言: https://monogenesis.org/#/languages
+- 登录: https://monogenesis.org/#/signin

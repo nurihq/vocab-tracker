@@ -1,0 +1,20 @@
+# monogenesis — Rastreador de Vocabulário Multilíngue e Flashcards 3D
+
+> monogenesis é uma plataforma minimalista zen para aprender e memorizar vocabulário em mais de 100 idiomas com baralhos personalizados e cartões 3D interativos.
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## Português (Portuguese) — Capabilities & Features
+- Mais de 100 idiomas suportados
+- Tradução dinâmica para o seu idioma base
+- Metas de vocabulário alinhadas ao CEFR (A1 a C2)
+- Baralhos customizáveis e ordenação por toque
+- Sincronização na nuvem com AWS e Google OAuth
+- Busca instantânea em tempo real
+
+## Application Routes (Português (Portuguese))
+- Início: https://monogenesis.org/#/
+- Sobre: https://monogenesis.org/#/about
+- Idiomas de Estudo: https://monogenesis.org/#/languages
+- Entrar: https://monogenesis.org/#/signin

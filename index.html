@@ -17,23 +17,25 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-M5WYQQQWVV');
+    gtag('config', 'G-M5WYQQQWVV', {
+      send_page_view: false
+    });
   </script>
 
   <!-- Primary Meta Tags -->
   <title>monogenesis — Track and improve your vocabulary in multiple languages</title>
   <meta name="title" content="monogenesis — Track and improve your vocabulary in multiple languages">
-  <meta name="description" content="Customizable vocabulary decks and flash cards in any and every language at your pace. A minimalist, zen place to acquire and master languages.">
-  <meta name="keywords" content="vocabulary tracker, language learning, flashcards, polyglot, japanese flashcards, spanish vocab, spaced repetition, monogenesis">
+  <meta name="description" content="Customizable vocabulary decks and flash cards in 100+ languages at your pace. CEFR-aligned vocabulary framework and interactive 3D study cards.">
+  <meta name="keywords" content="vocabulary tracker, language learning, flashcards, polyglot, CEFR vocabulary, japanese flashcards, spanish vocab, spaced repetition, monogenesis">
   <meta name="author" content="monogenesis">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
   <link rel="canonical" href="https://monogenesis.org/">
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://monogenesis.org/">
   <meta property="og:title" content="monogenesis — Track and improve your vocabulary in multiple languages">
-  <meta property="og:description" content="Customizable vocabulary decks and flash cards in any and every language at your pace. A minimalist, zen place to acquire and master languages.">
+  <meta property="og:description" content="Customizable vocabulary decks and flash cards in 100+ languages at your pace. CEFR-aligned vocabulary framework and interactive 3D study cards.">
   <meta property="og:site_name" content="monogenesis">
   <meta property="og:image" content="https://monogenesis.org/favicon.svg">
 
@@ -41,12 +43,21 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:url" content="https://monogenesis.org/">
   <meta name="twitter:title" content="monogenesis — Track and improve your vocabulary in multiple languages">
-  <meta name="twitter:description" content="Customizable vocabulary decks and flash cards in any and every language at your pace. Minimalist zen vocabulary learning.">
+  <meta name="twitter:description" content="Customizable vocabulary decks and flash cards in 100+ languages at your pace. CEFR-aligned vocabulary framework and interactive 3D study cards.">
   <meta name="twitter:image" content="https://monogenesis.org/favicon.svg">
 
   <!-- Favicon & Touch Icons -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="alternate" type="text/plain" href="llms.txt" title="LLMs and AI Agents manifest">
+  
+  <!-- LLM & AI Agent Multilingual Manifests -->
+  <link rel="alternate" type="text/plain" href="llms.txt" title="LLM Agent Manifest">
+  <link rel="alternate" type="text/plain" href="llms-full.txt" title="Full LLM Technical Specification">
+  <link rel="alternate" type="text/plain" href="llms-es.txt" hreflang="es" title="Manifiesto LLM en Español">
+  <link rel="alternate" type="text/plain" href="llms-fr.txt" hreflang="fr" title="Manifeste LLM en Français">
+  <link rel="alternate" type="text/plain" href="llms-de.txt" hreflang="de" title="LLM Manifest auf Deutsch">
+  <link rel="alternate" type="text/plain" href="llms-ja.txt" hreflang="ja" title="日本語 LLM マニフェスト">
+  <link rel="alternate" type="text/plain" href="llms-zh.txt" hreflang="zh" title="中文 LLM 清单">
+  <link rel="alternate" type="text/plain" href="llms-ru.txt" hreflang="ru" title="Русский LLM манифест">
 
   <!-- JSON-LD Structured Data for Search Engines -->
   <script type="application/ld+json">
@@ -55,17 +66,19 @@
     "@type": "WebApplication",
     "name": "monogenesis",
     "url": "https://monogenesis.org",
-    "description": "Track and improve your vocabulary in multiple languages with customizable decks and interactive 3D flash cards.",
+    "description": "Track and acquire vocabulary across 100+ languages with customizable decks, CEFR-aligned progression, and interactive 3D flash cards.",
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "All",
+    "inLanguage": ["en", "es", "fr", "de", "it", "pt", "ru", "ka", "ja", "zh", "ko", "ar", "hi", "id"],
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD"
     },
     "featureList": [
-      "Multi-language vocabulary tracker",
-      "Customizable decks (Practicing, Mastered, All)",
+      "Multi-language vocabulary tracker for 100+ languages",
+      "CEFR-aligned vocabulary milestone matrix (A1 to C2)",
+      "Customizable decks with real-time multi-field search",
       "Interactive 3D flippable flash cards",
       "Dynamic base language translation",
       "Offline-first cloud sync with Google OAuth"
@@ -79,7 +92,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=20260915_1789464399478">
+  <link rel="stylesheet" href="styles.css?v=20260915_1789464730189">
 
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -92,6 +105,6 @@
   <main id="app" class="main-content"></main>
 
   <!-- Main JavaScript App Entry -->
-  <script type="module" src="app.js?v=20260915_1789464399478"></script>
+  <script type="module" src="app.js?v=20260915_1789464730189"></script>
 </body>
 </html>

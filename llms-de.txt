@@ -1,0 +1,20 @@
+# monogenesis — Mehrsprachiger Wortschatz-Tracker und Karteikarten
+
+> monogenesis ist eine minimalistische Zen-Plattform zum Aufbauen und Beherrschen von Vokabeln in über 100 Sprachen mit anpassbaren Decks und interaktiven 3D-Karteikarten.
+> Website: https://monogenesis.org/
+> Main LLM Manifest: https://monogenesis.org/llms.txt
+> Full Technical Specification: https://monogenesis.org/llms-full.txt
+
+## Deutsch (German) — Capabilities & Features
+- Unterstützung für über 100 Weltsprachen
+- Dynamische Übersetzung in Ihre Muttersprache
+- GER-Wortschatzrahmen von A1 bis C2
+- Benutzerdefinierte Decks mit Drag & Drop Sortierung
+- Cloud-Synchronisierung mit AWS und Google OAuth
+- Echtzeit-Suche über alle Wortfelder
+
+## Application Routes (Deutsch (German))
+- Startseite: https://monogenesis.org/#/
+- Über uns: https://monogenesis.org/#/about
+- Lernsprachen: https://monogenesis.org/#/languages
+- Anmelden: https://monogenesis.org/#/signin
