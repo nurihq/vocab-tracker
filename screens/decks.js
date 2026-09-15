@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789460277101';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460277101';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789460277101';
-import { Modal } from '../components/modal.js?v=20260915_1789460277101';
-import { trackEvent } from '../analytics.js?v=20260915_1789460277101';
-import { navigate } from '../app.js?v=20260915_1789460277101';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789460679458';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460679458';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789460679458';
+import { Modal } from '../components/modal.js?v=20260915_1789460679458';
+import { trackEvent } from '../analytics.js?v=20260915_1789460679458';
+import { navigate } from '../app.js?v=20260915_1789460679458';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -155,13 +155,6 @@ export function renderDecksScreen(container, params = {}) {
                             onclick="event.preventDefault(); event.stopPropagation();">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                     </button>
-                    <button class="tile-action-btn delete-hover delete-deck-btn" 
-                            data-deck-id="${deck.deckId}" 
-                            data-name="${displayName.replace(/"/g, '&quot;')}"
-                            title="${t('deleteDeck') || 'Delete Deck'}"
-                            onclick="event.preventDefault(); event.stopPropagation();">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                    </button>
                   ` : ''}
                 </div>
               </div>
@@ -223,30 +216,6 @@ export function renderDecksScreen(container, params = {}) {
         if (deck) {
           openEditDeckModal(deck);
         }
-      });
-    });
-
-    container.querySelectorAll('.delete-deck-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const deckId = btn.getAttribute('data-deck-id');
-        const name = btn.getAttribute('data-name');
-
-        Modal.confirmDeleteDeck({
-          deckName: name,
-          onConfirm: async () => {
-            try {
-              decks = decks.filter(d => d.deckId !== deckId);
-              render();
-              await Api.deleteDeck(langCode, deckId);
-              trackEvent('delete_deck', { langCode, deckId });
-              refreshBackground();
-            } catch (err) {
-              console.error('Failed to delete deck:', err);
-            }
-          }
-        });
       });
     });
 
@@ -449,6 +418,13 @@ export function renderDecksScreen(container, params = {}) {
           <input type="text" class="form-input" id="edit-custom-deck-icon-input" maxlength="4" style="width: 70px; text-align: center; font-size: 1.1rem; padding: 0.35rem;" value="${popularIcons.includes(selectedIcon) ? '' : selectedIcon}" placeholder="📁" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" />
         </div>
       </div>
+
+      <div style="margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px solid var(--border-color);">
+        <button type="button" class="btn-outline-danger" id="edit-modal-delete-btn" style="width: 100%;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          <span data-i18n="deleteDeck">${t('deleteDeck') || 'Delete Deck'}</span>
+        </button>
+      </div>
     `;
 
     const overlay = Modal.open({
@@ -481,6 +457,27 @@ export function renderDecksScreen(container, params = {}) {
         }
       }
     });
+
+    const deleteBtn = overlay.querySelector('#edit-modal-delete-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => {
+        Modal.close();
+        Modal.confirmDeleteDeck({
+          deckName: currentName,
+          onConfirm: async () => {
+            try {
+              decks = decks.filter(d => d.deckId !== deck.deckId);
+              render();
+              await Api.deleteDeck(langCode, deck.deckId);
+              trackEvent('delete_deck', { langCode, deckId: deck.deckId });
+              refreshBackground();
+            } catch (err) {
+              console.error('Failed to delete deck:', err);
+            }
+          }
+        });
+      });
+    }
 
     const grid = overlay.querySelector('#edit-deck-icon-grid');
     const customIconInput = overlay.querySelector('#edit-custom-deck-icon-input');
