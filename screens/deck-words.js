@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789460679458';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460679458';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789460679458';
-import { Modal } from '../components/modal.js?v=20260915_1789460679458';
-import { trackEvent } from '../analytics.js?v=20260915_1789460679458';
-import { navigate } from '../app.js?v=20260915_1789460679458';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789460949861';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460949861';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789460949861';
+import { Modal } from '../components/modal.js?v=20260915_1789460949861';
+import { trackEvent } from '../analytics.js?v=20260915_1789460949861';
+import { navigate } from '../app.js?v=20260915_1789460949861';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -20,9 +20,12 @@ export function renderDeckWordsScreen(container, params = {}) {
   const store = getLocalStore();
   let words = (store.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
   let allDecks = store.decks[langCode] || [
-    { deckId: 'practicing', name: 'Practicing', langCode, isDefault: true },
-    { deckId: 'mastered', name: 'Mastered', langCode, isDefault: true },
-    { deckId: 'all', name: 'All', langCode, isDefault: true }
+    { deckId: 'nouns_practice', name: 'Nouns practice', icon: '🪑', langCode, isDefault: true },
+    { deckId: 'nouns_mastered', name: 'Nouns mastered', icon: '🏠', langCode, isDefault: true },
+    { deckId: 'colours', name: 'Colours', icon: '🎨', langCode, isDefault: true },
+    { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, isDefault: true },
+    { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, isDefault: true },
+    { deckId: 'all', name: 'All', icon: '📚', langCode, isDefault: true }
   ];
 
   // Render immediately on frame 0 (0ms latency!)

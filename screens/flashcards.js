@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789460679458';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460679458';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789460679458';
-import { trackEvent } from '../analytics.js?v=20260915_1789460679458';
-import { navigate } from '../app.js?v=20260915_1789460679458';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789460949861';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460949861';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789460949861';
+import { trackEvent } from '../analytics.js?v=20260915_1789460949861';
+import { navigate } from '../app.js?v=20260915_1789460949861';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -19,9 +19,12 @@ export function renderFlashcardsScreen(container, params = {}) {
   let rawWords = (store.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
   let words = [...rawWords];
   let allDecks = store.decks[langCode] || [
-    { deckId: 'practicing', name: 'Practicing', isDefault: true },
-    { deckId: 'mastered', name: 'Mastered', isDefault: true },
-    { deckId: 'all', name: 'All', isDefault: true }
+    { deckId: 'nouns_practice', name: 'Nouns practice', icon: '🪑', isDefault: true },
+    { deckId: 'nouns_mastered', name: 'Nouns mastered', icon: '🏠', isDefault: true },
+    { deckId: 'colours', name: 'Colours', icon: '🎨', isDefault: true },
+    { deckId: 'numbers', name: 'Numbers', icon: '🔢', isDefault: true },
+    { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', isDefault: true },
+    { deckId: 'all', name: 'All', icon: '📚', isDefault: true }
   ];
 
   let currentIndex = 0;

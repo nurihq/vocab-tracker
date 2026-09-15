@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789460679458';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460679458';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789460679458';
-import { Modal } from '../components/modal.js?v=20260915_1789460679458';
-import { trackEvent } from '../analytics.js?v=20260915_1789460679458';
-import { navigate } from '../app.js?v=20260915_1789460679458';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789460949861';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460949861';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789460949861';
+import { Modal } from '../components/modal.js?v=20260915_1789460949861';
+import { trackEvent } from '../analytics.js?v=20260915_1789460949861';
+import { navigate } from '../app.js?v=20260915_1789460949861';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -17,9 +17,12 @@ export function renderDecksScreen(container, params = {}) {
   // Instant optimistic render from local cache
   const store = getLocalStore();
   let decks = store.decks[langCode] || [
-    { deckId: 'practicing', name: 'Practicing', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'mastered', name: 'Mastered', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'all', name: 'All', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+    { deckId: 'nouns_practice', name: 'Nouns practice', icon: '🪑', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'nouns_mastered', name: 'Nouns mastered', icon: '🏠', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'colours', name: 'Colours', icon: '🎨', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'all', name: 'All', icon: '📚', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
   ];
 
   const words = store.words[langCode] || [];

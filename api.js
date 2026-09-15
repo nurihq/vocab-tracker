@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260915_1789460679458';
-import { getI18nBaseLang } from './i18n.js?v=20260915_1789460679458';
+import { CONFIG } from './config.js?v=20260915_1789460949861';
+import { getI18nBaseLang } from './i18n.js?v=20260915_1789460949861';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -245,9 +245,9 @@ export async function syncLocalToCloud() {
       const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
       const localDecks = store.decks[l.code] || [];
 
-      // Upload any local custom decks that haven't reached DynamoDB yet
+      // Upload any local decks that haven't reached DynamoDB yet
       for (const ld of localDecks) {
-        if (!['practicing', 'mastered', 'all'].includes(ld.deckId) && !cloudDeckIds.has(ld.deckId)) {
+        if (ld.deckId.toLowerCase() !== 'all' && !cloudDeckIds.has(ld.deckId)) {
           try {
             const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
               method: 'POST',
@@ -387,9 +387,12 @@ export const Api = {
       store.languages.push(newLang);
       if (!store.decks[lang.code]) {
         store.decks[lang.code] = [
-          { deckId: 'practicing', name: 'Practicing', langCode: lang.code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'mastered', name: 'Mastered', langCode: lang.code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'all', name: 'All', langCode: lang.code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+          { deckId: 'nouns_practice', name: 'Nouns practice', icon: '🪑', langCode: lang.code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'nouns_mastered', name: 'Nouns mastered', icon: '🏠', langCode: lang.code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'colours', name: 'Colours', icon: '🎨', langCode: lang.code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: lang.code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode: lang.code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'all', name: 'All', icon: '📚', langCode: lang.code, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
         ];
       }
       if (!store.words[lang.code]) store.words[lang.code] = [];
@@ -457,7 +460,7 @@ export const Api = {
           const localDecks = store.decks[langCode] || [];
           
           // Preserve any local custom decks that haven't synced to cloud yet
-          const unsyncedCustom = localDecks.filter(d => !['practicing', 'mastered', 'all'].includes(d.deckId) && !cloudDeckIds.has(d.deckId));
+          const unsyncedCustom = localDecks.filter(d => d.deckId !== 'all' && !cloudDeckIds.has(d.deckId));
           
           store.decks[langCode] = [...cloudDecks, ...unsyncedCustom];
           saveLocalStore(store);
@@ -481,9 +484,12 @@ export const Api = {
     }
     const store = getLocalStore();
     const decks = store.decks[langCode] || [
-      { deckId: 'practicing', name: 'Practicing', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-      { deckId: 'mastered', name: 'Mastered', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-      { deckId: 'all', name: 'All', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+      { deckId: 'nouns_practice', name: 'Nouns practice', icon: '🪑', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+      { deckId: 'nouns_mastered', name: 'Nouns mastered', icon: '🏠', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+      { deckId: 'colours', name: 'Colours', icon: '🎨', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+      { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+      { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+      { deckId: 'all', name: 'All', icon: '📚', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
     ];
     store.decks[langCode] = decks;
     saveLocalStore(store);

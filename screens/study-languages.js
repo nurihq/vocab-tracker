@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789460679458';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460679458';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789460679458';
-import { Modal } from '../components/modal.js?v=20260915_1789460679458';
-import { trackEvent } from '../analytics.js?v=20260915_1789460679458';
-import { navigate } from '../app.js?v=20260915_1789460679458';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789460949861';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460949861';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789460949861';
+import { Modal } from '../components/modal.js?v=20260915_1789460949861';
+import { trackEvent } from '../analytics.js?v=20260915_1789460949861';
+import { navigate } from '../app.js?v=20260915_1789460949861';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
