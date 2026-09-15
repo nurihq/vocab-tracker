@@ -4,6 +4,7 @@
  * - Desktop HTML5 drag-and-drop
  * - Mobile Touch Hold-to-Drag (~280ms hold gesture) with native scroll preservation and click suppression
  * - Edge Auto-Scrolling while dragging on mobile and desktop
+ * - Top / Bottom clamping so dragging above or below the list targets 1st or last position seamlessly
  */
 
 export function setupDraggableList({
@@ -39,13 +40,47 @@ export function setupDraggableList({
   container.addEventListener('click', clickInterceptor, true);
 
   function updateDropTarget(x, y) {
-    if (!x || !y) return;
-    const elem = document.elementFromPoint(x, y);
-    const targetItem = elem ? elem.closest(itemSelector) : null;
+    if (!x || !y || items.length === 0) return;
+
+    const firstRect = items[0].getBoundingClientRect();
+    const lastRect = items[items.length - 1].getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    let targetItem = null;
+
+    // If finger is above first item or past top of list/screen
+    if (y <= firstRect.top + firstRect.height * 0.4 || y < containerRect.top) {
+      targetItem = items[0];
+    }
+    // If finger is below last item or past bottom of list/screen
+    else if (y >= lastRect.bottom - lastRect.height * 0.4 || y > containerRect.bottom) {
+      targetItem = items[items.length - 1];
+    }
+    else {
+      const elem = document.elementFromPoint(x, y);
+      targetItem = elem ? elem.closest(itemSelector) : null;
+
+      if (!targetItem || !container.contains(targetItem)) {
+        let minDistance = Infinity;
+        for (const it of items) {
+          const r = it.getBoundingClientRect();
+          const midY = (r.top + r.bottom) / 2;
+          const midX = (r.left + r.right) / 2;
+          const dist = Math.hypot(x - midX, y - midY);
+          if (dist < minDistance) {
+            minDistance = dist;
+            targetItem = it;
+          }
+        }
+      }
+    }
 
     if (targetItem && targetItem !== currentDropTarget && targetItem !== draggedItem && container.contains(targetItem)) {
       items.forEach(it => it.classList.remove('drag-over'));
       targetItem.classList.add('drag-over');
+      currentDropTarget = targetItem;
+    } else if (targetItem && targetItem === draggedItem) {
+      items.forEach(it => it.classList.remove('drag-over'));
       currentDropTarget = targetItem;
     } else if (!targetItem) {
       items.forEach(it => it.classList.remove('drag-over'));
@@ -126,10 +161,7 @@ export function setupDraggableList({
       e.dataTransfer.dropEffect = 'move';
       lastTouchPos = { x: e.clientX, y: e.clientY };
       handleAutoScrollCalculation(e.clientY);
-      if (draggedItem && draggedItem !== item) {
-        items.forEach(it => { if (it !== item) it.classList.remove('drag-over'); });
-        item.classList.add('drag-over');
-      }
+      updateDropTarget(e.clientX, e.clientY);
     });
 
     item.addEventListener('dragleave', (e) => {
@@ -145,12 +177,15 @@ export function setupDraggableList({
       if (!draggedItem || draggedItem === item) return;
 
       const fromIndex = parseInt(draggedItem.getAttribute('data-drag-index'), 10);
-      const toIndex = parseInt(item.getAttribute('data-drag-index'), 10);
+      const toIndex = currentDropTarget 
+        ? parseInt(currentDropTarget.getAttribute('data-drag-index'), 10)
+        : parseInt(item.getAttribute('data-drag-index'), 10);
 
       if (!isNaN(fromIndex) && !isNaN(toIndex) && fromIndex !== toIndex) {
         onReorder(fromIndex, toIndex);
       }
       draggedItem = null;
+      currentDropTarget = null;
     });
 
     // ─── Mobile Touch Hold-to-Drag ───────────────────────────────────

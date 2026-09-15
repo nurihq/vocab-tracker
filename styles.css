@@ -594,23 +594,21 @@ body {
   cursor: grab;
   user-select: none;
   color: var(--text-muted);
-  font-size: 1.1rem;
-  padding: 0.35rem 0.45rem;
-  line-height: 1;
-  opacity: 0.45;
+  opacity: 0.35;
+  padding: 0.25rem 0.15rem;
+  margin-right: -0.25rem;
   transition: opacity var(--transition-fast), color var(--transition-fast);
-  border-radius: var(--radius-sm);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   touch-action: none;
   flex-shrink: 0;
+  width: 10px;
 }
 
 .word-drag-handle:hover {
   opacity: 1;
   color: var(--primary);
-  background: var(--bg-hover);
 }
 
 .word-drag-handle:active {
