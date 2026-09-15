@@ -26,6 +26,7 @@ export const STATIC_TRANSLATIONS = {
     "deck": "Deck",
     "addDeck": "New Deck",
     "deckName": "Deck Name",
+    "editDeck": "Edit Deck",
     "createDeck": "Create Deck",
     "deleteDeck": "Delete Deck",
     "deleteConfirmTitle": "Delete Deck Confirmation",

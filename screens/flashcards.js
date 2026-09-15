@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789458791771';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789458791771';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789458791771';
-import { trackEvent } from '../analytics.js?v=20260915_1789458791771';
-import { navigate } from '../app.js?v=20260915_1789458791771';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789460277101';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460277101';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789460277101';
+import { trackEvent } from '../analytics.js?v=20260915_1789460277101';
+import { navigate } from '../app.js?v=20260915_1789460277101';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -52,11 +52,16 @@ export function renderFlashcardsScreen(container, params = {}) {
   refreshBackground();
 
   function getDeckDisplayName(dId) {
-    if (dId === 'practicing') return t('practicing');
-    if (dId === 'mastered') return t('mastered');
     if (dId === 'all') return t('all');
     const match = allDecks.find(d => d.deckId === dId);
-    return match ? match.name : dId;
+    if (match && match.name) {
+      if (match.deckId === 'practicing' && match.name === 'Practicing') return t('practicing');
+      if (match.deckId === 'mastered' && match.name === 'Mastered') return t('mastered');
+      return match.name;
+    }
+    if (dId === 'practicing') return t('practicing');
+    if (dId === 'mastered') return t('mastered');
+    return dId;
   }
 
   function shuffleWords() {

@@ -1,15 +1,15 @@
-import { Navbar } from './components/navbar.js?v=20260915_1789458791771';
-import { detectBrowserLanguage } from './languages.js?v=20260915_1789458791771';
-import { setI18nBaseLang } from './i18n.js?v=20260915_1789458791771';
-import { Auth, syncLocalToCloud } from './api.js?v=20260915_1789458791771';
-import { trackPageView } from './analytics.js?v=20260915_1789458791771';
+import { Navbar } from './components/navbar.js?v=20260915_1789460277101';
+import { detectBrowserLanguage } from './languages.js?v=20260915_1789460277101';
+import { setI18nBaseLang } from './i18n.js?v=20260915_1789460277101';
+import { Auth, syncLocalToCloud } from './api.js?v=20260915_1789460277101';
+import { trackPageView } from './analytics.js?v=20260915_1789460277101';
 
-import { renderHomeScreen } from './screens/home.js?v=20260915_1789458791771';
-import { renderSignInScreen } from './screens/signin.js?v=20260915_1789458791771';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260915_1789458791771';
-import { renderDecksScreen } from './screens/decks.js?v=20260915_1789458791771';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260915_1789458791771';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260915_1789458791771';
+import { renderHomeScreen } from './screens/home.js?v=20260915_1789460277101';
+import { renderSignInScreen } from './screens/signin.js?v=20260915_1789460277101';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260915_1789460277101';
+import { renderDecksScreen } from './screens/decks.js?v=20260915_1789460277101';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260915_1789460277101';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260915_1789460277101';
 
 export function navigate(to) {
   let cleanTo = to;

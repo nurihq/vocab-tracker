@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260915_1789458791771';
-import { getI18nBaseLang } from './i18n.js?v=20260915_1789458791771';
+import { CONFIG } from './config.js?v=20260915_1789460277101';
+import { getI18nBaseLang } from './i18n.js?v=20260915_1789460277101';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -577,15 +577,60 @@ export const Api = {
     return { deck: target };
   },
 
-  async deleteDeck(langCode, deckId) {
-    const store = getLocalStore();
-    if (['practicing', 'mastered', 'all'].includes(deckId.toLowerCase())) {
-      throw new Error('Default decks cannot be deleted');
+  async updateDeck(langCode, deckId, name, icon) {
+    if (deckId.toLowerCase() === 'all') {
+      throw new Error('The All deck cannot be edited');
     }
-    store.decks[langCode] = (store.decks[langCode] || []).filter(d => d.deckId !== deckId);
+    const store = getLocalStore();
+    const decks = store.decks[langCode] || [];
+    const target = decks.find(d => d.deckId === deckId);
+    if (target) {
+      if (name !== undefined) target.name = name.trim();
+      if (icon !== undefined) target.icon = icon;
+      target.updatedAt = new Date().toISOString();
+      saveLocalStore(store);
+    }
+
+    if (shouldUseCloud() && CONFIG.API_ENDPOINTS.decks) {
+      try {
+        const cloudRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'update',
+            langCode,
+            deckId,
+            name: name ? name.trim() : target?.name,
+            icon: icon !== undefined ? icon : target?.icon
+          })
+        });
+        if (cloudRes && cloudRes.deck) {
+          const currentStore = getLocalStore();
+          currentStore.decks[langCode] = (currentStore.decks[langCode] || []).map(d => d.deckId === deckId ? cloudRes.deck : d);
+          saveLocalStore(currentStore);
+          return cloudRes;
+        }
+      } catch (e) {
+        console.warn('Deck updated locally, will sync when online:', e);
+      }
+    }
+    return { deck: target };
+  },
+
+  async deleteDeck(langCode, deckId) {
+    if (deckId.toLowerCase() === 'all') {
+      throw new Error('The All deck cannot be deleted');
+    }
+    const store = getLocalStore();
+    const currentDecks = store.decks[langCode] || [];
+    store.decks[langCode] = currentDecks.filter(d => d.deckId !== deckId);
+
+    // Reassign words from deleted deck to fallback deck
+    const remainingDecks = store.decks[langCode].filter(d => d.deckId.toLowerCase() !== 'all');
+    const fallbackDeckId = remainingDecks.length > 0 ? remainingDecks[0].deckId : 'practicing';
+
     const words = store.words[langCode] || [];
     for (const w of words) {
-      if (w.deckId === deckId) w.deckId = 'practicing';
+      if (w.deckId === deckId) w.deckId = fallbackDeckId;
     }
     saveLocalStore(store);
 
@@ -594,7 +639,9 @@ export const Api = {
         await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}&deckId=${encodeURIComponent(deckId)}`, {
           method: 'DELETE'
         });
-      } catch (e) {}
+      } catch (e) {
+        console.warn('Failed to delete deck in cloud:', e);
+      }
     }
     return { message: 'Deleted' };
   },
