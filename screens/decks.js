@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789461551873';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789461551873';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789461551873';
-import { Modal } from '../components/modal.js?v=20260915_1789461551873';
-import { trackEvent } from '../analytics.js?v=20260915_1789461551873';
-import { navigate } from '../app.js?v=20260915_1789461551873';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789461717437';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789461717437';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789461717437';
+import { Modal } from '../components/modal.js?v=20260915_1789461717437';
+import { trackEvent } from '../analytics.js?v=20260915_1789461717437';
+import { navigate } from '../app.js?v=20260915_1789461717437';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -155,7 +155,6 @@ export function renderDecksScreen(container, params = {}) {
       <div class="tiles-grid" id="decks-grid">
         ${visibleDecks.map((deck, index) => {
           const isAll = deck.deckId.toLowerCase() === 'all';
-          const isCustom = !['practicing', 'mastered', 'all'].includes(deck.deckId.toLowerCase());
           const displayName = getDeckDisplayName(deck);
           const emoji = getDeckEmoji(deck);
 
@@ -192,7 +191,6 @@ export function renderDecksScreen(container, params = {}) {
               </div>
               <div class="tile-bottom">
                 <div class="tile-title">${displayName}</div>
-                <div class="tile-subtitle">${isCustom ? 'Custom' : ''}</div>
               </div>
               <div class="tile-drag-handle" title="Drag to reorder" onclick="event.preventDefault(); event.stopPropagation();">⋮⋮</div>
             </div>
