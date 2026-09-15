@@ -1,8 +1,8 @@
-import { CONFIG } from '../config.js?v=20260915_1789458381170';
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789458381170';
-import { Auth, Api } from '../api.js?v=20260915_1789458381170';
-import { trackEvent } from '../analytics.js?v=20260915_1789458381170';
-import { navigate } from '../app.js?v=20260915_1789458381170';
+import { CONFIG } from '../config.js?v=20260915_1789458791771';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789458791771';
+import { Auth, Api } from '../api.js?v=20260915_1789458791771';
+import { trackEvent } from '../analytics.js?v=20260915_1789458791771';
+import { navigate } from '../app.js?v=20260915_1789458791771';
 
 export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();

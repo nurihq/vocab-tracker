@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260915_1789458381170';
-import { getI18nBaseLang } from './i18n.js?v=20260915_1789458381170';
+import { CONFIG } from './config.js?v=20260915_1789458791771';
+import { getI18nBaseLang } from './i18n.js?v=20260915_1789458791771';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -265,6 +265,7 @@ export async function syncLocalToCloud() {
             }
           } catch (err) {
             console.warn('Failed to sync custom deck to cloud:', ld.name, err);
+            cloudDecks.push(ld);
           }
         }
       }
@@ -276,35 +277,42 @@ export async function syncLocalToCloud() {
       const cloudWords = (cloudWordsRes && Array.isArray(cloudWordsRes.words)) ? cloudWordsRes.words : [];
       const localWords = store.words[l.code] || [];
       
-      // 1. Upload ONLY pending offline words created locally with temporary IDs and _needsSync
-      const unsyncedOffline = localWords.filter(lw => lw && lw._needsSync && lw.wordId && lw.wordId.startsWith('w_'));
-      for (const lw of unsyncedOffline) {
-        try {
-          const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
-            method: 'POST',
-            body: JSON.stringify({
-              action: 'add',
-              langCode: l.code,
-              deckId: lw.deckId || 'practicing',
-              baseWord: lw.baseWord,
-              studyWord: lw.studyWord,
-              pronunciation: lw.pronunciation || ''
-            })
-          });
+      const cloudIds = new Set(cloudWords.map(w => w.wordId));
+      const cloudTexts = new Set(cloudWords.map(w => (w.studyWord || '').toLowerCase().trim()));
 
-          if (res && res.word) {
-            delete lw._needsSync;
-            lw.wordId = res.word.wordId;
-            cloudWords.push(res.word);
+      // Upload ANY local word that is missing from DynamoDB
+      for (const lw of localWords) {
+        if (!lw || !lw.studyWord) continue;
+        const studyKey = lw.studyWord.toLowerCase().trim();
+        if (!cloudIds.has(lw.wordId) && !cloudTexts.has(studyKey)) {
+          try {
+            const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
+              method: 'POST',
+              body: JSON.stringify({
+                action: 'add',
+                langCode: l.code,
+                deckId: lw.deckId || 'practicing',
+                baseWord: lw.baseWord,
+                studyWord: lw.studyWord,
+                pronunciation: lw.pronunciation || '',
+                createdAt: lw.createdAt || new Date().toISOString()
+              })
+            });
+
+            if (res && res.word) {
+              cloudWords.push(res.word);
+              cloudIds.add(res.word.wordId);
+              cloudTexts.add(studyKey);
+            }
+          } catch (err) {
+            console.warn('Failed to upload local word:', lw.studyWord, err);
+            cloudWords.push(lw);
           }
-        } catch (err) {
-          console.warn('Failed to upload unsynced word:', lw.studyWord, err);
         }
       }
 
-      // 2. Cloud words are the single source of truth for synced words
-      const stillPending = localWords.filter(lw => lw && lw._needsSync && lw.wordId && lw.wordId.startsWith('w_'));
-      store.words[l.code] = deduplicateWords([...cloudWords, ...stillPending]);
+      const pendingLocal = localWords.filter(lw => lw && lw.studyWord && !cloudIds.has(lw.wordId) && !cloudTexts.has((lw.studyWord || '').toLowerCase().trim()));
+      store.words[l.code] = deduplicateWords([...cloudWords, ...pendingLocal]);
     }
 
     saveLocalStore(store);
@@ -444,9 +452,30 @@ export const Api = {
         const res = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}`, { method: 'GET' });
         if (res.decks && Array.isArray(res.decks) && res.decks.length > 0) {
           const store = getLocalStore();
-          store.decks[langCode] = res.decks;
+          const cloudDecks = res.decks;
+          const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
+          const localDecks = store.decks[langCode] || [];
+          
+          // Preserve any local custom decks that haven't synced to cloud yet
+          const unsyncedCustom = localDecks.filter(d => !['practicing', 'mastered', 'all'].includes(d.deckId) && !cloudDeckIds.has(d.deckId));
+          
+          store.decks[langCode] = [...cloudDecks, ...unsyncedCustom];
           saveLocalStore(store);
-          return res;
+
+          if (unsyncedCustom.length > 0) {
+            syncLocalToCloud().catch(() => {});
+          }
+
+          const words = store.words[langCode] || [];
+          const counts = {};
+          for (const w of words) {
+            counts[w.deckId] = (counts[w.deckId] || 0) + 1;
+          }
+          const decksWithCount = store.decks[langCode].map(d => ({
+            ...d,
+            wordCount: d.deckId === 'all' ? words.length : (counts[d.deckId] || 0)
+          }));
+          return { decks: decksWithCount };
         }
       } catch (e) {}
     }
@@ -581,11 +610,17 @@ export const Api = {
           const cloudWords = res.words;
           const localList = store.words[langCode] || [];
           
-          // Only preserve pending offline additions that haven't synced to cloud yet
-          const pendingOffline = localList.filter(w => w && w._needsSync && w.wordId && w.wordId.startsWith('w_'));
+          // Preserve any local words that are not in cloudWords yet
+          const cloudIds = new Set(cloudWords.map(w => w.wordId));
+          const cloudTexts = new Set(cloudWords.map(w => (w.studyWord || '').toLowerCase().trim()));
+          const unsyncedLocal = localList.filter(w => w && w.studyWord && !cloudIds.has(w.wordId) && !cloudTexts.has((w.studyWord || '').toLowerCase().trim()));
           
-          store.words[langCode] = deduplicateWords([...cloudWords, ...pendingOffline]);
+          store.words[langCode] = deduplicateWords([...cloudWords, ...unsyncedLocal]);
           saveLocalStore(store);
+
+          if (unsyncedLocal.length > 0) {
+            syncLocalToCloud().catch(() => {});
+          }
           
           let filtered = store.words[langCode].filter(w => deckId === 'all' || w.deckId === deckId);
           if (sort === 'alpha') {
