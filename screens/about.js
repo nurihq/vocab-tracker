@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20260915_1789464100957';
-import { Auth } from '../api.js?v=20260915_1789464100957';
-import { trackEvent } from '../analytics.js?v=20260915_1789464100957';
-import { navigate } from '../app.js?v=20260915_1789464100957';
+import { t, autoTranslateUi } from '../i18n.js?v=20260915_1789464255116';
+import { Auth } from '../api.js?v=20260915_1789464255116';
+import { trackEvent } from '../analytics.js?v=20260915_1789464255116';
+import { navigate } from '../app.js?v=20260915_1789464255116';
 
 export function renderAboutScreen(container) {
   const isAuthed = Auth.isAuthenticated();
@@ -12,7 +12,7 @@ export function renderAboutScreen(container) {
       tier: 'A1',
       totalWords: '500',
       wordsNeeded: '+250',
-      reason: 'You only need basic survival nouns and verbs.',
+      reason: 'Essential greetings, survival phrases, and everyday basics to get started.',
       badgeClass: 'badge-a1'
     },
     {
@@ -20,7 +20,7 @@ export function renderAboutScreen(container) {
       tier: 'A1+',
       totalWords: '750',
       wordsNeeded: '+250',
-      reason: 'Adding basic adjectives and connectives.',
+      reason: 'Simple descriptions, asking everyday questions, and connecting basic thoughts.',
       badgeClass: 'badge-a1'
     },
     {
@@ -28,7 +28,7 @@ export function renderAboutScreen(container) {
       tier: 'A2',
       totalWords: '1,000',
       wordsNeeded: '+500',
-      reason: 'Grouping routine words (family, shopping, work).',
+      reason: 'Everyday routines—family, shopping, dining out, and familiar work chats.',
       badgeClass: 'badge-a2'
     },
     {
@@ -36,7 +36,7 @@ export function renderAboutScreen(container) {
       tier: 'A2+',
       totalWords: '1,500',
       wordsNeeded: '+500',
-      reason: 'The Middle Zone. You are expanding past the basics.',
+      reason: 'Stepping past the basics into travel stories, personal feelings, and daily experiences.',
       badgeClass: 'badge-a2'
     },
     {
@@ -44,7 +44,7 @@ export function renderAboutScreen(container) {
       tier: 'B1',
       totalWords: '2,000',
       wordsNeeded: '+1,000',
-      reason: 'Doubling the vocabulary to handle abstract opinions.',
+      reason: 'Comfortably sharing opinions, discussing plans, and handling spontaneous travel situations.',
       badgeClass: 'badge-b1'
     },
     {
@@ -52,7 +52,7 @@ export function renderAboutScreen(container) {
       tier: 'B1+',
       totalWords: '3,000',
       wordsNeeded: '+1,000',
-      reason: 'Adding nuance and specific situational terms.',
+      reason: 'Expressing nuanced ideas, understanding everyday media, and conversing with greater ease.',
       badgeClass: 'badge-b1'
     },
     {
@@ -60,7 +60,7 @@ export function renderAboutScreen(container) {
       tier: 'B2',
       totalWords: '4,000',
       wordsNeeded: '+2,000',
-      reason: 'Huge jump. Required for professional, fluid work.',
+      reason: 'Fluent professional and social conversations, spontaneous discussions, and idioms.',
       badgeClass: 'badge-b2'
     },
     {
@@ -68,7 +68,7 @@ export function renderAboutScreen(container) {
       tier: 'B2+',
       totalWords: '6,000',
       wordsNeeded: '+2,000',
-      reason: 'Mastering idioms and technical topics.',
+      reason: 'Effortless communication across specialized work topics, cultural slang, and debate.',
       badgeClass: 'badge-b2'
     },
     {
@@ -76,7 +76,7 @@ export function renderAboutScreen(container) {
       tier: 'C1',
       totalWords: '8,000',
       wordsNeeded: '+8,000',
-      reason: 'The Exponential Leap. Moving into academic fluency.',
+      reason: 'Effortless academic and professional fluency, complex literature, subtleties, and humor.',
       badgeClass: 'badge-c1'
     },
     {
@@ -84,7 +84,7 @@ export function renderAboutScreen(container) {
       tier: 'C2',
       totalWords: '16,000+',
       wordsNeeded: '—',
-      reason: 'Near-native vocabulary across all domains.',
+      reason: 'Near-native mastery and natural expression across virtually any subject or setting.',
       badgeClass: 'badge-c2'
     }
   ];
@@ -109,8 +109,8 @@ export function renderAboutScreen(container) {
                 <th>CEFR Level</th>
                 <th>Extended Tier</th>
                 <th>Total Word Families</th>
-                <th>Words Needed to Advance to Next Tier</th>
-                <th>Why it's not linear</th>
+                <th>Words to Next Tier</th>
+                <th>What You Can Express</th>
               </tr>
             </thead>
             <tbody>
