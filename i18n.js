@@ -60,6 +60,8 @@ export const STATIC_TRANSLATIONS = {
     "sortAlpha": "Alphabetical",
     "sortCustom": "Custom (Draggable)",
     "studyDeck": "Study Deck",
+    "searchWords": "Search words in deck...",
+    "noWordsMatching": "No words matching your search.",
     "noWordsYet": "No words in this deck yet. Add some words to start studying!",
     "allDeckNotice": "The \"All\" deck automatically aggregates all words across your decks.",
     "flashcards": "Flash Cards",

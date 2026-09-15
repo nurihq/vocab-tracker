@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789463266659';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789463266659';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789463266659';
-import { Modal } from '../components/modal.js?v=20260915_1789463266659';
-import { trackEvent } from '../analytics.js?v=20260915_1789463266659';
-import { navigate } from '../app.js?v=20260915_1789463266659';
-import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789463266659';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789463513922';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789463513922';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789463513922';
+import { Modal } from '../components/modal.js?v=20260915_1789463513922';
+import { trackEvent } from '../analytics.js?v=20260915_1789463513922';
+import { navigate } from '../app.js?v=20260915_1789463513922';
+import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789463513922';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -17,6 +17,7 @@ export function renderDeckWordsScreen(container, params = {}) {
   const isStillMounted = () => window.location.hash.startsWith(`#/languages/${langCode}/decks/${deckId}`) && !window.location.hash.endsWith('/study');
 
   let currentSort = !isAllDeck ? 'custom' : 'newest';
+  let searchQuery = '';
 
   // Instant optimistic render from local store
   const store = getLocalStore();
@@ -120,6 +121,18 @@ export function renderDeckWordsScreen(container, params = {}) {
 
     const isAllDeck = deckId.toLowerCase() === 'all';
     const deckName = getDeckDisplayName(deckId);
+    const q = searchQuery.toLowerCase().trim();
+
+    const filteredWords = q ? words.filter(w => {
+      const studyMatch = (w.studyWord || '').toLowerCase().includes(q);
+      const baseMatch = (w.baseWord || '').toLowerCase().includes(q);
+      const pronMatch = (w.pronunciation || '').toLowerCase().includes(q);
+      const dynamicBase = (getCachedWordMeaning(w.studyWord, w.baseWord, langCode, currentBase) || '').toLowerCase();
+      const dynamicMatch = dynamicBase.includes(q);
+      return studyMatch || baseMatch || pronMatch || dynamicMatch;
+    }) : words;
+
+    const canDrag = !isAllDeck && !q;
 
     container.innerHTML = `
       <div class="screen-header">
@@ -144,26 +157,42 @@ export function renderDeckWordsScreen(container, params = {}) {
 
       <div class="word-list-container">
         <div class="word-list-toolbar">
-          <div class="sort-select-wrapper">
-            <span data-i18n="sortBy">${t('sortBy')}</span>:
-            <select class="sort-select" id="sort-dropdown">
-              <option value="newest" ${currentSort === 'newest' ? 'selected' : ''}>${t('sortNewest')}</option>
-              <option value="alpha" ${currentSort === 'alpha' ? 'selected' : ''}>${t('sortAlpha')}</option>
-              <option value="custom" ${currentSort === 'custom' ? 'selected' : ''}>${t('sortCustom')}</option>
-            </select>
+          <div class="word-search-wrapper">
+            <svg class="word-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input type="text" 
+                   id="word-search-input" 
+                   class="word-search-input" 
+                   placeholder="${t('searchWords') || 'Search words in deck...'}" 
+                   value="${searchQuery.replace(/"/g, '&quot;')}" 
+                   autocomplete="off">
+            ${searchQuery ? `<button type="button" id="word-search-clear" class="word-search-clear-btn" title="Clear">✕</button>` : ''}
           </div>
-          <span style="font-size: 0.8rem; color: var(--text-muted);">
-            ${words.length} ${words.length === 1 ? t('word') : t('words')}
-          </span>
+
+          <div class="word-list-toolbar-meta">
+            <div class="sort-select-wrapper">
+              <span data-i18n="sortBy">${t('sortBy')}</span>:
+              <select class="sort-select" id="sort-dropdown">
+                <option value="newest" ${currentSort === 'newest' ? 'selected' : ''}>${t('sortNewest')}</option>
+                <option value="alpha" ${currentSort === 'alpha' ? 'selected' : ''}>${t('sortAlpha')}</option>
+                <option value="custom" ${currentSort === 'custom' ? 'selected' : ''}>${t('sortCustom')}</option>
+              </select>
+            </div>
+            <span class="word-count-badge">
+              ${q ? `${filteredWords.length} / ${words.length}` : `${words.length}`} ${words.length === 1 ? t('word') : t('words')}
+            </span>
+          </div>
         </div>
 
         <div id="words-list">
-          ${words.map((w, index) => {
+          ${filteredWords.map((w, index) => {
             const initialMeaning = getCachedWordMeaning(w.studyWord, w.baseWord, langCode, currentBase);
 
             return `
-              <div class="word-row ${!isAllDeck ? 'draggable-row' : ''}" 
-                   ${!isAllDeck ? 'draggable="true"' : ''}
+              <div class="word-row ${canDrag ? 'draggable-row' : ''}" 
+                   ${canDrag ? 'draggable="true"' : ''}
                    data-word-id="${w.wordId}" 
                    data-index="${index}">
                 <div class="word-main-row">
@@ -174,7 +203,7 @@ export function renderDeckWordsScreen(container, params = {}) {
                     </div>
                     <div class="word-base" data-word-base-id="${w.wordId}">${initialMeaning}</div>
                   </div>
-                  ${!isAllDeck ? `
+                  ${canDrag ? `
                     <div class="word-drag-handle" title="${t('dragToReorder') || 'Hold / drag to reorder'}" onclick="event.preventDefault(); event.stopPropagation();">⋮⋮</div>
                   ` : ''}
                 </div>
@@ -188,7 +217,7 @@ export function renderDeckWordsScreen(container, params = {}) {
                   </select>
 
                   <button class="tile-action-btn edit-word-btn" 
-                          data-word-id="${w.wordId}"
+                          data-word-id="${w.wordId}" 
                           title="${t('editWord')}">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
                       <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
@@ -198,7 +227,7 @@ export function renderDeckWordsScreen(container, params = {}) {
 
                   <button class="tile-action-btn delete-hover delete-word-btn" 
                           data-word-id="${w.wordId}" 
-                          data-deck-id="${w.deckId || 'practicing'}"
+                          data-deck-id="${w.deckId || 'practicing'}" 
                           title="${t('delete')}">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
                       <path d="M3 6h18"/>
@@ -216,7 +245,11 @@ export function renderDeckWordsScreen(container, params = {}) {
           <div class="empty-state">
             <p data-i18n="noWordsYet">${t('noWordsYet')}</p>
           </div>
-        ` : ''}
+        ` : (filteredWords.length === 0 ? `
+          <div class="empty-state">
+            <p data-i18n="noWordsMatching">${t('noWordsMatching') || 'No words matching your search.'}</p>
+          </div>
+        ` : '')}
       </div>
     `;
 
@@ -297,7 +330,35 @@ export function renderDeckWordsScreen(container, params = {}) {
       });
     });
 
-    if (!isAllDeck) {
+    const searchInput = container.querySelector('#word-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        const selStart = e.target.selectionStart;
+        const selEnd = e.target.selectionEnd;
+        searchQuery = val;
+        render();
+        const nextInput = container.querySelector('#word-search-input');
+        if (nextInput) {
+          nextInput.focus();
+          try {
+            nextInput.setSelectionRange(selStart, selEnd);
+          } catch (err) {}
+        }
+      });
+    }
+
+    const searchClearBtn = container.querySelector('#word-search-clear');
+    if (searchClearBtn) {
+      searchClearBtn.addEventListener('click', () => {
+        searchQuery = '';
+        render();
+        const nextInput = container.querySelector('#word-search-input');
+        if (nextInput) nextInput.focus();
+      });
+    }
+
+    if (canDrag) {
       setupWordDragAndDrop();
     }
   }
