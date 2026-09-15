@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260913_1789287072274';
-import { getI18nBaseLang } from './i18n.js?v=20260913_1789287072274';
+import { CONFIG } from './config.js?v=20260915_1789458319887';
+import { getI18nBaseLang } from './i18n.js?v=20260915_1789458319887';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -241,12 +241,15 @@ export async function syncLocalToCloud() {
     for (const l of store.languages) {
       // Check cloud decks (cloud is source of truth for decks)
       const cloudDecksRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(l.code)}`, { method: 'GET' }).catch(() => null);
-      if (cloudDecksRes && Array.isArray(cloudDecksRes.decks)) {
+      if (cloudDecksRes && Array.isArray(cloudDecksRes.decks) && cloudDecksRes.decks.length > 0) {
         store.decks[l.code] = cloudDecksRes.decks;
       }
 
       // Check cloud words
       const cloudWordsRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(l.code)}&deckId=all`, { method: 'GET' }).catch(() => ({ words: [] }));
+      const cloudWords = (cloudWordsRes && Array.isArray(cloudWordsRes.words)) ? cloudWordsRes.words : [];
+      const localWords = store.words[l.code] || [];
+      
       // 1. Upload ONLY pending offline words created locally with temporary IDs and _needsSync
       const unsyncedOffline = localWords.filter(lw => lw && lw._needsSync && lw.wordId && lw.wordId.startsWith('w_'));
       for (const lw of unsyncedOffline) {
@@ -413,7 +416,7 @@ export const Api = {
     if (shouldUseCloud() && CONFIG.API_ENDPOINTS.decks) {
       try {
         const res = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}`, { method: 'GET' });
-        if (res.decks && res.decks.length > 0) {
+        if (res.decks && Array.isArray(res.decks) && res.decks.length > 0) {
           const store = getLocalStore();
           store.decks[langCode] = res.decks;
           saveLocalStore(store);
@@ -461,11 +464,19 @@ export const Api = {
 
     if (shouldUseCloud() && CONFIG.API_ENDPOINTS.decks) {
       try {
-        return await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
+        const cloudRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
           method: 'POST',
-          body: JSON.stringify({ action: 'add', langCode, name, icon: icon || '📁' })
+          body: JSON.stringify({ action: 'add', langCode, name, icon: icon || '📁', deckId })
         });
-      } catch (e) {}
+        if (cloudRes && cloudRes.deck) {
+          const currentStore = getLocalStore();
+          currentStore.decks[langCode] = (currentStore.decks[langCode] || []).map(d => d.deckId === deckId ? cloudRes.deck : d);
+          saveLocalStore(currentStore);
+          return cloudRes;
+        }
+      } catch (e) {
+        console.warn('Deck created locally, will sync when online:', e);
+      }
     }
     return { deck: newDeck };
   },

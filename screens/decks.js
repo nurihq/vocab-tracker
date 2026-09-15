@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260913_1789287072274';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260913_1789287072274';
-import { Api, getLocalStore } from '../api.js?v=20260913_1789287072274';
-import { Modal } from '../components/modal.js?v=20260913_1789287072274';
-import { trackEvent } from '../analytics.js?v=20260913_1789287072274';
-import { navigate } from '../app.js?v=20260913_1789287072274';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789458319887';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789458319887';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789458319887';
+import { Modal } from '../components/modal.js?v=20260915_1789458319887';
+import { trackEvent } from '../analytics.js?v=20260915_1789458319887';
+import { navigate } from '../app.js?v=20260915_1789458319887';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -41,7 +41,7 @@ export function renderDecksScreen(container, params = {}) {
   async function refreshBackground() {
     if (!isStillMounted()) return;
     try {
-      const oldDataStr = JSON.stringify(decks.map(d => ({ id: d.deckId, count: d.wordCount, hidden: d.hidden })));
+      const oldDataStr = JSON.stringify(decks.map(d => ({ id: d.deckId, name: d.name, icon: d.icon, count: d.wordCount, hidden: d.hidden })));
 
       const [decksRes, wordsRes] = await Promise.all([
         Api.getDecks(langCode),
@@ -60,7 +60,7 @@ export function renderDecksScreen(container, params = {}) {
         wordCount: d.deckId === 'all' ? latestWords.length : (counts[d.deckId] || 0)
       }));
 
-      const newDataStr = JSON.stringify(newDecks.map(d => ({ id: d.deckId, count: d.wordCount, hidden: d.hidden })));
+      const newDataStr = JSON.stringify(newDecks.map(d => ({ id: d.deckId, name: d.name, icon: d.icon, count: d.wordCount, hidden: d.hidden })));
       decks = newDecks;
 
       if (oldDataStr !== newDataStr) {
