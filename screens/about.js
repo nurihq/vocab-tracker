@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20260915_1789464255116';
-import { Auth } from '../api.js?v=20260915_1789464255116';
-import { trackEvent } from '../analytics.js?v=20260915_1789464255116';
-import { navigate } from '../app.js?v=20260915_1789464255116';
+import { t, autoTranslateUi } from '../i18n.js?v=20260915_1789464399478';
+import { Auth } from '../api.js?v=20260915_1789464399478';
+import { trackEvent } from '../analytics.js?v=20260915_1789464399478';
+import { navigate } from '../app.js?v=20260915_1789464399478';
 
 export function renderAboutScreen(container) {
   const isAuthed = Auth.isAuthenticated();
@@ -12,7 +12,7 @@ export function renderAboutScreen(container) {
       tier: 'A1',
       totalWords: '500',
       wordsNeeded: '+250',
-      reason: 'Essential greetings, survival phrases, and everyday basics to get started.',
+      reason: 'Basic greetings, simple requests, and core everyday words to get started.',
       badgeClass: 'badge-a1'
     },
     {
@@ -20,7 +20,7 @@ export function renderAboutScreen(container) {
       tier: 'A1+',
       totalWords: '750',
       wordsNeeded: '+250',
-      reason: 'Simple descriptions, asking everyday questions, and connecting basic thoughts.',
+      reason: 'Simple descriptions, asking common questions, and connecting basic ideas.',
       badgeClass: 'badge-a1'
     },
     {
@@ -28,7 +28,7 @@ export function renderAboutScreen(container) {
       tier: 'A2',
       totalWords: '1,000',
       wordsNeeded: '+500',
-      reason: 'Everyday routines—family, shopping, dining out, and familiar work chats.',
+      reason: 'Everyday conversations about family, shopping, dining out, and work.',
       badgeClass: 'badge-a2'
     },
     {
@@ -36,7 +36,7 @@ export function renderAboutScreen(container) {
       tier: 'A2+',
       totalWords: '1,500',
       wordsNeeded: '+500',
-      reason: 'Stepping past the basics into travel stories, personal feelings, and daily experiences.',
+      reason: 'Talking about past trips, personal plans, and daily experiences.',
       badgeClass: 'badge-a2'
     },
     {
@@ -44,7 +44,7 @@ export function renderAboutScreen(container) {
       tier: 'B1',
       totalWords: '2,000',
       wordsNeeded: '+1,000',
-      reason: 'Comfortably sharing opinions, discussing plans, and handling spontaneous travel situations.',
+      reason: 'Sharing personal opinions, discussing goals, and handling everyday travel on your own.',
       badgeClass: 'badge-b1'
     },
     {
@@ -52,7 +52,7 @@ export function renderAboutScreen(container) {
       tier: 'B1+',
       totalWords: '3,000',
       wordsNeeded: '+1,000',
-      reason: 'Expressing nuanced ideas, understanding everyday media, and conversing with greater ease.',
+      reason: 'Explaining complex points, following podcasts or videos, and chatting more naturally.',
       badgeClass: 'badge-b1'
     },
     {
@@ -60,7 +60,7 @@ export function renderAboutScreen(container) {
       tier: 'B2',
       totalWords: '4,000',
       wordsNeeded: '+2,000',
-      reason: 'Fluent professional and social conversations, spontaneous discussions, and idioms.',
+      reason: 'Fluent workplace conversations, spontaneous banter, and common idioms.',
       badgeClass: 'badge-b2'
     },
     {
@@ -68,7 +68,7 @@ export function renderAboutScreen(container) {
       tier: 'B2+',
       totalWords: '6,000',
       wordsNeeded: '+2,000',
-      reason: 'Effortless communication across specialized work topics, cultural slang, and debate.',
+      reason: 'Handling technical discussions, cultural humor, and active debates comfortably.',
       badgeClass: 'badge-b2'
     },
     {
@@ -76,7 +76,7 @@ export function renderAboutScreen(container) {
       tier: 'C1',
       totalWords: '8,000',
       wordsNeeded: '+8,000',
-      reason: 'Effortless academic and professional fluency, complex literature, subtleties, and humor.',
+      reason: 'Academic reading, nuanced writing, jokes, and expressing subtle shades of meaning.',
       badgeClass: 'badge-c1'
     },
     {
@@ -84,7 +84,7 @@ export function renderAboutScreen(container) {
       tier: 'C2',
       totalWords: '16,000+',
       wordsNeeded: '—',
-      reason: 'Near-native mastery and natural expression across virtually any subject or setting.',
+      reason: 'Complete near-native fluency across virtually any topic or context.',
       badgeClass: 'badge-c2'
     }
   ];
@@ -97,7 +97,7 @@ export function renderAboutScreen(container) {
         </div>
         <h1 class="about-title">Vocabulary Growth is Exponential</h1>
         <p class="about-subtitle">
-          Language acquisition doesn't advance in straight lines. As you progress from elementary survival words to professional fluency, each tier demands an expanding foundation of vocabulary families.
+          Language acquisition doesn't advance in straight lines. As you progress from the basics to professional fluency, each tier demands an expanding foundation of vocabulary families.
         </p>
       </div>
 
