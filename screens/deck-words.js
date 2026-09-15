@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789465436729';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789465436729';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789465436729';
-import { Modal } from '../components/modal.js?v=20260915_1789465436729';
-import { trackEvent } from '../analytics.js?v=20260915_1789465436729';
-import { navigate } from '../app.js?v=20260915_1789465436729';
-import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789465436729';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789465676764';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789465676764';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789465676764';
+import { Modal } from '../components/modal.js?v=20260915_1789465676764';
+import { trackEvent } from '../analytics.js?v=20260915_1789465676764';
+import { navigate } from '../app.js?v=20260915_1789465676764';
+import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789465676764';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -132,7 +132,7 @@ export function renderDeckWordsScreen(container, params = {}) {
       return studyMatch || baseMatch || pronMatch || dynamicMatch;
     }) : words;
 
-    const canDrag = !isAllDeck && !q;
+    const canDrag = !isAllDeck && !q && currentSort === 'custom';
 
     container.innerHTML = `
       <div class="screen-header">
@@ -272,6 +272,14 @@ export function renderDeckWordsScreen(container, params = {}) {
       sortDropdown.addEventListener('change', async (e) => {
         currentSort = e.target.value;
         trackEvent('sort_words', { langCode, deckId, sort: currentSort });
+        if (currentSort === 'custom') {
+          words.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        } else if (currentSort === 'newest') {
+          words.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        } else if (currentSort === 'alpha') {
+          words.sort((a, b) => (a.studyWord || '').localeCompare(b.studyWord || ''));
+        }
+        render();
         refreshBackground();
       });
     }
