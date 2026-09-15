@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260915_1789460949861';
-import { getI18nBaseLang } from './i18n.js?v=20260915_1789460949861';
+import { CONFIG } from './config.js?v=20260915_1789461286730';
+import { getI18nBaseLang } from './i18n.js?v=20260915_1789461286730';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -45,6 +45,30 @@ export function deduplicateWords(words = []) {
   return Array.from(seen.values());
 }
 
+export function migrateLegacyDefaultDecks(store) {
+  if (!store || !store.decks) return;
+  for (const code of Object.keys(store.decks)) {
+    const decks = store.decks[code] || [];
+    const words = store.words?.[code] || [];
+    const isLegacyOnly = decks.length === 3 &&
+      decks.some(d => d.deckId === 'practicing') &&
+      decks.some(d => d.deckId === 'mastered') &&
+      decks.some(d => d.deckId === 'all');
+    
+    // If language has empty default decks and no words, migrate seamlessly
+    if (isLegacyOnly && words.length === 0) {
+      store.decks[code] = [
+        { deckId: 'nouns_practice', name: 'Nouns practice', icon: '🪑', langCode: code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'nouns_mastered', name: 'Nouns mastered', icon: '🏠', langCode: code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'colours', name: 'Colours', icon: '🎨', langCode: code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode: code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'all', name: 'All', icon: '📚', langCode: code, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+      ];
+    }
+  }
+}
+
 export function getLocalStore() {
   const raw = localStorage.getItem(LOCAL_DATA_KEY);
   if (raw) {
@@ -57,6 +81,7 @@ export function getLocalStore() {
             parsed.words[code] = deduplicateWords(parsed.words[code]);
           }
         }
+        migrateLegacyDefaultDecks(parsed);
         return parsed;
       }
     } catch (e) {}

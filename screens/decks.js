@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789460949861';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460949861';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789460949861';
-import { Modal } from '../components/modal.js?v=20260915_1789460949861';
-import { trackEvent } from '../analytics.js?v=20260915_1789460949861';
-import { navigate } from '../app.js?v=20260915_1789460949861';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789461286730';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789461286730';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789461286730';
+import { Modal } from '../components/modal.js?v=20260915_1789461286730';
+import { trackEvent } from '../analytics.js?v=20260915_1789461286730';
+import { navigate } from '../app.js?v=20260915_1789461286730';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -76,20 +76,49 @@ export function renderDecksScreen(container, params = {}) {
   refreshBackground();
 
   function getDeckDisplayName(deck) {
-    if (deck.deckId === 'all') return t('all');
-    if (deck.deckId === 'practicing') {
-      if (!deck.name || deck.name === 'Practicing') return t('practicing');
-      return deck.name;
+    if (!deck) return '';
+    const dId = deck.deckId || '';
+    const dName = deck.name || '';
+
+    if (dId === 'all') return t('all');
+    if (dId === 'nouns_practice') {
+      if (!dName || dName === 'Nouns practice' || dName === 'nouns_practice') return t('nounsPractice') || 'Nouns practice';
+      return dName;
     }
-    if (deck.deckId === 'mastered') {
-      if (!deck.name || deck.name === 'Mastered') return t('mastered');
-      return deck.name;
+    if (dId === 'nouns_mastered') {
+      if (!dName || dName === 'Nouns mastered' || dName === 'nouns_mastered') return t('nounsMastered') || 'Nouns mastered';
+      return dName;
     }
-    return deck.name;
+    if (dId === 'colours') {
+      if (!dName || dName === 'Colours' || dName === 'Colors' || dName === 'colours') return t('colours') || 'Colours';
+      return dName;
+    }
+    if (dId === 'numbers') {
+      if (!dName || dName === 'Numbers' || dName === 'numbers') return t('numbers') || 'Numbers';
+      return dName;
+    }
+    if (dId === 'verbs') {
+      if (!dName || dName === 'Verbs' || dName === 'verbs') return t('verbs') || 'Verbs';
+      return dName;
+    }
+    if (dId === 'practicing') {
+      if (!dName || dName === 'Practicing') return t('practicing');
+      return dName;
+    }
+    if (dId === 'mastered') {
+      if (!dName || dName === 'Mastered') return t('mastered');
+      return dName;
+    }
+    return dName;
   }
 
   function getDeckEmoji(deck) {
     if (deck.icon) return deck.icon;
+    if (deck.deckId === 'nouns_practice') return '🪑';
+    if (deck.deckId === 'nouns_mastered') return '🏠';
+    if (deck.deckId === 'colours') return '🎨';
+    if (deck.deckId === 'numbers') return '🔢';
+    if (deck.deckId === 'verbs') return '🏃🏽‍♀️';
     if (deck.deckId === 'practicing') return '🌱';
     if (deck.deckId === 'mastered') return '✨';
     if (deck.deckId === 'all') return '📚';

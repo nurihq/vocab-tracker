@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789460949861';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789460949861';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789460949861';
-import { Modal } from '../components/modal.js?v=20260915_1789460949861';
-import { trackEvent } from '../analytics.js?v=20260915_1789460949861';
-import { navigate } from '../app.js?v=20260915_1789460949861';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789461286730';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789461286730';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789461286730';
+import { Modal } from '../components/modal.js?v=20260915_1789461286730';
+import { trackEvent } from '../analytics.js?v=20260915_1789461286730';
+import { navigate } from '../app.js?v=20260915_1789461286730';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -72,14 +72,36 @@ export function renderDeckWordsScreen(container, params = {}) {
   function getDeckDisplayName(dId) {
     if (dId === 'all') return t('all');
     const match = allDecks.find(d => d.deckId === dId);
-    if (match && match.name) {
-      if (match.deckId === 'practicing' && match.name === 'Practicing') return t('practicing');
-      if (match.deckId === 'mastered' && match.name === 'Mastered') return t('mastered');
-      return match.name;
+    const dName = match?.name;
+    if (dId === 'nouns_practice') {
+      if (!dName || dName === 'Nouns practice' || dName === 'nouns_practice') return t('nounsPractice') || 'Nouns practice';
+      return dName;
     }
-    if (dId === 'practicing') return t('practicing');
-    if (dId === 'mastered') return t('mastered');
-    return dId;
+    if (dId === 'nouns_mastered') {
+      if (!dName || dName === 'Nouns mastered' || dName === 'nouns_mastered') return t('nounsMastered') || 'Nouns mastered';
+      return dName;
+    }
+    if (dId === 'colours') {
+      if (!dName || dName === 'Colours' || dName === 'Colors' || dName === 'colours') return t('colours') || 'Colours';
+      return dName;
+    }
+    if (dId === 'numbers') {
+      if (!dName || dName === 'Numbers' || dName === 'numbers') return t('numbers') || 'Numbers';
+      return dName;
+    }
+    if (dId === 'verbs') {
+      if (!dName || dName === 'Verbs' || dName === 'verbs') return t('verbs') || 'Verbs';
+      return dName;
+    }
+    if (dId === 'practicing') {
+      if (!dName || dName === 'Practicing') return t('practicing');
+      return dName;
+    }
+    if (dId === 'mastered') {
+      if (!dName || dName === 'Mastered') return t('mastered');
+      return dName;
+    }
+    return dName || dId;
   }
 
   function render() {

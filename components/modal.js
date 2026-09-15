@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20260915_1789460949861';
+import { t } from '../i18n.js?v=20260915_1789461286730';
 
 export const Modal = {
   activeOverlay: null,
