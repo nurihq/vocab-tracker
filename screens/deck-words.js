@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789463901199';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789463901199';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789463901199';
-import { Modal } from '../components/modal.js?v=20260915_1789463901199';
-import { trackEvent } from '../analytics.js?v=20260915_1789463901199';
-import { navigate } from '../app.js?v=20260915_1789463901199';
-import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789463901199';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789464017732';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789464017732';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789464017732';
+import { Modal } from '../components/modal.js?v=20260915_1789464017732';
+import { trackEvent } from '../analytics.js?v=20260915_1789464017732';
+import { navigate } from '../app.js?v=20260915_1789464017732';
+import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789464017732';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';

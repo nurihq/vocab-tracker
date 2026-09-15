@@ -1,16 +1,16 @@
-import { Navbar } from './components/navbar.js?v=20260915_1789463901199';
-import { detectBrowserLanguage } from './languages.js?v=20260915_1789463901199';
-import { setI18nBaseLang } from './i18n.js?v=20260915_1789463901199';
-import { Auth, syncLocalToCloud } from './api.js?v=20260915_1789463901199';
-import { trackPageView } from './analytics.js?v=20260915_1789463901199';
+import { Navbar } from './components/navbar.js?v=20260915_1789464017732';
+import { detectBrowserLanguage } from './languages.js?v=20260915_1789464017732';
+import { setI18nBaseLang } from './i18n.js?v=20260915_1789464017732';
+import { Auth, syncLocalToCloud } from './api.js?v=20260915_1789464017732';
+import { trackPageView } from './analytics.js?v=20260915_1789464017732';
 
-import { renderHomeScreen } from './screens/home.js?v=20260915_1789463901199';
-import { renderSignInScreen } from './screens/signin.js?v=20260915_1789463901199';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260915_1789463901199';
-import { renderDecksScreen } from './screens/decks.js?v=20260915_1789463901199';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260915_1789463901199';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260915_1789463901199';
-import { renderAboutScreen } from './screens/about.js?v=20260915_1789463901199';
+import { renderHomeScreen } from './screens/home.js?v=20260915_1789464017732';
+import { renderSignInScreen } from './screens/signin.js?v=20260915_1789464017732';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260915_1789464017732';
+import { renderDecksScreen } from './screens/decks.js?v=20260915_1789464017732';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260915_1789464017732';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260915_1789464017732';
+import { renderAboutScreen } from './screens/about.js?v=20260915_1789464017732';
 
 export function navigate(to) {
   let cleanTo = to;

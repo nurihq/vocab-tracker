@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20260915_1789463901199';
-import { Auth } from '../api.js?v=20260915_1789463901199';
-import { trackEvent } from '../analytics.js?v=20260915_1789463901199';
-import { navigate } from '../app.js?v=20260915_1789463901199';
+import { t, autoTranslateUi } from '../i18n.js?v=20260915_1789464017732';
+import { Auth } from '../api.js?v=20260915_1789464017732';
+import { trackEvent } from '../analytics.js?v=20260915_1789464017732';
+import { navigate } from '../app.js?v=20260915_1789464017732';
 
 export function renderAboutScreen(container) {
   const isAuthed = Auth.isAuthenticated();
@@ -95,7 +95,7 @@ export function renderAboutScreen(container) {
         <div class="about-badge">
           <span>📚</span> <span>Vocabulary Framework</span>
         </div>
-        <h1 class="about-title">Why Vocabulary Growth is Exponential</h1>
+        <h1 class="about-title">Vocabulary Growth is Exponential</h1>
         <p class="about-subtitle">
           Language acquisition doesn't advance in straight lines. As you progress from elementary survival words to professional fluency, each tier demands an expanding foundation of vocabulary families.
         </p>
