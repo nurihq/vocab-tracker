@@ -594,21 +594,23 @@ body {
   cursor: grab;
   user-select: none;
   color: var(--text-muted);
-  opacity: 0.35;
-  padding: 0.25rem 0.15rem;
-  margin-right: -0.25rem;
+  font-size: 1.15rem;
+  padding: 0.25rem 0.4rem;
+  line-height: 1;
+  opacity: 0.45;
   transition: opacity var(--transition-fast), color var(--transition-fast);
+  border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   touch-action: none;
   flex-shrink: 0;
-  width: 10px;
 }
 
 .word-drag-handle:hover {
   opacity: 1;
   color: var(--primary);
+  background: var(--bg-hover);
 }
 
 .word-drag-handle:active {
@@ -692,11 +694,20 @@ body {
   justify-content: space-between;
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border-color);
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .word-row:last-child {
   border-bottom: none;
+}
+
+.word-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .word-content {
@@ -1137,6 +1148,14 @@ body {
     align-items: stretch;
     gap: 0.75rem;
     padding: 0.95rem 1rem;
+  }
+
+  .word-main-row {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
   }
 
   .word-actions {

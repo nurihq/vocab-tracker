@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789462961829';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789462961829';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789462961829';
-import { Modal } from '../components/modal.js?v=20260915_1789462961829';
-import { trackEvent } from '../analytics.js?v=20260915_1789462961829';
-import { navigate } from '../app.js?v=20260915_1789462961829';
-import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789462961829';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789463266659';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789463266659';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789463266659';
+import { Modal } from '../components/modal.js?v=20260915_1789463266659';
+import { trackEvent } from '../analytics.js?v=20260915_1789463266659';
+import { navigate } from '../app.js?v=20260915_1789463266659';
+import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789463266659';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -166,24 +166,17 @@ export function renderDeckWordsScreen(container, params = {}) {
                    ${!isAllDeck ? 'draggable="true"' : ''}
                    data-word-id="${w.wordId}" 
                    data-index="${index}">
-                ${!isAllDeck ? `
-                  <span class="word-drag-handle" title="${t('dragToReorder') || 'Hold / drag to reorder'}" onclick="event.preventDefault(); event.stopPropagation();">
-                    <svg width="6" height="13" viewBox="0 0 6 13" fill="currentColor">
-                      <circle cx="1.5" cy="2" r="1.1"/>
-                      <circle cx="4.5" cy="2" r="1.1"/>
-                      <circle cx="1.5" cy="6.5" r="1.1"/>
-                      <circle cx="4.5" cy="6.5" r="1.1"/>
-                      <circle cx="1.5" cy="11" r="1.1"/>
-                      <circle cx="4.5" cy="11" r="1.1"/>
-                    </svg>
-                  </span>
-                ` : ''}
-                <div class="word-content edit-word-trigger" data-word-id="${w.wordId}" title="${t('editWord')} (Click to edit)">
-                  <div class="word-study-row">
-                    <span class="word-study">${w.studyWord}</span>
-                    ${w.pronunciation ? `<span class="word-pronunciation">${w.pronunciation}</span>` : ''}
+                <div class="word-main-row">
+                  <div class="word-content edit-word-trigger" data-word-id="${w.wordId}" title="${t('editWord')} (Click to edit)">
+                    <div class="word-study-row">
+                      <span class="word-study">${w.studyWord}</span>
+                      ${w.pronunciation ? `<span class="word-pronunciation">${w.pronunciation}</span>` : ''}
+                    </div>
+                    <div class="word-base" data-word-base-id="${w.wordId}">${initialMeaning}</div>
                   </div>
-                  <div class="word-base" data-word-base-id="${w.wordId}">${initialMeaning}</div>
+                  ${!isAllDeck ? `
+                    <div class="word-drag-handle" title="${t('dragToReorder') || 'Hold / drag to reorder'}" onclick="event.preventDefault(); event.stopPropagation();">⋮⋮</div>
+                  ` : ''}
                 </div>
 
                 <div class="word-actions">
