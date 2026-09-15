@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20260915_1789464730189';
-import { Auth } from '../api.js?v=20260915_1789464730189';
-import { trackEvent } from '../analytics.js?v=20260915_1789464730189';
-import { navigate } from '../app.js?v=20260915_1789464730189';
+import { t, autoTranslateUi } from '../i18n.js?v=20260915_1789464995411';
+import { Auth } from '../api.js?v=20260915_1789464995411';
+import { trackEvent } from '../analytics.js?v=20260915_1789464995411';
+import { navigate } from '../app.js?v=20260915_1789464995411';
 
 export function renderAboutScreen(container) {
   const isAuthed = Auth.isAuthenticated();

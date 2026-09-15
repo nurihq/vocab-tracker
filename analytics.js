@@ -23,10 +23,23 @@ export function initGA() {
 
 export function trackPageView(pagePath, pageTitle) {
   if (typeof window.gtag === 'function') {
+    const raw = (pagePath || '/').replace(/^#/, '');
+    const cleanPath = raw.startsWith('/') ? raw : '/' + raw;
+    const formattedPath = cleanPath === '/' ? '/' : '/#' + cleanPath;
+    const fullUrl = window.location.origin + formattedPath;
+    const title = pageTitle || document.title;
+
+    window.gtag('set', {
+      page_path: formattedPath,
+      page_location: fullUrl,
+      page_title: title
+    });
+
     window.gtag('event', 'page_view', {
-      page_path: pagePath,
-      page_title: pageTitle || document.title,
-      page_location: window.location.href
+      page_path: formattedPath,
+      page_location: fullUrl,
+      page_title: title,
+      screen_name: title
     });
   }
 }

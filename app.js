@@ -1,16 +1,16 @@
-import { Navbar } from './components/navbar.js?v=20260915_1789464730189';
-import { detectBrowserLanguage } from './languages.js?v=20260915_1789464730189';
-import { setI18nBaseLang } from './i18n.js?v=20260915_1789464730189';
-import { Auth, syncLocalToCloud } from './api.js?v=20260915_1789464730189';
-import { trackPageView } from './analytics.js?v=20260915_1789464730189';
+import { Navbar } from './components/navbar.js?v=20260915_1789464995411';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20260915_1789464995411';
+import { setI18nBaseLang } from './i18n.js?v=20260915_1789464995411';
+import { Auth, syncLocalToCloud } from './api.js?v=20260915_1789464995411';
+import { trackPageView } from './analytics.js?v=20260915_1789464995411';
 
-import { renderHomeScreen } from './screens/home.js?v=20260915_1789464730189';
-import { renderSignInScreen } from './screens/signin.js?v=20260915_1789464730189';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260915_1789464730189';
-import { renderDecksScreen } from './screens/decks.js?v=20260915_1789464730189';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260915_1789464730189';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260915_1789464730189';
-import { renderAboutScreen } from './screens/about.js?v=20260915_1789464730189';
+import { renderHomeScreen } from './screens/home.js?v=20260915_1789464995411';
+import { renderSignInScreen } from './screens/signin.js?v=20260915_1789464995411';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260915_1789464995411';
+import { renderDecksScreen } from './screens/decks.js?v=20260915_1789464995411';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260915_1789464995411';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260915_1789464995411';
+import { renderAboutScreen } from './screens/about.js?v=20260915_1789464995411';
 
 export function navigate(to) {
   let cleanTo = to;
@@ -147,7 +147,8 @@ class App {
       // Regex routes
       const studyMatch = path.match(/^\/languages\/([^/]+)\/decks\/([^/]+)\/study$/);
       if (studyMatch) {
-        document.title = `Study Flashcards (${studyMatch[1].toUpperCase()}) | monogenesis`;
+        const lang = getLanguageByCode(studyMatch[1])?.name || studyMatch[1].toUpperCase();
+        document.title = `Flashcards (${lang}) | monogenesis`;
         trackPageView(path, document.title);
         renderFlashcardsScreen(this.mainContainer, { code: studyMatch[1], deckId: studyMatch[2] });
         return;
@@ -155,7 +156,8 @@ class App {
 
       const deckWordsMatch = path.match(/^\/languages\/([^/]+)\/decks\/([^/]+)$/);
       if (deckWordsMatch) {
-        document.title = `Deck Words (${deckWordsMatch[1].toUpperCase()} - ${deckWordsMatch[2]}) | monogenesis`;
+        const lang = getLanguageByCode(deckWordsMatch[1])?.name || deckWordsMatch[1].toUpperCase();
+        document.title = `Deck Words (${lang}) | monogenesis`;
         trackPageView(path, document.title);
         renderDeckWordsScreen(this.mainContainer, { code: deckWordsMatch[1], deckId: deckWordsMatch[2] });
         return;
@@ -163,7 +165,8 @@ class App {
 
       const decksMatch = path.match(/^\/languages\/([^/]+)\/decks$/);
       if (decksMatch) {
-        document.title = `Decks (${decksMatch[1].toUpperCase()}) | monogenesis`;
+        const lang = getLanguageByCode(decksMatch[1])?.name || decksMatch[1].toUpperCase();
+        document.title = `Decks (${lang}) | monogenesis`;
         trackPageView(path, document.title);
         renderDecksScreen(this.mainContainer, { code: decksMatch[1] });
         return;
