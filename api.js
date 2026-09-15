@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260915_1789458319887';
-import { getI18nBaseLang } from './i18n.js?v=20260915_1789458319887';
+import { CONFIG } from './config.js?v=20260915_1789458381170';
+import { getI18nBaseLang } from './i18n.js?v=20260915_1789458381170';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -239,11 +239,37 @@ export async function syncLocalToCloud() {
 
     // 2. Sync Decks and Words for each language
     for (const l of store.languages) {
-      // Check cloud decks (cloud is source of truth for decks)
+      // Sync Decks: upload missing local custom decks to DynamoDB, then merge
       const cloudDecksRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(l.code)}`, { method: 'GET' }).catch(() => null);
-      if (cloudDecksRes && Array.isArray(cloudDecksRes.decks) && cloudDecksRes.decks.length > 0) {
-        store.decks[l.code] = cloudDecksRes.decks;
+      const cloudDecks = (cloudDecksRes && Array.isArray(cloudDecksRes.decks)) ? cloudDecksRes.decks : [];
+      const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
+      const localDecks = store.decks[l.code] || [];
+
+      // Upload any local custom decks that haven't reached DynamoDB yet
+      for (const ld of localDecks) {
+        if (!['practicing', 'mastered', 'all'].includes(ld.deckId) && !cloudDeckIds.has(ld.deckId)) {
+          try {
+            const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
+              method: 'POST',
+              body: JSON.stringify({
+                action: 'add',
+                langCode: l.code,
+                name: ld.name,
+                icon: ld.icon || '📁',
+                deckId: ld.deckId
+              })
+            });
+            if (res && res.deck) {
+              cloudDecks.push(res.deck);
+              cloudDeckIds.add(res.deck.deckId);
+            }
+          } catch (err) {
+            console.warn('Failed to sync custom deck to cloud:', ld.name, err);
+          }
+        }
       }
+
+      store.decks[l.code] = cloudDecks.length > 0 ? cloudDecks : localDecks;
 
       // Check cloud words
       const cloudWordsRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(l.code)}&deckId=all`, { method: 'GET' }).catch(() => ({ words: [] }));
