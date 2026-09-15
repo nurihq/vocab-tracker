@@ -1,15 +1,16 @@
-import { Navbar } from './components/navbar.js?v=20260915_1789463513922';
-import { detectBrowserLanguage } from './languages.js?v=20260915_1789463513922';
-import { setI18nBaseLang } from './i18n.js?v=20260915_1789463513922';
-import { Auth, syncLocalToCloud } from './api.js?v=20260915_1789463513922';
-import { trackPageView } from './analytics.js?v=20260915_1789463513922';
+import { Navbar } from './components/navbar.js?v=20260915_1789463901199';
+import { detectBrowserLanguage } from './languages.js?v=20260915_1789463901199';
+import { setI18nBaseLang } from './i18n.js?v=20260915_1789463901199';
+import { Auth, syncLocalToCloud } from './api.js?v=20260915_1789463901199';
+import { trackPageView } from './analytics.js?v=20260915_1789463901199';
 
-import { renderHomeScreen } from './screens/home.js?v=20260915_1789463513922';
-import { renderSignInScreen } from './screens/signin.js?v=20260915_1789463513922';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260915_1789463513922';
-import { renderDecksScreen } from './screens/decks.js?v=20260915_1789463513922';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260915_1789463513922';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260915_1789463513922';
+import { renderHomeScreen } from './screens/home.js?v=20260915_1789463901199';
+import { renderSignInScreen } from './screens/signin.js?v=20260915_1789463901199';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260915_1789463901199';
+import { renderDecksScreen } from './screens/decks.js?v=20260915_1789463901199';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260915_1789463901199';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260915_1789463901199';
+import { renderAboutScreen } from './screens/about.js?v=20260915_1789463901199';
 
 export function navigate(to) {
   let cleanTo = to;
@@ -118,7 +119,7 @@ class App {
     this.navbar.render(this.navContainer, hash);
 
     // Protected Route Check: Strictly check valid token & session
-    const isPublic = path === '/' || path === '' || path === '/signin';
+    const isPublic = path === '/' || path === '' || path === '/signin' || path === '/about';
     if (!isPublic && !Auth.isAuthenticated()) {
       navigate('#/signin');
       return;
@@ -127,6 +128,8 @@ class App {
     // Router Pattern Matching
     if (path === '/' || path === '') {
       renderHomeScreen(this.mainContainer);
+    } else if (path === '/about') {
+      renderAboutScreen(this.mainContainer);
     } else if (path === '/signin') {
       if (Auth.isAuthenticated()) {
         navigate('#/languages');

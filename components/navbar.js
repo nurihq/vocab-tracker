@@ -1,8 +1,8 @@
-import { LANGUAGES } from '../languages.js?v=20260915_1789463513922';
-import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789463513922';
-import { Auth, Api } from '../api.js?v=20260915_1789463513922';
-import { trackEvent } from '../analytics.js?v=20260915_1789463513922';
-import { navigate } from '../app.js?v=20260915_1789463513922';
+import { LANGUAGES } from '../languages.js?v=20260915_1789463901199';
+import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789463901199';
+import { Auth, Api } from '../api.js?v=20260915_1789463901199';
+import { trackEvent } from '../analytics.js?v=20260915_1789463901199';
+import { navigate } from '../app.js?v=20260915_1789463901199';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {
@@ -54,6 +54,13 @@ export class Navbar {
       };
     }
 
+    if (cleanRoute === '/about') {
+      return {
+        label: t('home'),
+        target: '#/'
+      };
+    }
+
     return null;
   }
 
@@ -61,6 +68,7 @@ export class Navbar {
     const isAuthed = Auth.isAuthenticated();
     const currentBase = getI18nBaseLang();
     const backInfo = this.getNavBackInfo(currentRoute);
+    const cleanPath = (currentRoute || '').replace(/^#/, '') || '/';
 
     container.innerHTML = `
       <header class="navbar">
@@ -77,6 +85,15 @@ export class Navbar {
               <polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
             <span class="nav-brand-text">monogenesis</span>
+          </a>
+
+          <a href="#/about" class="nav-about-btn ${cleanPath === '/about' ? 'active' : ''}" id="nav-about-btn" title="${t('about')}">
+            <svg class="nav-about-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <span class="nav-about-text" data-i18n="about">${t('about')}</span>
           </a>
         </div>
 
