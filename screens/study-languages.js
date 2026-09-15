@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789464017732';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789464017732';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789464017732';
-import { Modal } from '../components/modal.js?v=20260915_1789464017732';
-import { trackEvent } from '../analytics.js?v=20260915_1789464017732';
-import { navigate } from '../app.js?v=20260915_1789464017732';
-import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789464017732';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789464100957';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789464100957';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789464100957';
+import { Modal } from '../components/modal.js?v=20260915_1789464100957';
+import { trackEvent } from '../analytics.js?v=20260915_1789464100957';
+import { navigate } from '../app.js?v=20260915_1789464100957';
+import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789464100957';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
