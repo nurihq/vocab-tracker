@@ -3,6 +3,7 @@
  * Supports:
  * - Desktop HTML5 drag-and-drop
  * - Mobile Touch Hold-to-Drag (~280ms hold gesture) with native scroll preservation and click suppression
+ * - Edge Auto-Scrolling while dragging on mobile and desktop
  */
 
 export function setupDraggableList({
@@ -19,10 +20,13 @@ export function setupDraggableList({
 
   let draggedItem = null;
   let touchStartPos = { x: 0, y: 0 };
+  let lastTouchPos = { x: 0, y: 0 };
   let holdTimer = null;
   let isTouchDragging = false;
   let currentDropTarget = null;
   let suppressClickUntil = 0;
+  let scrollSpeed = 0;
+  let scrollAnimFrame = null;
 
   // Intercept and suppress accidental click events right after drag finishes
   const clickInterceptor = (e) => {
@@ -33,6 +37,69 @@ export function setupDraggableList({
     }
   };
   container.addEventListener('click', clickInterceptor, true);
+
+  function updateDropTarget(x, y) {
+    if (!x || !y) return;
+    const elem = document.elementFromPoint(x, y);
+    const targetItem = elem ? elem.closest(itemSelector) : null;
+
+    if (targetItem && targetItem !== currentDropTarget && targetItem !== draggedItem && container.contains(targetItem)) {
+      items.forEach(it => it.classList.remove('drag-over'));
+      targetItem.classList.add('drag-over');
+      currentDropTarget = targetItem;
+    } else if (!targetItem) {
+      items.forEach(it => it.classList.remove('drag-over'));
+      currentDropTarget = null;
+    }
+  }
+
+  function startAutoScroll() {
+    if (scrollAnimFrame) return;
+
+    function step() {
+      if (!isTouchDragging && !draggedItem) {
+        scrollAnimFrame = null;
+        scrollSpeed = 0;
+        return;
+      }
+
+      if (scrollSpeed !== 0) {
+        window.scrollBy(0, scrollSpeed);
+        if (lastTouchPos.x && lastTouchPos.y) {
+          updateDropTarget(lastTouchPos.x, lastTouchPos.y);
+        }
+      }
+
+      scrollAnimFrame = requestAnimationFrame(step);
+    }
+
+    scrollAnimFrame = requestAnimationFrame(step);
+  }
+
+  function stopAutoScroll() {
+    if (scrollAnimFrame) {
+      cancelAnimationFrame(scrollAnimFrame);
+      scrollAnimFrame = null;
+    }
+    scrollSpeed = 0;
+  }
+
+  function handleAutoScrollCalculation(clientY) {
+    const edgeMargin = Math.min(110, window.innerHeight * 0.18);
+    const viewportHeight = window.innerHeight;
+
+    if (clientY < edgeMargin) {
+      const intensity = (edgeMargin - clientY) / edgeMargin;
+      scrollSpeed = -Math.round(Math.min(24, Math.max(3, intensity * 26)));
+      startAutoScroll();
+    } else if (clientY > viewportHeight - edgeMargin) {
+      const intensity = (clientY - (viewportHeight - edgeMargin)) / edgeMargin;
+      scrollSpeed = Math.round(Math.min(24, Math.max(3, intensity * 26)));
+      startAutoScroll();
+    } else {
+      scrollSpeed = 0;
+    }
+  }
 
   items.forEach((item, index) => {
     item.setAttribute('data-drag-index', index);
@@ -48,6 +115,7 @@ export function setupDraggableList({
     });
 
     item.addEventListener('dragend', () => {
+      stopAutoScroll();
       if (draggedItem) draggedItem.classList.remove('is-dragging');
       items.forEach(it => it.classList.remove('drag-over'));
       draggedItem = null;
@@ -56,6 +124,8 @@ export function setupDraggableList({
     item.addEventListener('dragover', (e) => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
+      lastTouchPos = { x: e.clientX, y: e.clientY };
+      handleAutoScrollCalculation(e.clientY);
       if (draggedItem && draggedItem !== item) {
         items.forEach(it => { if (it !== item) it.classList.remove('drag-over'); });
         item.classList.add('drag-over');
@@ -70,6 +140,7 @@ export function setupDraggableList({
 
     item.addEventListener('drop', (e) => {
       e.preventDefault();
+      stopAutoScroll();
       item.classList.remove('drag-over');
       if (!draggedItem || draggedItem === item) return;
 
@@ -87,6 +158,7 @@ export function setupDraggableList({
       if (e.touches.length !== 1) return;
       const touch = e.touches[0];
       touchStartPos = { x: touch.clientX, y: touch.clientY };
+      lastTouchPos = { x: touch.clientX, y: touch.clientY };
       isTouchDragging = false;
       currentDropTarget = null;
 
@@ -129,18 +201,9 @@ export function setupDraggableList({
         e.preventDefault();
       }
 
-      // Highlight target element under touch point
-      const elem = document.elementFromPoint(touch.clientX, touch.clientY);
-      const targetItem = elem ? elem.closest(itemSelector) : null;
-
-      if (targetItem && targetItem !== currentDropTarget && targetItem !== draggedItem && container.contains(targetItem)) {
-        items.forEach(it => it.classList.remove('drag-over'));
-        targetItem.classList.add('drag-over');
-        currentDropTarget = targetItem;
-      } else if (!targetItem) {
-        items.forEach(it => it.classList.remove('drag-over'));
-        currentDropTarget = null;
-      }
+      lastTouchPos = { x: touch.clientX, y: touch.clientY };
+      handleAutoScrollCalculation(touch.clientY);
+      updateDropTarget(touch.clientX, touch.clientY);
     };
 
     const onTouchEnd = (e) => {
@@ -148,6 +211,8 @@ export function setupDraggableList({
         clearTimeout(holdTimer);
         holdTimer = null;
       }
+
+      stopAutoScroll();
 
       if (isTouchDragging) {
         if (e.cancelable) {
@@ -181,6 +246,7 @@ export function setupDraggableList({
   });
 
   return () => {
+    stopAutoScroll();
     container.removeEventListener('click', clickInterceptor, true);
   };
 }
