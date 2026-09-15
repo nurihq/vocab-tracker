@@ -1,9 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789461717437';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789461717437';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789461717437';
-import { Modal } from '../components/modal.js?v=20260915_1789461717437';
-import { trackEvent } from '../analytics.js?v=20260915_1789461717437';
-import { navigate } from '../app.js?v=20260915_1789461717437';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789462334539';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789462334539';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789462334539';
+import { Modal } from '../components/modal.js?v=20260915_1789462334539';
+import { trackEvent } from '../analytics.js?v=20260915_1789462334539';
+import { navigate } from '../app.js?v=20260915_1789462334539';
+import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789462334539';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
@@ -12,7 +13,7 @@ export function renderStudyLanguagesScreen(container) {
 
   // Instant optimistic load from local storage
   const store = getLocalStore();
-  let languages = store.languages || [];
+  let languages = (store.languages || []).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   let vocabCounts = {};
   for (const l of languages) {
     vocabCounts[l.code] = (store.words[l.code] || []).length;
@@ -26,7 +27,7 @@ export function renderStudyLanguagesScreen(container) {
   // Background async refresh from DynamoDB
   async function refreshBackground() {
     try {
-      const oldDataStr = JSON.stringify(languages.map(l => ({ code: l.code, count: vocabCounts[l.code] || 0, hidden: l.hidden })));
+      const oldDataStr = JSON.stringify(languages.map(l => ({ code: l.code, order: l.order, count: vocabCounts[l.code] || 0, hidden: l.hidden })));
       
       const res = await Api.getLanguages();
       if (!isStillMounted()) return;
@@ -43,12 +44,12 @@ export function renderStudyLanguagesScreen(container) {
         await Promise.all(countPromises);
         if (!isStillMounted()) return;
 
-        const newDataStr = JSON.stringify(res.languages.map(l => ({ code: l.code, count: newCounts[l.code] || 0, hidden: l.hidden })));
+        const newDataStr = JSON.stringify(res.languages.map(l => ({ code: l.code, order: l.order, count: newCounts[l.code] || 0, hidden: l.hidden })));
         
         vocabCounts = newCounts;
         languages = res.languages;
 
-        // If counts or languages changed, immediately update UI
+        // If counts, order, or languages changed, immediately update UI
         if (oldDataStr !== newDataStr) {
           render();
         }
@@ -175,84 +176,41 @@ export function renderStudyLanguagesScreen(container) {
     const grid = container.querySelector('#languages-grid');
     if (!grid) return;
 
-    let draggedTile = null;
-    let didDrag = false;
+    setupDraggableList({
+      container: grid,
+      itemSelector: '.tile[data-code]',
+      getItemKey: (el) => el.getAttribute('data-code'),
+      onReorder: async (fromIdx, toIdx) => {
+        const visibleLanguages = showHidden ? languages : languages.filter(l => !l.hidden);
+        const [moved] = visibleLanguages.splice(fromIdx, 1);
+        visibleLanguages.splice(toIdx, 0, moved);
+
+        const orderMap = new Map();
+        visibleLanguages.forEach((l, idx) => orderMap.set(l.code, idx));
+        languages.sort((a, b) => {
+          const ordA = orderMap.has(a.code) ? orderMap.get(a.code) : (a.order ?? 0);
+          const ordB = orderMap.has(b.code) ? orderMap.get(b.code) : (b.order ?? 0);
+          return ordA - ordB;
+        });
+
+        const orderList = languages.map((l, idx) => {
+          l.order = idx;
+          return { code: l.code, order: idx };
+        });
+
+        render();
+
+        try {
+          await Api.reorderLanguages(orderList);
+          trackEvent('reorder_languages', { count: languages.length });
+        } catch (err) {
+          console.error('Failed to save reorder:', err);
+        }
+      }
+    });
 
     grid.querySelectorAll('.tile[data-code]').forEach(tile => {
-      const handle = tile.querySelector('.tile-drag-handle');
-
-      if (handle) {
-        handle.addEventListener('mouseenter', () => {
-          tile.setAttribute('draggable', 'true');
-        });
-        handle.addEventListener('mousedown', () => {
-          tile.setAttribute('draggable', 'true');
-        });
-        handle.addEventListener('mouseup', () => {
-          if (!didDrag) tile.removeAttribute('draggable');
-        });
-        handle.addEventListener('mouseleave', () => {
-          if (!didDrag) tile.removeAttribute('draggable');
-        });
-      }
-
-      tile.addEventListener('dragstart', (e) => {
-        draggedTile = tile;
-        didDrag = true;
-        tile.classList.add('is-dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', tile.getAttribute('data-code'));
-      });
-
-      tile.addEventListener('dragend', () => {
-        tile.classList.remove('is-dragging');
-        tile.removeAttribute('draggable');
-        grid.querySelectorAll('.tile').forEach(t => t.classList.remove('drag-over'));
-        draggedTile = null;
-        setTimeout(() => { didDrag = false; }, 100);
-      });
-
-      tile.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        if (draggedTile && draggedTile !== tile) {
-          tile.classList.add('drag-over');
-        }
-      });
-
-      tile.addEventListener('dragleave', () => {
-        tile.classList.remove('drag-over');
-      });
-
-      tile.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        tile.classList.remove('drag-over');
-        if (!draggedTile || draggedTile === tile) return;
-
-        const srcCode = draggedTile.getAttribute('data-code');
-        const targetCode = tile.getAttribute('data-code');
-
-        const fromIdx = languages.findIndex(l => l.code === srcCode);
-        const toIdx = languages.findIndex(l => l.code === targetCode);
-
-        if (fromIdx !== -1 && toIdx !== -1) {
-          const [moved] = languages.splice(fromIdx, 1);
-          languages.splice(toIdx, 0, moved);
-
-          const orderList = languages.map((l, idx) => ({ code: l.code, order: idx }));
-          render();
-
-          try {
-            await Api.reorderLanguages(orderList);
-            trackEvent('reorder_languages', { count: languages.length });
-          } catch (err) {
-            console.error('Failed to save reorder:', err);
-          }
-        }
-      });
-
       tile.addEventListener('click', (e) => {
-        if (didDrag) return;
         if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
         const code = tile.getAttribute('data-code');
         trackEvent('select_study_language', { langCode: code });

@@ -1,24 +1,30 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789461717437';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789461717437';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789461717437';
-import { Modal } from '../components/modal.js?v=20260915_1789461717437';
-import { trackEvent } from '../analytics.js?v=20260915_1789461717437';
-import { navigate } from '../app.js?v=20260915_1789461717437';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789462334539';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789462334539';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789462334539';
+import { Modal } from '../components/modal.js?v=20260915_1789462334539';
+import { trackEvent } from '../analytics.js?v=20260915_1789462334539';
+import { navigate } from '../app.js?v=20260915_1789462334539';
+import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789462334539';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
-  const deckId = params.deckId || 'practicing';
+  const deckId = params.deckId || 'nouns_practice';
+  const isAllDeck = deckId.toLowerCase() === 'all';
   const langInfo = getLanguageByCode(langCode);
   const currentBase = getI18nBaseLang();
   const localizedStudyLangName = getLocalizedLanguageName(langCode, currentBase);
   const localizedBaseLangName = getLocalizedLanguageName(currentBase, currentBase);
   const isStillMounted = () => window.location.hash.startsWith(`#/languages/${langCode}/decks/${deckId}`) && !window.location.hash.endsWith('/study');
 
-  let currentSort = 'newest';
+  let currentSort = !isAllDeck ? 'custom' : 'newest';
 
   // Instant optimistic render from local store
   const store = getLocalStore();
-  let words = (store.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
+  let rawWords = (store.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
+  let words = currentSort === 'custom'
+    ? rawWords.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    : rawWords.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
   let allDecks = store.decks[langCode] || [
     { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode, isDefault: true },
     { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode, isDefault: true },
@@ -38,6 +44,8 @@ export function renderDeckWordsScreen(container, params = {}) {
   async function refreshBackground() {
     if (!isStillMounted()) return;
     try {
+      const oldDataStr = JSON.stringify(words.map(w => ({ id: w.wordId, order: w.order, study: w.studyWord, base: w.baseWord, deck: w.deckId })));
+
       const [wordsRes, decksRes] = await Promise.all([
         Api.getWords(langCode, deckId, currentSort),
         Api.getDecks(langCode)
@@ -46,8 +54,11 @@ export function renderDeckWordsScreen(container, params = {}) {
       words = wordsRes.words || [];
       allDecks = decksRes.decks || [];
 
-      render();
-      translateWordMeanings();
+      const newDataStr = JSON.stringify(words.map(w => ({ id: w.wordId, order: w.order, study: w.studyWord, base: w.baseWord, deck: w.deckId })));
+      if (oldDataStr !== newDataStr) {
+        render();
+        translateWordMeanings();
+      }
     } catch (err) {
       console.warn('Background words refresh:', err);
     }
@@ -151,10 +162,13 @@ export function renderDeckWordsScreen(container, params = {}) {
             const initialMeaning = getCachedWordMeaning(w.studyWord, w.baseWord, langCode, currentBase);
 
             return `
-              <div class="word-row ${currentSort === 'custom' ? 'draggable-row' : ''}" 
-                   ${currentSort === 'custom' ? 'draggable="true"' : ''}
+              <div class="word-row ${!isAllDeck ? 'draggable-row' : ''}" 
+                   ${!isAllDeck ? 'draggable="true"' : ''}
                    data-word-id="${w.wordId}" 
                    data-index="${index}">
+                ${!isAllDeck ? `
+                  <div class="word-drag-handle" title="${t('dragToReorder') || 'Hold / drag to reorder'}" onclick="event.preventDefault(); event.stopPropagation();">⋮⋮</div>
+                ` : ''}
                 <div class="word-content edit-word-trigger" data-word-id="${w.wordId}" title="${t('editWord')} (Click to edit)">
                   <div class="word-study-row">
                     <span class="word-study">${w.studyWord}</span>
@@ -281,7 +295,7 @@ export function renderDeckWordsScreen(container, params = {}) {
       });
     });
 
-    if (currentSort === 'custom' && !isAllDeck) {
+    if (!isAllDeck) {
       setupWordDragAndDrop();
     }
   }
@@ -290,60 +304,35 @@ export function renderDeckWordsScreen(container, params = {}) {
     const listEl = container.querySelector('#words-list');
     if (!listEl) return;
 
-    let draggedRow = null;
-
-    listEl.querySelectorAll('.draggable-row').forEach(row => {
-      row.addEventListener('dragstart', (e) => {
-        draggedRow = row;
-        row.classList.add('is-dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', row.getAttribute('data-word-id'));
-      });
-
-      row.addEventListener('dragend', () => {
-        if (draggedRow) draggedRow.classList.remove('is-dragging');
-        listEl.querySelectorAll('.draggable-row').forEach(r => r.classList.remove('drag-over'));
-        draggedRow = null;
-      });
-
-      row.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        if (draggedRow && draggedRow !== row) {
-          row.classList.add('drag-over');
+    setupDraggableList({
+      container: listEl,
+      itemSelector: '.draggable-row',
+      getItemKey: (el) => el.getAttribute('data-word-id'),
+      onReorder: async (fromIdx, toIdx) => {
+        if (currentSort !== 'custom') {
+          currentSort = 'custom';
+          const sortDropdown = container.querySelector('#sort-dropdown');
+          if (sortDropdown) sortDropdown.value = 'custom';
         }
-      });
 
-      row.addEventListener('dragleave', () => {
-        row.classList.remove('drag-over');
-      });
+        const [moved] = words.splice(fromIdx, 1);
+        words.splice(toIdx, 0, moved);
 
-      row.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        row.classList.remove('drag-over');
-        if (!draggedRow || draggedRow === row) return;
+        const orderList = words.map((w, idx) => {
+          w.order = idx;
+          return { wordId: w.wordId, order: idx };
+        });
 
-        const srcId = draggedRow.getAttribute('data-word-id');
-        const targetId = row.getAttribute('data-word-id');
+        render();
+        translateWordMeanings();
 
-        const fromIdx = words.findIndex(w => w.wordId === srcId);
-        const toIdx = words.findIndex(w => w.wordId === targetId);
-
-        if (fromIdx !== -1 && toIdx !== -1) {
-          const [moved] = words.splice(fromIdx, 1);
-          words.splice(toIdx, 0, moved);
-
-          const orderList = words.map((w, idx) => ({ wordId: w.wordId, order: idx }));
-          render();
-
-          try {
-            await Api.reorderWords(langCode, deckId, orderList);
-            trackEvent('reorder_words', { langCode, deckId, count: words.length });
-          } catch (err) {
-            console.error('Failed to save word reorder:', err);
-          }
+        try {
+          await Api.reorderWords(langCode, deckId, orderList);
+          trackEvent('reorder_words', { langCode, deckId, count: words.length });
+        } catch (err) {
+          console.error('Failed to save word reorder:', err);
         }
-      });
+      }
     });
   }
 

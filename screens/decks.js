@@ -1,9 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789461717437';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789461717437';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789461717437';
-import { Modal } from '../components/modal.js?v=20260915_1789461717437';
-import { trackEvent } from '../analytics.js?v=20260915_1789461717437';
-import { navigate } from '../app.js?v=20260915_1789461717437';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789462334539';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789462334539';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789462334539';
+import { Modal } from '../components/modal.js?v=20260915_1789462334539';
+import { trackEvent } from '../analytics.js?v=20260915_1789462334539';
+import { navigate } from '../app.js?v=20260915_1789462334539';
+import { setupDraggableList } from '../components/drag-controller.js?v=20260915_1789462334539';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -16,7 +17,7 @@ export function renderDecksScreen(container, params = {}) {
 
   // Instant optimistic render from local cache
   const store = getLocalStore();
-  let decks = store.decks[langCode] || [
+  let rawDecks = store.decks[langCode] || [
     { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
     { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
     { deckId: 'colours', name: 'Colours', icon: '🎨', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
@@ -24,6 +25,7 @@ export function renderDecksScreen(container, params = {}) {
     { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
     { deckId: 'all', name: 'All', icon: '📚', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
   ];
+  let decks = rawDecks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   const words = store.words[langCode] || [];
   const counts = {};
@@ -44,7 +46,7 @@ export function renderDecksScreen(container, params = {}) {
   async function refreshBackground() {
     if (!isStillMounted()) return;
     try {
-      const oldDataStr = JSON.stringify(decks.map(d => ({ id: d.deckId, name: d.name, icon: d.icon, count: d.wordCount, hidden: d.hidden })));
+      const oldDataStr = JSON.stringify(decks.map(d => ({ id: d.deckId, order: d.order, name: d.name, icon: d.icon, count: d.wordCount, hidden: d.hidden })));
 
       const [decksRes, wordsRes] = await Promise.all([
         Api.getDecks(langCode),
@@ -58,12 +60,13 @@ export function renderDecksScreen(container, params = {}) {
         counts[w.deckId] = (counts[w.deckId] || 0) + 1;
       }
 
-      const newDecks = (decksRes.decks || decks).map(d => ({
+      const fetchedDecks = decksRes.decks || decks;
+      const newDecks = fetchedDecks.map(d => ({
         ...d,
         wordCount: d.deckId === 'all' ? latestWords.length : (counts[d.deckId] || 0)
-      }));
+      })).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-      const newDataStr = JSON.stringify(newDecks.map(d => ({ id: d.deckId, name: d.name, icon: d.icon, count: d.wordCount, hidden: d.hidden })));
+      const newDataStr = JSON.stringify(newDecks.map(d => ({ id: d.deckId, order: d.order, name: d.name, icon: d.icon, count: d.wordCount, hidden: d.hidden })));
       decks = newDecks;
 
       if (oldDataStr !== newDataStr) {
@@ -256,84 +259,41 @@ export function renderDecksScreen(container, params = {}) {
     const grid = container.querySelector('#decks-grid');
     if (!grid) return;
 
-    let draggedTile = null;
-    let didDrag = false;
+    setupDraggableList({
+      container: grid,
+      itemSelector: '.tile[data-deck-id]',
+      getItemKey: (el) => el.getAttribute('data-deck-id'),
+      onReorder: async (fromIdx, toIdx) => {
+        const visibleDecks = showHidden ? decks : decks.filter(d => !d.hidden);
+        const [moved] = visibleDecks.splice(fromIdx, 1);
+        visibleDecks.splice(toIdx, 0, moved);
+
+        const orderMap = new Map();
+        visibleDecks.forEach((d, idx) => orderMap.set(d.deckId, idx));
+        decks.sort((a, b) => {
+          const ordA = orderMap.has(a.deckId) ? orderMap.get(a.deckId) : (a.order ?? 0);
+          const ordB = orderMap.has(b.deckId) ? orderMap.get(b.deckId) : (b.order ?? 0);
+          return ordA - ordB;
+        });
+
+        const orderList = decks.map((d, idx) => {
+          d.order = idx;
+          return { deckId: d.deckId, order: idx, name: d.name, icon: d.icon };
+        });
+
+        render();
+
+        try {
+          await Api.reorderDecks(langCode, orderList);
+          trackEvent('reorder_decks', { langCode, count: decks.length });
+        } catch (err) {
+          console.error('Failed to save deck reorder:', err);
+        }
+      }
+    });
 
     grid.querySelectorAll('.tile[data-deck-id]').forEach(tile => {
-      const handle = tile.querySelector('.tile-drag-handle');
-
-      if (handle) {
-        handle.addEventListener('mouseenter', () => {
-          tile.setAttribute('draggable', 'true');
-        });
-        handle.addEventListener('mousedown', () => {
-          tile.setAttribute('draggable', 'true');
-        });
-        handle.addEventListener('mouseup', () => {
-          if (!didDrag) tile.removeAttribute('draggable');
-        });
-        handle.addEventListener('mouseleave', () => {
-          if (!didDrag) tile.removeAttribute('draggable');
-        });
-      }
-
-      tile.addEventListener('dragstart', (e) => {
-        draggedTile = tile;
-        didDrag = true;
-        tile.classList.add('is-dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', tile.getAttribute('data-deck-id'));
-      });
-
-      tile.addEventListener('dragend', () => {
-        tile.classList.remove('is-dragging');
-        tile.removeAttribute('draggable');
-        grid.querySelectorAll('.tile').forEach(t => t.classList.remove('drag-over'));
-        draggedTile = null;
-        setTimeout(() => { didDrag = false; }, 100);
-      });
-
-      tile.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        if (draggedTile && draggedTile !== tile) {
-          tile.classList.add('drag-over');
-        }
-      });
-
-      tile.addEventListener('dragleave', () => {
-        tile.classList.remove('drag-over');
-      });
-
-      tile.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        tile.classList.remove('drag-over');
-        if (!draggedTile || draggedTile === tile) return;
-
-        const srcId = draggedTile.getAttribute('data-deck-id');
-        const targetId = tile.getAttribute('data-deck-id');
-
-        const fromIdx = decks.findIndex(d => d.deckId === srcId);
-        const toIdx = decks.findIndex(d => d.deckId === targetId);
-
-        if (fromIdx !== -1 && toIdx !== -1) {
-          const [moved] = decks.splice(fromIdx, 1);
-          decks.splice(toIdx, 0, moved);
-
-          const orderList = decks.map((d, idx) => ({ deckId: d.deckId, order: idx }));
-          render();
-
-          try {
-            await Api.reorderDecks(langCode, orderList);
-            trackEvent('reorder_decks', { langCode, count: decks.length });
-          } catch (err) {
-            console.error('Failed to save deck reorder:', err);
-          }
-        }
-      });
-
       tile.addEventListener('click', (e) => {
-        if (didDrag) return;
         if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
         const deckId = tile.getAttribute('data-deck-id');
         trackEvent('select_deck', { langCode, deckId });

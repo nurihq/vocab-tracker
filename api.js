@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260915_1789461717437';
-import { getI18nBaseLang } from './i18n.js?v=20260915_1789461717437';
+import { CONFIG } from './config.js?v=20260915_1789462334539';
+import { getI18nBaseLang } from './i18n.js?v=20260915_1789462334539';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -242,7 +242,7 @@ export async function syncLocalToCloud() {
       return;
     }
 
-    const cloudLangs = cloudLangsRes.languages || [];
+    const cloudLangs = (cloudLangsRes.languages || []).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     const cloudLangCodes = new Set(cloudLangs.map(l => l.code));
 
     // 1. Sync Languages: Upload missing local languages to DynamoDB
@@ -255,18 +255,16 @@ export async function syncLocalToCloud() {
       }
     }
 
-    // Merge cloud languages into local store
-    for (const cl of cloudLangs) {
-      if (!store.languages.find(l => l.code === cl.code)) {
-        store.languages.push(cl);
-      }
-    }
+    // Merge cloud languages into local store preserving cloud order
+    const unsyncedLangs = store.languages.filter(l => !cloudLangCodes.has(l.code));
+    store.languages = [...cloudLangs, ...unsyncedLangs];
 
     // 2. Sync Decks and Words for each language
     for (const l of store.languages) {
       // Sync Decks: upload missing local custom decks to DynamoDB, then merge
       const cloudDecksRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(l.code)}`, { method: 'GET' }).catch(() => null);
-      const cloudDecks = (cloudDecksRes && Array.isArray(cloudDecksRes.decks)) ? cloudDecksRes.decks : [];
+      const rawCloudDecks = (cloudDecksRes && Array.isArray(cloudDecksRes.decks)) ? cloudDecksRes.decks : [];
+      const cloudDecks = rawCloudDecks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
       const localDecks = store.decks[l.code] || [];
 
@@ -295,7 +293,8 @@ export async function syncLocalToCloud() {
         }
       }
 
-      store.decks[l.code] = cloudDecks.length > 0 ? cloudDecks : localDecks;
+      const unsyncedCustomDecks = localDecks.filter(d => !cloudDeckIds.has(d.deckId));
+      store.decks[l.code] = cloudDecks.length > 0 ? [...cloudDecks, ...unsyncedCustomDecks] : localDecks;
 
       // Check cloud words
       const cloudWordsRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(l.code)}&deckId=all`, { method: 'GET' }).catch(() => ({ words: [] }));
@@ -316,7 +315,7 @@ export async function syncLocalToCloud() {
               body: JSON.stringify({
                 action: 'add',
                 langCode: l.code,
-                deckId: lw.deckId || 'practicing',
+                deckId: lw.deckId || 'nouns_practice',
                 baseWord: lw.baseWord,
                 studyWord: lw.studyWord,
                 pronunciation: lw.pronunciation || '',
@@ -382,9 +381,10 @@ export const Api = {
         const cloudRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' });
         if (cloudRes.languages) {
           const store = getLocalStore();
-          const cloudCodes = new Set(cloudRes.languages.map(l => l.code));
+          const cloudLangs = cloudRes.languages.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+          const cloudCodes = new Set(cloudLangs.map(l => l.code));
           const unsyncedLocal = store.languages.filter(l => !cloudCodes.has(l.code));
-          store.languages = [...cloudRes.languages, ...unsyncedLocal];
+          store.languages = [...cloudLangs, ...unsyncedLocal];
           saveLocalStore(store);
           
           if (unsyncedLocal.length > 0) {
@@ -480,12 +480,12 @@ export const Api = {
         const res = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}`, { method: 'GET' });
         if (res.decks && Array.isArray(res.decks) && res.decks.length > 0) {
           const store = getLocalStore();
-          const cloudDecks = res.decks;
+          const cloudDecks = res.decks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
           const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
           const localDecks = store.decks[langCode] || [];
           
           // Preserve any local custom decks that haven't synced to cloud yet
-          const unsyncedCustom = localDecks.filter(d => d.deckId !== 'all' && !cloudDeckIds.has(d.deckId));
+          const unsyncedCustom = localDecks.filter(d => !cloudDeckIds.has(d.deckId));
           
           store.decks[langCode] = [...cloudDecks, ...unsyncedCustom];
           saveLocalStore(store);
