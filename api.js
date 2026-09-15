@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260915_1789461286730';
-import { getI18nBaseLang } from './i18n.js?v=20260915_1789461286730';
+import { CONFIG } from './config.js?v=20260915_1789461551873';
+import { getI18nBaseLang } from './i18n.js?v=20260915_1789461551873';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -58,8 +58,8 @@ export function migrateLegacyDefaultDecks(store) {
     // If language has empty default decks and no words, migrate seamlessly
     if (isLegacyOnly && words.length === 0) {
       store.decks[code] = [
-        { deckId: 'nouns_practice', name: 'Nouns practice', icon: '🪑', langCode: code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'nouns_mastered', name: 'Nouns mastered', icon: '🏠', langCode: code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode: code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode: code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
         { deckId: 'colours', name: 'Colours', icon: '🎨', langCode: code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
         { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
         { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode: code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
@@ -412,8 +412,8 @@ export const Api = {
       store.languages.push(newLang);
       if (!store.decks[lang.code]) {
         store.decks[lang.code] = [
-          { deckId: 'nouns_practice', name: 'Nouns practice', icon: '🪑', langCode: lang.code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'nouns_mastered', name: 'Nouns mastered', icon: '🏠', langCode: lang.code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode: lang.code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode: lang.code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
           { deckId: 'colours', name: 'Colours', icon: '🎨', langCode: lang.code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
           { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: lang.code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
           { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode: lang.code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
@@ -509,8 +509,8 @@ export const Api = {
     }
     const store = getLocalStore();
     const decks = store.decks[langCode] || [
-      { deckId: 'nouns_practice', name: 'Nouns practice', icon: '🪑', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-      { deckId: 'nouns_mastered', name: 'Nouns mastered', icon: '🏠', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+      { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+      { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
       { deckId: 'colours', name: 'Colours', icon: '🎨', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
       { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
       { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },

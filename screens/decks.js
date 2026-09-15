@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789461286730';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789461286730';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789461286730';
-import { Modal } from '../components/modal.js?v=20260915_1789461286730';
-import { trackEvent } from '../analytics.js?v=20260915_1789461286730';
-import { navigate } from '../app.js?v=20260915_1789461286730';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260915_1789461551873';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789461551873';
+import { Api, getLocalStore } from '../api.js?v=20260915_1789461551873';
+import { Modal } from '../components/modal.js?v=20260915_1789461551873';
+import { trackEvent } from '../analytics.js?v=20260915_1789461551873';
+import { navigate } from '../app.js?v=20260915_1789461551873';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -17,8 +17,8 @@ export function renderDecksScreen(container, params = {}) {
   // Instant optimistic render from local cache
   const store = getLocalStore();
   let decks = store.decks[langCode] || [
-    { deckId: 'nouns_practice', name: 'Nouns practice', icon: '🪑', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'nouns_mastered', name: 'Nouns mastered', icon: '🏠', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
     { deckId: 'colours', name: 'Colours', icon: '🎨', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
     { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
     { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
@@ -82,11 +82,11 @@ export function renderDecksScreen(container, params = {}) {
 
     if (dId === 'all') return t('all');
     if (dId === 'nouns_practice') {
-      if (!dName || dName === 'Nouns practice' || dName === 'nouns_practice') return t('nounsPractice') || 'Nouns practice';
+      if (!dName || dName === 'Nouns practice' || dName === 'Nouns (practice)' || dName === 'nouns_practice') return t('nounsPractice') || 'Nouns (practice)';
       return dName;
     }
     if (dId === 'nouns_mastered') {
-      if (!dName || dName === 'Nouns mastered' || dName === 'nouns_mastered') return t('nounsMastered') || 'Nouns mastered';
+      if (!dName || dName === 'Nouns mastered' || dName === 'Nouns (mastered)' || dName === 'nouns_mastered') return t('nounsMastered') || 'Nouns (mastered)';
       return dName;
     }
     if (dId === 'colours') {
