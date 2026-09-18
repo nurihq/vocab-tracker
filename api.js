@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260918_1789711347673';
-import { getI18nBaseLang } from './i18n.js?v=20260918_1789711347673';
+import { CONFIG } from './config.js?v=20260918_1789711631718';
+import { getI18nBaseLang } from './i18n.js?v=20260918_1789711631718';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -704,7 +704,7 @@ export const Api = {
           if (sort === 'alpha') {
             filtered.sort((a, b) => (a.studyWord || '').localeCompare(b.studyWord || ''));
           } else if (sort === 'custom') {
-            filtered.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            filtered.sort((a, b) => ((a.order ?? 0) - (b.order ?? 0)) || (new Date(b.createdAt || 0) - new Date(a.createdAt || 0)));
           } else {
             filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
           }
@@ -719,7 +719,7 @@ export const Api = {
     if (sort === 'alpha') {
       words.sort((a, b) => (a.studyWord || '').localeCompare(b.studyWord || ''));
     } else if (sort === 'custom') {
-      words.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      words.sort((a, b) => ((a.order ?? 0) - (b.order ?? 0)) || (new Date(b.createdAt || 0) - new Date(a.createdAt || 0)));
     } else {
       words.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
     }
@@ -743,6 +743,14 @@ export const Api = {
 
     const store = getLocalStore();
     if (!store.words[langCode]) store.words[langCode] = [];
+
+    // Shift orders of existing words so new word takes top position (order: 0)
+    for (const w of store.words[langCode]) {
+      if (w.deckId === deckId || deckId === 'all') {
+        w.order = (w.order !== undefined ? w.order : 0) + 1;
+      }
+    }
+
     const newWord = {
       wordId: tempId,
       baseWord: finalBase,
@@ -750,7 +758,7 @@ export const Api = {
       pronunciation: (pronunciation || '').trim(),
       langCode,
       deckId,
-      order: store.words[langCode].length,
+      order: 0,
       _needsSync: true,
       createdAt: new Date().toISOString()
     };
@@ -770,7 +778,8 @@ export const Api = {
             baseWord: finalBase,
             studyWord: finalStudy,
             pronunciation,
-            baseLang
+            baseLang,
+            order: 0
           })
         });
         if (cloudRes.word) {

@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260918_1789711347673';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260918_1789711347673';
-import { Api, getLocalStore } from '../api.js?v=20260918_1789711347673';
-import { Modal } from '../components/modal.js?v=20260918_1789711347673';
-import { trackEvent } from '../analytics.js?v=20260918_1789711347673';
-import { navigate } from '../app.js?v=20260918_1789711347673';
-import { setupDraggableList } from '../components/drag-controller.js?v=20260918_1789711347673';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260918_1789711631718';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260918_1789711631718';
+import { Api, getLocalStore } from '../api.js?v=20260918_1789711631718';
+import { Modal } from '../components/modal.js?v=20260918_1789711631718';
+import { trackEvent } from '../analytics.js?v=20260918_1789711631718';
+import { navigate } from '../app.js?v=20260918_1789711631718';
+import { setupDraggableList } from '../components/drag-controller.js?v=20260918_1789711631718';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -23,7 +23,7 @@ export function renderDeckWordsScreen(container, params = {}) {
   const store = getLocalStore();
   let rawWords = (store.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
   let words = currentSort === 'custom'
-    ? rawWords.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    ? rawWords.sort((a, b) => ((a.order ?? 0) - (b.order ?? 0)) || (new Date(b.createdAt || 0) - new Date(a.createdAt || 0)))
     : rawWords.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
   let allDecks = store.decks[langCode] || [
@@ -476,6 +476,18 @@ export function renderDeckWordsScreen(container, params = {}) {
         try {
           await Api.addWord(langCode, targetDestinationDeck, baseWord, studyWord, pronunciation);
           trackEvent('add_word', { langCode, deckId: targetDestinationDeck, hasPronunciation: !!pronunciation });
+
+          const updatedStore = getLocalStore();
+          let updatedRaw = (updatedStore.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
+          if (currentSort === 'alpha') {
+            words = updatedRaw.sort((a, b) => (a.studyWord || '').localeCompare(b.studyWord || ''));
+          } else if (currentSort === 'custom') {
+            words = updatedRaw.sort((a, b) => ((a.order ?? 0) - (b.order ?? 0)) || (new Date(b.createdAt || 0) - new Date(a.createdAt || 0)));
+          } else {
+            words = updatedRaw.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+          }
+          render();
+          translateWordMeanings();
           refreshBackground();
           return true;
         } catch (err) {
