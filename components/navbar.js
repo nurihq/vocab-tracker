@@ -1,8 +1,8 @@
-import { LANGUAGES } from '../languages.js?v=20260918_1789710972545';
-import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260918_1789710972545';
-import { Auth, Api } from '../api.js?v=20260918_1789710972545';
-import { trackEvent } from '../analytics.js?v=20260918_1789710972545';
-import { navigate } from '../app.js?v=20260918_1789710972545';
+import { LANGUAGES } from '../languages.js?v=20260918_1789711297859';
+import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260918_1789711297859';
+import { Auth, Api } from '../api.js?v=20260918_1789711297859';
+import { trackEvent } from '../analytics.js?v=20260918_1789711297859';
+import { navigate } from '../app.js?v=20260918_1789711297859';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {

@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260918_1789710972545';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260918_1789710972545';
-import { Api, getLocalStore } from '../api.js?v=20260918_1789710972545';
-import { trackEvent } from '../analytics.js?v=20260918_1789710972545';
-import { navigate } from '../app.js?v=20260918_1789710972545';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260918_1789711297859';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260918_1789711297859';
+import { Api, getLocalStore } from '../api.js?v=20260918_1789711297859';
+import { trackEvent } from '../analytics.js?v=20260918_1789711297859';
+import { navigate } from '../app.js?v=20260918_1789711297859';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -154,6 +154,7 @@ export function renderFlashcardsScreen(container, params = {}) {
     
     const cardEl = container.querySelector('#active-flashcard');
     if (cardEl) {
+      cardEl.style.transform = '';
       if (isFlipped) cardEl.classList.add('flipped');
       else cardEl.classList.remove('flipped');
     }
@@ -380,10 +381,10 @@ export function renderFlashcardsScreen(container, params = {}) {
       let startY = 0;
       let currentX = 0;
       let currentY = 0;
-      let isDragging = false;
-      let isHorizontalSwipe = null;
-      let wasSwiping = false;
+      let isTouching = false;
+      let isHorizontalSwipe = false;
       let touchStartTime = 0;
+      let justHandledTouch = false;
 
       stage.addEventListener('touchstart', (e) => {
         if (e.touches.length !== 1) return;
@@ -393,28 +394,27 @@ export function renderFlashcardsScreen(container, params = {}) {
         currentX = touch.clientX;
         currentY = touch.clientY;
         touchStartTime = Date.now();
-        isDragging = true;
-        isHorizontalSwipe = null;
-        wasSwiping = false;
+        isTouching = true;
+        isHorizontalSwipe = false;
       }, { passive: true });
 
       stage.addEventListener('touchmove', (e) => {
-        if (!isDragging || e.touches.length !== 1) return;
+        if (!isTouching || e.touches.length !== 1) return;
         const touch = e.touches[0];
         currentX = touch.clientX;
         currentY = touch.clientY;
         const deltaX = currentX - startX;
         const deltaY = currentY - startY;
 
-        if (isHorizontalSwipe === null) {
-          if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
-            isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY);
+        // Require at least 15px horizontal movement to begin swiping
+        if (!isHorizontalSwipe) {
+          if (Math.abs(deltaX) > 14 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+            isHorizontalSwipe = true;
           }
         }
 
         if (isHorizontalSwipe) {
           if (e.cancelable) e.preventDefault();
-          wasSwiping = true;
           const cardEl = container.querySelector('#active-flashcard');
           if (cardEl) {
             cardEl.style.transition = 'none';
@@ -425,18 +425,22 @@ export function renderFlashcardsScreen(container, params = {}) {
         }
       }, { passive: false });
 
-      const handleTouchEnd = () => {
-        if (!isDragging) return;
-        isDragging = false;
+      stage.addEventListener('touchend', () => {
+        if (!isTouching) return;
+        isTouching = false;
+        justHandledTouch = true;
+        setTimeout(() => { justHandledTouch = false; }, 350);
+
         const cardEl = container.querySelector('#active-flashcard');
         const deltaX = currentX - startX;
+        const deltaY = currentY - startY;
         const elapsed = Date.now() - touchStartTime;
 
         if (isHorizontalSwipe && cardEl) {
-          const threshold = 50;
-          const isQuickFlick = elapsed < 280 && Math.abs(deltaX) > 30;
+          const threshold = 55;
+          const isQuickFlick = elapsed < 280 && Math.abs(deltaX) > 35;
 
-          if (deltaX < -threshold || (deltaX < -30 && isQuickFlick)) {
+          if (deltaX < -threshold || (deltaX < -35 && isQuickFlick)) {
             // Swipe Left -> Next Card
             cardEl.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.22s ease';
             const baseFlip = isFlipped ? 'rotateY(180deg) ' : '';
@@ -445,6 +449,7 @@ export function renderFlashcardsScreen(container, params = {}) {
             setTimeout(() => {
               nextCard();
             }, 180);
+            return;
           } else if (deltaX > threshold || (deltaX > 30 && isQuickFlick)) {
             // Swipe Right -> Previous Card
             if (currentIndex > 0) {
@@ -455,44 +460,42 @@ export function renderFlashcardsScreen(container, params = {}) {
               setTimeout(() => {
                 prevCard();
               }, 180);
+              return;
             } else {
               // Resistance snap back
               cardEl.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
-              const baseFlip = isFlipped ? 'rotateY(180deg)' : '';
-              cardEl.style.transform = baseFlip;
+              cardEl.style.transform = '';
             }
           } else {
             // Snap back to center
             cardEl.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
-            const baseFlip = isFlipped ? 'rotateY(180deg)' : '';
-            cardEl.style.transform = baseFlip;
+            cardEl.style.transform = '';
           }
         } else if (cardEl) {
           cardEl.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
-          const baseFlip = isFlipped ? 'rotateY(180deg)' : '';
-          cardEl.style.transform = baseFlip;
+          cardEl.style.transform = '';
         }
 
-        setTimeout(() => {
-          wasSwiping = false;
-          isHorizontalSwipe = null;
-        }, 220);
-      };
+        // Tap detected: If not a swipe and finger movement was minimal, trigger instant flip
+        if (!isHorizontalSwipe && Math.abs(deltaX) < 18 && Math.abs(deltaY) < 18) {
+          flipCard();
+        }
+      });
 
-      stage.addEventListener('touchend', handleTouchEnd);
       stage.addEventListener('touchcancel', () => {
-        isDragging = false;
-        isHorizontalSwipe = null;
+        isTouching = false;
+        isHorizontalSwipe = false;
         const cardEl = container.querySelector('#active-flashcard');
         if (cardEl) {
           cardEl.style.transition = 'transform 0.25s ease';
-          cardEl.style.transform = isFlipped ? 'rotateY(180deg)' : '';
+          cardEl.style.transform = '';
         }
-        setTimeout(() => { wasSwiping = false; }, 100);
+        setTimeout(() => { justHandledTouch = false; }, 100);
       });
 
+      // Desktop click handler (ignored if handled via touchend)
       stage.addEventListener('click', () => {
-        if (wasSwiping) return;
+        if (justHandledTouch) return;
         flipCard();
       });
     }
