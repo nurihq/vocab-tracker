@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260918_1789710795948';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260918_1789710795948';
-import { Api, getLocalStore } from '../api.js?v=20260918_1789710795948';
-import { trackEvent } from '../analytics.js?v=20260918_1789710795948';
-import { navigate } from '../app.js?v=20260918_1789710795948';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260918_1789710972545';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260918_1789710972545';
+import { Api, getLocalStore } from '../api.js?v=20260918_1789710972545';
+import { trackEvent } from '../analytics.js?v=20260918_1789710972545';
+import { navigate } from '../app.js?v=20260918_1789710972545';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -373,9 +373,129 @@ export function renderFlashcardsScreen(container, params = {}) {
       });
     }
 
-    // Event Listeners
+    // Card Gesture & Swipe Controller (Touch + Tap)
     const stage = container.querySelector('#card-stage');
-    if (stage) stage.addEventListener('click', flipCard);
+    if (stage) {
+      let startX = 0;
+      let startY = 0;
+      let currentX = 0;
+      let currentY = 0;
+      let isDragging = false;
+      let isHorizontalSwipe = null;
+      let wasSwiping = false;
+      let touchStartTime = 0;
+
+      stage.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        currentX = touch.clientX;
+        currentY = touch.clientY;
+        touchStartTime = Date.now();
+        isDragging = true;
+        isHorizontalSwipe = null;
+        wasSwiping = false;
+      }, { passive: true });
+
+      stage.addEventListener('touchmove', (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        currentX = touch.clientX;
+        currentY = touch.clientY;
+        const deltaX = currentX - startX;
+        const deltaY = currentY - startY;
+
+        if (isHorizontalSwipe === null) {
+          if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+            isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY);
+          }
+        }
+
+        if (isHorizontalSwipe) {
+          if (e.cancelable) e.preventDefault();
+          wasSwiping = true;
+          const cardEl = container.querySelector('#active-flashcard');
+          if (cardEl) {
+            cardEl.style.transition = 'none';
+            const baseFlip = isFlipped ? 'rotateY(180deg) ' : '';
+            const rotateDeg = Math.max(-14, Math.min(14, deltaX * 0.05));
+            cardEl.style.transform = `${baseFlip}translateX(${deltaX}px) rotateZ(${rotateDeg}deg)`;
+          }
+        }
+      }, { passive: false });
+
+      const handleTouchEnd = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        const cardEl = container.querySelector('#active-flashcard');
+        const deltaX = currentX - startX;
+        const elapsed = Date.now() - touchStartTime;
+
+        if (isHorizontalSwipe && cardEl) {
+          const threshold = 50;
+          const isQuickFlick = elapsed < 280 && Math.abs(deltaX) > 30;
+
+          if (deltaX < -threshold || (deltaX < -30 && isQuickFlick)) {
+            // Swipe Left -> Next Card
+            cardEl.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.22s ease';
+            const baseFlip = isFlipped ? 'rotateY(180deg) ' : '';
+            cardEl.style.transform = `${baseFlip}translateX(-120%) rotateZ(-12deg)`;
+            cardEl.style.opacity = '0';
+            setTimeout(() => {
+              nextCard();
+            }, 180);
+          } else if (deltaX > threshold || (deltaX > 30 && isQuickFlick)) {
+            // Swipe Right -> Previous Card
+            if (currentIndex > 0) {
+              cardEl.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.22s ease';
+              const baseFlip = isFlipped ? 'rotateY(180deg) ' : '';
+              cardEl.style.transform = `${baseFlip}translateX(120%) rotateZ(12deg)`;
+              cardEl.style.opacity = '0';
+              setTimeout(() => {
+                prevCard();
+              }, 180);
+            } else {
+              // Resistance snap back
+              cardEl.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+              const baseFlip = isFlipped ? 'rotateY(180deg)' : '';
+              cardEl.style.transform = baseFlip;
+            }
+          } else {
+            // Snap back to center
+            cardEl.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+            const baseFlip = isFlipped ? 'rotateY(180deg)' : '';
+            cardEl.style.transform = baseFlip;
+          }
+        } else if (cardEl) {
+          cardEl.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+          const baseFlip = isFlipped ? 'rotateY(180deg)' : '';
+          cardEl.style.transform = baseFlip;
+        }
+
+        setTimeout(() => {
+          wasSwiping = false;
+          isHorizontalSwipe = null;
+        }, 220);
+      };
+
+      stage.addEventListener('touchend', handleTouchEnd);
+      stage.addEventListener('touchcancel', () => {
+        isDragging = false;
+        isHorizontalSwipe = null;
+        const cardEl = container.querySelector('#active-flashcard');
+        if (cardEl) {
+          cardEl.style.transition = 'transform 0.25s ease';
+          cardEl.style.transform = isFlipped ? 'rotateY(180deg)' : '';
+        }
+        setTimeout(() => { wasSwiping = false; }, 100);
+      });
+
+      stage.addEventListener('click', () => {
+        if (wasSwiping) return;
+        flipCard();
+      });
+    }
 
     const flipBtn = container.querySelector('#flip-card-btn');
     if (flipBtn) flipBtn.addEventListener('click', (e) => {

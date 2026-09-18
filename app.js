@@ -1,16 +1,16 @@
-import { Navbar } from './components/navbar.js?v=20260918_1789710795948';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20260918_1789710795948';
-import { setI18nBaseLang } from './i18n.js?v=20260918_1789710795948';
-import { Auth, syncLocalToCloud } from './api.js?v=20260918_1789710795948';
-import { trackPageView } from './analytics.js?v=20260918_1789710795948';
+import { Navbar } from './components/navbar.js?v=20260918_1789710972545';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20260918_1789710972545';
+import { setI18nBaseLang } from './i18n.js?v=20260918_1789710972545';
+import { Auth, syncLocalToCloud } from './api.js?v=20260918_1789710972545';
+import { trackPageView } from './analytics.js?v=20260918_1789710972545';
 
-import { renderHomeScreen } from './screens/home.js?v=20260918_1789710795948';
-import { renderSignInScreen } from './screens/signin.js?v=20260918_1789710795948';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260918_1789710795948';
-import { renderDecksScreen } from './screens/decks.js?v=20260918_1789710795948';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260918_1789710795948';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260918_1789710795948';
-import { renderAboutScreen } from './screens/about.js?v=20260918_1789710795948';
+import { renderHomeScreen } from './screens/home.js?v=20260918_1789710972545';
+import { renderSignInScreen } from './screens/signin.js?v=20260918_1789710972545';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260918_1789710972545';
+import { renderDecksScreen } from './screens/decks.js?v=20260918_1789710972545';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260918_1789710972545';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260918_1789710972545';
+import { renderAboutScreen } from './screens/about.js?v=20260918_1789710972545';
 
 export function navigate(to) {
   let cleanTo = to;

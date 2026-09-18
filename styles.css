@@ -971,6 +971,9 @@ body {
   perspective: 1200px;
   margin-bottom: 1.5rem;
   cursor: pointer;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .flashcard {
@@ -1351,23 +1354,28 @@ body {
   }
 
   .flashcards-nav-actions {
+    display: flex;
     flex-direction: column;
     gap: 0.65rem;
-  }
-
-  .flashcards-nav-actions > div {
     width: 100%;
-    display: flex;
-    gap: 0.5rem;
   }
 
-  .flashcards-nav-actions > div > .btn,
-  .flashcards-nav-actions > div > .move-select {
-    flex: 1;
-  }
-
-  .flashcards-nav-actions > .btn {
+  .flashcards-nav-actions #next-card-btn {
+    order: 1;
     width: 100%;
+    flex: none !important;
+  }
+
+  .flashcards-nav-actions #flip-card-btn {
+    order: 2;
+    width: 100%;
+    flex: none !important;
+  }
+
+  .flashcards-nav-actions #prev-card-btn {
+    order: 3;
+    width: 100%;
+    flex: none !important;
   }
 
   .card-stage {
