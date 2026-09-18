@@ -976,6 +976,10 @@ body {
   -webkit-user-select: none;
 }
 
+.card-stage * {
+  pointer-events: none;
+}
+
 .flashcard {
   width: 100%;
   height: 100%;
