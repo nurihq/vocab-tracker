@@ -1,16 +1,16 @@
-import { Navbar } from './components/navbar.js?v=20260915_1789465676764';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20260915_1789465676764';
-import { setI18nBaseLang } from './i18n.js?v=20260915_1789465676764';
-import { Auth, syncLocalToCloud } from './api.js?v=20260915_1789465676764';
-import { trackPageView } from './analytics.js?v=20260915_1789465676764';
+import { Navbar } from './components/navbar.js?v=20260918_1789710795948';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20260918_1789710795948';
+import { setI18nBaseLang } from './i18n.js?v=20260918_1789710795948';
+import { Auth, syncLocalToCloud } from './api.js?v=20260918_1789710795948';
+import { trackPageView } from './analytics.js?v=20260918_1789710795948';
 
-import { renderHomeScreen } from './screens/home.js?v=20260915_1789465676764';
-import { renderSignInScreen } from './screens/signin.js?v=20260915_1789465676764';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260915_1789465676764';
-import { renderDecksScreen } from './screens/decks.js?v=20260915_1789465676764';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260915_1789465676764';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260915_1789465676764';
-import { renderAboutScreen } from './screens/about.js?v=20260915_1789465676764';
+import { renderHomeScreen } from './screens/home.js?v=20260918_1789710795948';
+import { renderSignInScreen } from './screens/signin.js?v=20260918_1789710795948';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260918_1789710795948';
+import { renderDecksScreen } from './screens/decks.js?v=20260918_1789710795948';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260918_1789710795948';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260918_1789710795948';
+import { renderAboutScreen } from './screens/about.js?v=20260918_1789710795948';
 
 export function navigate(to) {
   let cleanTo = to;
@@ -71,25 +71,32 @@ class App {
     // Auto-sync from cloud when switching back to tab/window or unlocking screen
     window.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && Auth.isAuthenticated()) {
-        syncLocalToCloud().then(() => this.handleRoute());
+        syncLocalToCloud().then(() => {
+          const currentHash = window.location.hash || '';
+          // Never interrupt an active study session or active text editing
+          if (currentHash.includes('/study')) return;
+          if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
+          this.handleRoute();
+        });
       }
     });
 
     window.addEventListener('focus', () => {
       if (Auth.isAuthenticated()) {
-        syncLocalToCloud().then(() => this.handleRoute());
+        syncLocalToCloud().then(() => {
+          const currentHash = window.location.hash || '';
+          // Never interrupt an active study session or active text editing
+          if (currentHash.includes('/study')) return;
+          if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
+          this.handleRoute();
+        });
       }
     });
 
-    // Periodic live sync every 15 seconds if active
+    // Periodic live sync every 15 seconds if active (syncs data in background without unmounting active view)
     setInterval(() => {
       if (document.visibilityState === 'visible' && Auth.isAuthenticated()) {
-        syncLocalToCloud().then(() => {
-          const currentHash = window.location.hash || '';
-          if (currentHash.startsWith('#/languages')) {
-            this.handleRoute();
-          }
-        });
+        syncLocalToCloud();
       }
     }, 15000);
   }

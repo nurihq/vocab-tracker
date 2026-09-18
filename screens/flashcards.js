@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260915_1789465676764';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260915_1789465676764';
-import { Api, getLocalStore } from '../api.js?v=20260915_1789465676764';
-import { trackEvent } from '../analytics.js?v=20260915_1789465676764';
-import { navigate } from '../app.js?v=20260915_1789465676764';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260918_1789710795948';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260918_1789710795948';
+import { Api, getLocalStore } from '../api.js?v=20260918_1789710795948';
+import { trackEvent } from '../analytics.js?v=20260918_1789710795948';
+import { navigate } from '../app.js?v=20260918_1789710795948';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -31,20 +31,45 @@ export function renderFlashcardsScreen(container, params = {}) {
   let isFlipped = false;
   let showFirst = 'study'; // 'study' or 'base'
   let isFinished = false;
+  let isShuffled = false;
 
   render();
 
   // Background refresh
   async function refreshBackground() {
     try {
+      const oldDataStr = JSON.stringify(words.map(w => ({ id: w.wordId, study: w.studyWord, base: w.baseWord, deck: w.deckId, order: w.order })));
       const [wordsRes, decksRes] = await Promise.all([
         Api.getWords(langCode, deckId),
         Api.getDecks(langCode)
       ]);
       if (!isStillMounted()) return;
       if (decksRes.decks) allDecks = decksRes.decks;
-      if (wordsRes.words && wordsRes.words.length > 0) {
-        words = [...wordsRes.words];
+
+      const newWords = wordsRes.words || [];
+      const newDataStr = JSON.stringify(newWords.map(w => ({ id: w.wordId, study: w.studyWord, base: w.baseWord, deck: w.deckId, order: w.order })));
+
+      // Only update and re-render if data has genuinely changed
+      if (newWords.length > 0 && oldDataStr !== newDataStr) {
+        const currentWordId = words[currentIndex]?.wordId;
+        if (!isShuffled) {
+          words = [...newWords];
+        } else {
+          // If already shuffled, preserve the user's shuffle sequence and merge updated word properties
+          const newMap = new Map(newWords.map(w => [w.wordId, w]));
+          words = words.map(w => newMap.get(w.wordId) || w);
+          const existingIds = new Set(words.map(w => w.wordId));
+          for (const nw of newWords) {
+            if (!existingIds.has(nw.wordId)) words.push(nw);
+          }
+        }
+
+        if (currentWordId) {
+          const matchIndex = words.findIndex(w => w.wordId === currentWordId);
+          if (matchIndex !== -1) {
+            currentIndex = matchIndex;
+          }
+        }
         if (currentIndex >= words.length) currentIndex = Math.max(0, words.length - 1);
         render();
       }
@@ -90,6 +115,7 @@ export function renderFlashcardsScreen(container, params = {}) {
   }
 
   function shuffleWords() {
+    isShuffled = true;
     for (let i = words.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [words[i], words[j]] = [words[j], words[i]];
