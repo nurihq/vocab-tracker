@@ -136,6 +136,7 @@ export const Auth = {
   signOut() {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    window.dispatchEvent(new CustomEvent('vocab-auth-changed'));
   }
 };
 
@@ -213,18 +214,21 @@ async function fetchWithAuth(url, options = {}) {
 
   if (response.status === 401) {
     Auth.signOut();
-    if (window.location.hash && !['#/', '#/signin', '#'].includes(window.location.hash)) {
-      window.location.hash = '#/signin';
-    }
-    throw new Error('Authentication expired. Redirected to sign-in.');
+    throw new Error('Authentication expired.');
   }
+
+  const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.error || `HTTP error ${response.status}`);
+    throw new Error(data.error || `HTTP error ${response.status}`);
   }
 
-  return response.json();
+  // Sliding 24-hour session window: adopt refreshed sessionToken if returned
+  if (data && data.sessionToken) {
+    Auth.setToken(data.sessionToken);
+  }
+
+  return data;
 }
 
 let isSyncing = false;

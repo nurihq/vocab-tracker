@@ -83,7 +83,13 @@ export function renderSignInScreen(container) {
           picture: payload.picture
         };
         Auth.setUser(userObj);
+        window.dispatchEvent(new CustomEvent('vocab-auth-changed'));
         trackEvent('sign_in', { method: 'google', sub: payload.sub });
+
+        // Instantly exchange Google ID token for 24-hour session token
+        try {
+          await Api.getProfile();
+        } catch (e) {}
 
         // Trigger two-way sync
         Api.syncLocalToCloud().catch(() => {});

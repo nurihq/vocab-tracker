@@ -151,12 +151,23 @@ class App {
       }
     });
 
-    // Periodic live sync every 15 seconds if active (syncs data in background without unmounting active view)
+    window.addEventListener('vocab-auth-changed', () => {
+      const path = getActiveRoutePath();
+      const routeToken = path === '/' ? '#/' : `#${path}`;
+      this.navbar.render(this.navContainer, routeToken);
+    });
+
+    // Periodic live sync every 15 seconds if active & immediate auth expiration detection
     setInterval(() => {
-      if (document.visibilityState === 'visible' && Auth.isAuthenticated()) {
-        syncLocalToCloud();
+      if (document.visibilityState === 'visible') {
+        if (Auth.isAuthenticated()) {
+          syncLocalToCloud();
+        } else if (localStorage.getItem('vocab_tracker_auth_token')) {
+          // Token expired locally! Clean up and surface banner
+          Auth.signOut();
+        }
       }
-    }, 15000);
+    }, 10000);
   }
 
   init() {
