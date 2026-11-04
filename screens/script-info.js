@@ -1104,9 +1104,16 @@ function renderKhmerKeyboardChecklistScreen(container) {
     const isRemembered = Boolean(learnedMap[keyToken]);
     const displayGlyph = meta.displayChar || (meta.type === 'vowel' ? `◌${keyToken}` : keyToken);
 
-    const seriesBadgeHtml = (meta.type === 'consonant' || meta.type === 'subscript')
-      ? `<span class="khmer-key-series series-${meta.series.toLowerCase()}">${meta.series}</span>`
-      : '';
+    const isConsOrSub = meta.type === 'consonant' || meta.type === 'subscript';
+    const glyphColorClass = isConsOrSub ? `khmer-color-${meta.series.toLowerCase()}` : '';
+
+    let romajiHtml = meta.romaji;
+    if (meta.type === 'vowel') {
+      const parts = meta.romaji.split(' / ');
+      const aSound = parts[0];
+      const oSound = parts[1] || parts[0];
+      romajiHtml = `<span class="khmer-color-a">${aSound}</span><span class="khmer-rom-sep">/</span><span class="khmer-color-o">${oSound}</span>`;
+    }
 
     return `
       <button
@@ -1115,9 +1122,8 @@ function renderKhmerKeyboardChecklistScreen(container) {
         data-char="${keyToken}"
         title="${displayGlyph} (${meta.romaji})"
       >
-        ${seriesBadgeHtml}
-        <div class="khmer-key-glyph">${displayGlyph}</div>
-        <div class="khmer-key-romaji">${meta.romaji}</div>
+        <div class="khmer-key-glyph ${glyphColorClass}">${displayGlyph}</div>
+        <div class="khmer-key-romaji ${isConsOrSub ? 'is-neutral-romaji' : ''}">${romajiHtml}</div>
       </button>
     `;
   }
@@ -1129,18 +1135,25 @@ function renderKhmerKeyboardChecklistScreen(container) {
 
     const isRemembered = Boolean(learnedMap[selectedKhmerChar]);
     const displayGlyph = meta.displayChar || (meta.type === 'vowel' ? `◌${selectedKhmerChar}` : selectedKhmerChar);
+    const isConsOrSub = meta.type === 'consonant' || meta.type === 'subscript';
+    const glyphColorClass = isConsOrSub ? `khmer-color-${meta.series.toLowerCase()}` : '';
 
+    let modalRomajiHtml = meta.romaji;
     let extraInfoHtml = '';
     if (meta.type === 'consonant') {
-      extraInfoHtml = `<div class="char-action-submeta">${meta.series}-Series Consonant</div>`;
+      extraInfoHtml = `<div class="char-action-submeta"><span class="khmer-color-${meta.series.toLowerCase()}">${meta.series}-Series</span> Consonant</div>`;
     } else if (meta.type === 'subscript') {
-      extraInfoHtml = `<div class="char-action-submeta">${meta.series}-Series Subscript Consonant (Coeng ${meta.baseChar})</div>`;
+      extraInfoHtml = `<div class="char-action-submeta"><span class="khmer-color-${meta.series.toLowerCase()}">${meta.series}-Series</span> Subscript Consonant (Coeng ${meta.baseChar})</div>`;
     } else if (meta.type === 'vowel') {
+      const parts = meta.romaji.split(' / ');
+      const aSound = parts[0];
+      const oSound = parts[1] || parts[0];
+      modalRomajiHtml = `<span class="khmer-color-a">${aSound}</span> <span class="khmer-rom-sep">/</span> <span class="khmer-color-o">${oSound}</span>`;
       extraInfoHtml = `
         <div class="char-action-submeta">Dependent Vowel${meta.combo ? ` (${meta.combo})` : ''}</div>
         <div class="char-action-ao-pills">
-          <span class="ao-pill series-a">A-Series: <strong>${meta.aForm}</strong> <em>(${meta.aRom})</em></span>
-          <span class="ao-pill series-o">O-Series: <strong>${meta.oForm}</strong> <em>(${meta.oRom})</em></span>
+          <span class="ao-pill series-a">A: <strong>${meta.aForm}</strong> <em>(${meta.aRom})</em></span>
+          <span class="ao-pill series-o">O: <strong>${meta.oForm}</strong> <em>(${meta.oRom})</em></span>
         </div>
       `;
     } else {
@@ -1158,8 +1171,8 @@ function renderKhmerKeyboardChecklistScreen(container) {
           </div>
 
           <div class="char-action-hero">
-            <div class="char-action-big-glyph">${displayGlyph}</div>
-            <div class="char-action-romaji">${meta.romaji}</div>
+            <div class="char-action-big-glyph ${glyphColorClass}">${displayGlyph}</div>
+            <div class="char-action-romaji">${modalRomajiHtml}</div>
             ${extraInfoHtml}
           </div>
 

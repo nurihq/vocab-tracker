@@ -3688,12 +3688,38 @@ body.is-script-practice-route .main-content {
 .khmer-key-romaji {
   font-size: clamp(0.48rem, 0.85vw, 0.7rem);
   font-weight: 700;
-  color: var(--primary);
+  color: var(--text-secondary);
   line-height: 1.05;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+.khmer-key-romaji.is-neutral-romaji {
+  color: var(--text-secondary);
+}
+
+.khmer-color-a {
+  color: #d97706 !important;
+}
+
+[data-theme="dark"] .khmer-color-a {
+  color: #fbbf24 !important;
+}
+
+.khmer-color-o {
+  color: #2563eb !important;
+}
+
+[data-theme="dark"] .khmer-color-o {
+  color: #60a5fa !important;
+}
+
+.khmer-rom-sep {
+  color: var(--text-muted);
+  margin: 0 0.08rem;
+  font-weight: 500;
 }
 
 .khmer-key-ao-forms {
