@@ -3746,31 +3746,24 @@ body.is-script-practice-route .main-content {
   max-width: 100%;
 }
 
-/* Dedicated Remembered Checkbox on Every Key */
+/* Dedicated Remembered Checkbox on Every Key (checkbox only, no text) */
 .key-remembered-checkbox {
-  margin-top: 0.15rem;
-  width: 100%;
-  max-width: 100%;
+  margin-top: 0.12rem;
+  width: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.2rem;
-  border-radius: 6px;
-  font-size: clamp(0.5rem, 0.72vw, 0.58rem);
-  font-weight: 600;
-  padding: 0.12rem 0.2rem;
+  border-radius: 5px;
+  padding: 0.1rem 0.22rem;
   cursor: pointer;
-  border: 1px solid var(--border-color);
-  background: var(--bg-subtle);
-  color: var(--text-secondary);
+  border: 1px solid transparent;
+  background: transparent;
   transition: all 0.12s ease;
-  white-space: nowrap;
-  overflow: hidden;
 }
 
 .key-remembered-checkbox input[type="checkbox"] {
-  width: 11px;
-  height: 11px;
+  width: 12px;
+  height: 12px;
   margin: 0;
   accent-color: #10b981;
   cursor: pointer;
@@ -3779,32 +3772,11 @@ body.is-script-practice-route .main-content {
 
 .key-remembered-checkbox.is-remembered {
   background: rgba(16, 185, 129, 0.14);
-  border-color: #10b981;
-  color: #047857;
-}
-
-[data-theme="dark"] .key-remembered-checkbox.is-remembered {
-  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.45);
 }
 
 .key-remembered-checkbox.is-needs-practice:hover {
-  border-color: var(--primary);
-  color: var(--primary);
   background: var(--primary-light);
-}
-
-/* On narrower screens, hide the text inside the key checkboxes & series suffix so 9/10-column grids shrink cleanly without overflowing */
-@media (max-width: 1180px) {
-  .jp-petal-key .key-rem-text-adaptive,
-  .khmer-kb-key .key-rem-text-adaptive {
-    display: none;
-  }
-
-  .jp-petal-key .key-remembered-checkbox,
-  .khmer-kb-key .key-remembered-checkbox {
-    width: auto;
-    padding: 0.1rem 0.22rem;
-  }
 }
 
 @media (max-width: 960px) {
@@ -3820,9 +3792,15 @@ body.is-script-practice-route .main-content {
   }
 }
 
-/* Dimmed keys when ゛ Dakuten or ゜ Handakuten is active on non-voiced columns */
+/* Dimmed keys when ゛ Dakuten, ゜ Handakuten, or Khmer ្ Coeng is active on non-applicable keys */
 .is-dimmed-cluster {
   opacity: 0.42;
+}
+
+.khmer-kb-key.is-dimmed-key,
+.jp-petal-key.is-dimmed-key {
+  opacity: 0.28;
+  filter: grayscale(0.85);
 }
 
 /* Interactive Japanese ゛ / ゜ Modifier Buttons */
