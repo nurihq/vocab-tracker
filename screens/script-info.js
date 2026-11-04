@@ -1104,14 +1104,9 @@ function renderKhmerKeyboardChecklistScreen(container) {
     const isRemembered = Boolean(learnedMap[keyToken]);
     const displayGlyph = meta.displayChar || (meta.type === 'vowel' ? `◌${keyToken}` : keyToken);
 
-    let badgeHtml = '';
-    if (meta.type === 'consonant' || meta.type === 'subscript') {
-      badgeHtml = `<span class="khmer-key-series series-${meta.series.toLowerCase()}">${meta.series}<span class="khmer-series-suffix">-Series</span></span>`;
-    } else if (meta.type === 'vowel') {
-      badgeHtml = `<span class="khmer-key-series is-vowel-badge">V<span class="khmer-series-suffix">owel</span></span>`;
-    } else {
-      badgeHtml = `<span class="khmer-key-series is-indep-badge">Ind<span class="khmer-series-suffix">ep.</span></span>`;
-    }
+    const seriesBadgeHtml = (meta.type === 'consonant' || meta.type === 'subscript')
+      ? `<span class="khmer-key-series series-${meta.series.toLowerCase()}">${meta.series}</span>`
+      : '';
 
     return `
       <button
@@ -1120,9 +1115,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
         data-char="${keyToken}"
         title="${displayGlyph} (${meta.romaji})"
       >
-        <div class="khmer-key-top-badges">
-          ${badgeHtml}
-        </div>
+        ${seriesBadgeHtml}
         <div class="khmer-key-glyph">${displayGlyph}</div>
         <div class="khmer-key-romaji">${meta.romaji}</div>
       </button>
