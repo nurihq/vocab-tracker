@@ -1,7 +1,7 @@
 import { autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
 import { trackEvent } from '../analytics.js?v=20261104_scripts3';
 import { navigate } from '../app.js?v=20261104_scripts3';
-import { notifyScriptProgressChange } from '../api.js?v=20261104_scripts22';
+import { notifyScriptProgressChange } from '../api.js?v=20261104_scripts23';
 import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261104_scripts3';
 import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261104_scripts3';
 import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261104_scripts3';
@@ -103,20 +103,20 @@ const KHMER_CHAR_LOOKUP = {
   '០': { type: 'digit', romaji: '0', note: '0 (soun) — Khmer Digit 0' },
 
   // Khmer Diacritics & Punctuation Signs
-  '់': { type: 'sign', displayChar: '◌់', romaji: 'bantoc', note: 'Bantoc — shortens preceding vowel sound' },
-  '៉': { type: 'sign', displayChar: '◌៉', romaji: 'muusik.', note: 'Muusikatoan — shifts O-series consonants to A-series sound' },
-  '៊': { type: 'sign', displayChar: '◌៊', romaji: 'triisap', note: 'Triisap — shifts A-series consonants to O-series sound' },
+  '់': { type: 'sign', romaji: 'bantoc', note: 'Bantoc — shortens preceding vowel sound' },
+  '៉': { type: 'sign', romaji: 'muusik.', note: 'Muusikatoan — shifts O-series consonants to A-series sound' },
+  '៊': { type: 'sign', romaji: 'triisap', note: 'Triisap — shifts A-series consonants to O-series sound' },
   'ៗ': { type: 'sign', romaji: 'repeat', note: 'Lekhto / Lek Too — repetition mark for words & phrases' },
   '។': { type: 'sign', romaji: 'khan (.)', note: 'Khan — sentence ending period / full stop' },
   '៕': { type: 'sign', romaji: 'end', note: 'Bariyoosan — marks end of text, chapter, or story' },
   '៖': { type: 'sign', romaji: 'colon (:)', note: 'Camnuc Pii Kuuh — Khmer colon / divider' },
   '៛': { type: 'sign', romaji: 'riel', note: 'Khmer Riel currency symbol (៛)' },
-  '៍': { type: 'sign', displayChar: '◌៍', romaji: 'silent', note: 'Toandakhiat — silences the consonant beneath it' },
-  '័': { type: 'sign', displayChar: '◌័', romaji: 'samyok', note: 'Samyok Sannya — combines with consonants to modify vowel' },
-  '៏': { type: 'sign', displayChar: '◌៏', romaji: 'ahsda', note: 'Ahsda — used on short words (e.g. ក៏ "also")' },
-  '៌': { type: 'sign', displayChar: '◌៌', romaji: 'robat', note: 'Robat — Sanskrit repha symbol; appears in loanwords' },
-  '៎': { type: 'sign', displayChar: '◌៎', romaji: 'kakabat', note: 'Kakabat — exclamation / emphasis mark' },
-  '៑': { type: 'sign', displayChar: '◌៑', romaji: 'viriam', note: 'Viriam — virama / vowel killer in classical loanwords' },
+  '៍': { type: 'sign', romaji: 'silent', note: 'Toandakhiat — silences the consonant beneath it' },
+  '័': { type: 'sign', romaji: 'samyok', note: 'Samyok Sannya — combines with consonants to modify vowel' },
+  '៏': { type: 'sign', romaji: 'ahsda', note: 'Ahsda — used on short words (e.g. ក៏ "also")' },
+  '៌': { type: 'sign', romaji: 'robat', note: 'Robat — Sanskrit repha symbol; appears in loanwords' },
+  '៎': { type: 'sign', romaji: 'kakabat', note: 'Kakabat — exclamation / emphasis mark' },
+  '៑': { type: 'sign', romaji: 'viriam', note: 'Viriam — virama / vowel killer in classical loanwords' },
   '!': { type: 'sign', romaji: '!', note: 'Exclamation mark' },
   '?': { type: 'sign', romaji: '?', note: 'Question mark' },
   '"': { type: 'sign', romaji: '"', note: 'Double quotation mark' },
@@ -1138,7 +1138,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
     if (!meta) return '';
 
     const isRemembered = Boolean(learnedMap[keyToken]);
-    const displayGlyph = meta.displayChar || (meta.type === 'vowel' ? `◌${keyToken}` : keyToken);
+    const displayGlyph = meta.displayChar || keyToken;
 
     const isConsOrSub = meta.type === 'consonant' || meta.type === 'subscript';
     const glyphColorClass = isConsOrSub ? `khmer-color-${meta.series.toLowerCase()}` : '';
@@ -1170,7 +1170,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
     if (!meta) return '';
 
     const isRemembered = Boolean(learnedMap[selectedKhmerChar]);
-    const displayGlyph = meta.displayChar || (meta.type === 'vowel' ? `◌${selectedKhmerChar}` : selectedKhmerChar);
+    const displayGlyph = meta.displayChar || selectedKhmerChar;
     const isConsOrSub = meta.type === 'consonant' || meta.type === 'subscript';
     const glyphColorClass = isConsOrSub ? `khmer-color-${meta.series.toLowerCase()}` : '';
 
