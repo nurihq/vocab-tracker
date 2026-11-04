@@ -1246,16 +1246,6 @@ function renderKhmerKeyboardChecklistScreen(container) {
             </a>
           </div>
 
-          <div class="script-kb-layer-tabs" style="margin-bottom: 0.5rem;">
-            <button
-              type="button"
-              class="script-kb-tab ${isCoeng ? 'active' : ''}"
-              data-kb-action="coeng"
-            >
-              ្ Coeng
-            </button>
-          </div>
-
           <!-- Live Phone Keyboard Grid (Identical Layout & Height on All Layers) -->
           <div class="khmer-kb-rows-container">
             ${resolvedRows.map(row => `
