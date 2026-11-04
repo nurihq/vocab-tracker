@@ -665,14 +665,6 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
         <div class="jp-cluster-expanded-inner">
           <div class="jp-cluster-header">
             <span class="jp-cluster-label">${cluster.label}</span>
-            <button
-              type="button"
-              class="jp-cluster-toggle-all"
-              data-cluster-chars="${slots.map(s => s.char).join(',')}"
-              title="${allClusterLearned ? 'Mark group as Needs Practice' : 'Mark entire key group as Remembered'}"
-            >
-              ${allClusterLearned ? '✓ All' : `${learnedInCluster}/${slots.length} ✓`}
-            </button>
           </div>
 
           <div class="jp-cross-5grid">
@@ -703,13 +695,6 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
               <p class="jp-focus-card-subtitle">Tap any letter for actions</p>
             </div>
             <div class="jp-focus-card-actions">
-              <button
-                type="button"
-                class="jp-cluster-toggle-all"
-                data-cluster-chars="${slots.map(s => s.char).join(',')}"
-              >
-                ${allClusterLearned ? '✓ All' : `${learnedInCluster}/${slots.length} ✓`}
-              </button>
               <button type="button" class="jp-focus-close-btn" id="jp-focus-close-btn" aria-label="Close">✕</button>
             </div>
           </div>
@@ -1252,28 +1237,23 @@ function renderKhmerKeyboardChecklistScreen(container) {
       <div class="script-info-page">
         <!-- 1. Main Interactive Khmer Phone Keyboard Card -->
         <section class="script-info-section khmer-kb-section">
-          <div class="script-info-section-header jp-kb-top-bar">
+          <div class="script-info-section-header jp-kb-top-bar" style="flex-wrap: nowrap;">
             <div class="jp-kb-title-group">
               <h1 class="script-info-section-title">អក្សរខ្មែរ Khmer</h1>
-              <div class="script-kb-layer-tabs">
-                <button
-                  type="button"
-                  class="script-kb-tab ${isCoeng ? 'active' : ''}"
-                  data-kb-action="coeng"
-                >
-                  ្ Coeng
-                </button>
-              </div>
             </div>
+            <a href="/scripts/khmer/practice" class="btn btn-primary btn-sm jp-top-practice-btn" style="margin-left: auto; flex-shrink: 0;">
+              ✍️ Practice →
+            </a>
+          </div>
 
-            <div class="script-header-actions" style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
-              <button type="button" class="btn btn-secondary btn-sm" id="toggleActiveLayerBtn">
-                ${activeLayerDone}/${activeLayerChars.length} ✓
-              </button>
-              <a href="/scripts/khmer/practice" class="btn btn-primary btn-sm jp-top-practice-btn">
-                ✍️ Practice →
-              </a>
-            </div>
+          <div class="script-kb-layer-tabs" style="margin-bottom: 0.5rem;">
+            <button
+              type="button"
+              class="script-kb-tab ${isCoeng ? 'active' : ''}"
+              data-kb-action="coeng"
+            >
+              ្ Coeng
+            </button>
           </div>
 
           <!-- Live Phone Keyboard Grid (Identical Layout & Height on All Layers) -->
@@ -1291,11 +1271,6 @@ function renderKhmerKeyboardChecklistScreen(container) {
           <div class="script-info-section-header jp-kb-top-bar">
             <div class="jp-kb-title-group">
               <h2 class="script-info-section-title">ឥឦឧ Independent & Compound Vowels</h2>
-            </div>
-            <div class="script-header-actions">
-              <button type="button" class="btn btn-secondary btn-sm" id="toggleExtraVowelsBtn">
-                ${layerStats.exDone}/${layerStats.ex.length} ✓
-              </button>
             </div>
           </div>
 
@@ -1381,16 +1356,6 @@ function renderKhmerKeyboardChecklistScreen(container) {
       const ch = selectedKhmerChar;
       selectedKhmerChar = null;
       jumpToPractice(ch);
-    });
-
-    // Toggle all keys on active main layer
-    container.querySelector('#toggleActiveLayerBtn')?.addEventListener('click', () => {
-      toggleGroupLearned(activeLayerChars);
-    });
-
-    // Toggle all keys on Independent & Compound Vowels card
-    container.querySelector('#toggleExtraVowelsBtn')?.addEventListener('click', () => {
-      toggleGroupLearned(layerStats.ex);
     });
 
     autoTranslateUi(container);
