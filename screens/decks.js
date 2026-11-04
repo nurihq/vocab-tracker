@@ -13,6 +13,12 @@ export function renderDecksScreen(container, params = {}) {
   const localizedLangName = getLocalizedLanguageName(langCode, currentBase);
   const isStillMounted = () => window.location.hash.startsWith(`#/languages/${langCode}/decks`);
 
+  const scriptKeyboardLink = langCode === 'ja'
+    ? { url: '/scripts/japanese/hiragana', icon: 'あ', label: 'Hiragana Keyboard' }
+    : langCode === 'km'
+    ? { url: '/scripts/khmer', icon: 'ក', label: 'Khmer Keyboard' }
+    : null;
+
   let showHidden = false;
 
   // Instant optimistic render from local cache
@@ -127,12 +133,6 @@ export function renderDecksScreen(container, params = {}) {
     if (deck.deckId === 'all') return '📚';
     return '📁';
   }
-
-  const scriptKeyboardLink = langCode === 'ja'
-    ? { url: '/scripts/japanese/hiragana', icon: 'あ', label: 'Hiragana Keyboard' }
-    : langCode === 'km'
-    ? { url: '/scripts/khmer', icon: 'ក', label: 'Khmer Keyboard' }
-    : null;
 
   function render() {
     if (!isStillMounted()) return;

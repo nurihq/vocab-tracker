@@ -16,6 +16,12 @@ export function renderDeckWordsScreen(container, params = {}) {
   const localizedBaseLangName = getLocalizedLanguageName(currentBase, currentBase);
   const isStillMounted = () => window.location.hash.startsWith(`#/languages/${langCode}/decks/${deckId}`) && !window.location.hash.endsWith('/study');
 
+  const scriptKeyboardLink = langCode === 'ja'
+    ? { url: '/scripts/japanese/hiragana', icon: 'あ', label: 'Hiragana Keyboard' }
+    : langCode === 'km'
+    ? { url: '/scripts/khmer', icon: 'ក', label: 'Khmer Keyboard' }
+    : null;
+
   let currentSort = !isAllDeck ? 'custom' : 'newest';
   let searchQuery = '';
 
@@ -115,12 +121,6 @@ export function renderDeckWordsScreen(container, params = {}) {
     }
     return dName || dId;
   }
-
-  const scriptKeyboardLink = langCode === 'ja'
-    ? { url: '/scripts/japanese/hiragana', icon: 'あ', label: 'Hiragana Keyboard' }
-    : langCode === 'km'
-    ? { url: '/scripts/khmer', icon: 'ក', label: 'Khmer Keyboard' }
-    : null;
 
   function render() {
     if (!isStillMounted()) return;
