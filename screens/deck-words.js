@@ -116,6 +116,12 @@ export function renderDeckWordsScreen(container, params = {}) {
     return dName || dId;
   }
 
+  const scriptKeyboardLink = langCode === 'ja'
+    ? { url: '/scripts/japanese/hiragana', icon: 'あ', label: 'Hiragana Keyboard' }
+    : langCode === 'km'
+    ? { url: '/scripts/khmer', icon: 'ក', label: 'Khmer Keyboard' }
+    : null;
+
   function render() {
     if (!isStillMounted()) return;
 
@@ -144,6 +150,13 @@ export function renderDeckWordsScreen(container, params = {}) {
           <h2 class="screen-title">${deckName}</h2>
         </div>
         <div class="screen-actions">
+          ${scriptKeyboardLink ? `
+            <a href="${scriptKeyboardLink.url}" target="_blank" rel="noopener" class="btn btn-secondary" id="open-script-kb-btn" title="Open ${scriptKeyboardLink.label} in a new window" style="text-decoration: none;">
+              <span>${scriptKeyboardLink.icon}</span>
+              <span>${scriptKeyboardLink.label}</span>
+              <span aria-hidden="true" style="font-size: 0.85em; opacity: 0.75;">↗</span>
+            </a>
+          ` : ''}
           ${words.length > 0 ? `
             <a href="#/languages/${langCode}/decks/${deckId}/study" class="btn btn-primary" id="study-deck-btn" data-i18n="studyDeck">
               ${t('studyDeck')}
@@ -448,7 +461,15 @@ export function renderDeckWordsScreen(container, params = {}) {
       </div>
 
       <div class="form-group">
-        <label class="form-label">${localizedStudyLangName} Translation</label>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.35rem;">
+          <label class="form-label" style="margin-bottom: 0;">${localizedStudyLangName} Translation</label>
+          ${scriptKeyboardLink ? `
+            <a href="${scriptKeyboardLink.url}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="padding: 0.22rem 0.6rem; font-size: 0.76rem; text-decoration: none;" title="Open ${scriptKeyboardLink.label} in a new window">
+              <span>${scriptKeyboardLink.icon}</span>
+              <span>${scriptKeyboardLink.label} ↗</span>
+            </a>
+          ` : ''}
+        </div>
         <textarea class="form-input" id="new-study-word-input" rows="2" placeholder="${studyExample}" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off"></textarea>
       </div>
 
@@ -513,7 +534,15 @@ export function renderDeckWordsScreen(container, params = {}) {
       </div>
 
       <div class="form-group">
-        <label class="form-label">${localizedStudyLangName} Translation</label>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.35rem;">
+          <label class="form-label" style="margin-bottom: 0;">${localizedStudyLangName} Translation</label>
+          ${scriptKeyboardLink ? `
+            <a href="${scriptKeyboardLink.url}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="padding: 0.22rem 0.6rem; font-size: 0.76rem; text-decoration: none;" title="Open ${scriptKeyboardLink.label} in a new window">
+              <span>${scriptKeyboardLink.icon}</span>
+              <span>${scriptKeyboardLink.label} ↗</span>
+            </a>
+          ` : ''}
+        </div>
         <textarea class="form-input" id="edit-study-word-input" rows="2" placeholder="${studyExample}" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off">${word.studyWord || ''}</textarea>
       </div>
 

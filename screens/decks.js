@@ -128,6 +128,12 @@ export function renderDecksScreen(container, params = {}) {
     return '📁';
   }
 
+  const scriptKeyboardLink = langCode === 'ja'
+    ? { url: '/scripts/japanese/hiragana', icon: 'あ', label: 'Hiragana Keyboard' }
+    : langCode === 'km'
+    ? { url: '/scripts/khmer', icon: 'ក', label: 'Khmer Keyboard' }
+    : null;
+
   function render() {
     if (!isStillMounted()) return;
 
@@ -144,6 +150,13 @@ export function renderDecksScreen(container, params = {}) {
           <h2 class="screen-title" data-i18n="decks">${t('decks')}</h2>
         </div>
         <div class="screen-actions">
+          ${scriptKeyboardLink ? `
+            <a href="${scriptKeyboardLink.url}" target="_blank" rel="noopener" class="btn btn-secondary" id="open-script-kb-btn" title="Open ${scriptKeyboardLink.label} in a new window" style="text-decoration: none;">
+              <span>${scriptKeyboardLink.icon}</span>
+              <span>${scriptKeyboardLink.label}</span>
+              <span aria-hidden="true" style="font-size: 0.85em; opacity: 0.75;">↗</span>
+            </a>
+          ` : ''}
           ${hasHidden ? `
             <button class="btn btn-secondary btn-sm" id="toggle-hidden-btn">
               ${showHidden ? `👁️ ${t('hideHidden')}` : `👁️ ${t('showHidden')}`}

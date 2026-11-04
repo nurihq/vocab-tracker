@@ -1,19 +1,19 @@
-import { Navbar } from './components/navbar.js?v=20261104_scripts6';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261104_scripts6';
-import { setI18nBaseLang } from './i18n.js?v=20261104_scripts6';
-import { Auth, syncLocalToCloud } from './api.js?v=20261104_scripts6';
-import { trackPageView } from './analytics.js?v=20261104_scripts6';
+import { Navbar } from './components/navbar.js?v=20261104_scripts7';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261104_scripts7';
+import { setI18nBaseLang } from './i18n.js?v=20261104_scripts7';
+import { Auth, syncLocalToCloud } from './api.js?v=20261104_scripts7';
+import { trackPageView } from './analytics.js?v=20261104_scripts7';
 
-import { renderHomeScreen } from './screens/home.js?v=20261104_scripts6';
-import { renderSignInScreen } from './screens/signin.js?v=20261104_scripts6';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261104_scripts6';
-import { renderDecksScreen } from './screens/decks.js?v=20261104_scripts6';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261104_scripts6';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261104_scripts6';
-import { renderAboutScreen } from './screens/about.js?v=20261104_scripts6';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261104_scripts6';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261104_scripts6';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261104_scripts6';
+import { renderHomeScreen } from './screens/home.js?v=20261104_scripts7';
+import { renderSignInScreen } from './screens/signin.js?v=20261104_scripts7';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261104_scripts7';
+import { renderDecksScreen } from './screens/decks.js?v=20261104_scripts7';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261104_scripts7';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261104_scripts7';
+import { renderAboutScreen } from './screens/about.js?v=20261104_scripts7';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261104_scripts7';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261104_scripts7';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261104_scripts7';
 
 function normalizeScriptAlias(rawPath) {
   let p = rawPath.replace(/^\/scripts\/japananese(\/|$)/, '/scripts/japanese$1');
@@ -101,10 +101,20 @@ class App {
     window.addEventListener('hashchange', () => this.handleRoute());
     window.addEventListener('popstate', () => this.handleRoute());
 
-    // Intercept any internal links for instant SPA navigation
+    // Intercept any internal links for instant SPA navigation (unless opening in a new tab/window)
     document.addEventListener('click', (e) => {
       const link = e.target.closest('a');
       if (link && link.getAttribute('href')) {
+        if (
+          link.getAttribute('target') === '_blank' ||
+          e.metaKey ||
+          e.ctrlKey ||
+          e.shiftKey ||
+          e.altKey ||
+          (typeof e.button === 'number' && e.button !== 0)
+        ) {
+          return;
+        }
         const href = link.getAttribute('href');
         if (href.startsWith('#/') || href === '/scripts' || href.startsWith('/scripts/')) {
           e.preventDefault();
