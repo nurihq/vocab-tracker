@@ -1,7 +1,7 @@
 import { autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
 import { trackEvent } from '../analytics.js?v=20261104_scripts3';
 import { navigate } from '../app.js?v=20261104_scripts3';
-import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261104_scripts26';
+import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261104_scripts27';
 import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261104_scripts3';
 import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261104_scripts3';
 import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261104_scripts3';
@@ -153,7 +153,7 @@ const KHMER_KEYBOARD_ROWS = {
     ['!', 'ៗ', '"', '៛', '%', '៍', '័', '៏', 'ឰ', 'ឳ', '៌', '៎'],
     ['ឈ', 'ឺ', 'ែ', 'ឬ', 'ទ', 'ួ', 'ូ', 'ី', 'ៅ', 'ភ', 'ឿ', 'ឧ'],
     ['ឫ', 'ៃ', 'ឌ', 'ធ', 'អ', 'ះ', 'ញ', 'គ', 'ឡ', '៖', '៉', 'ឮ'],
-    ['SHIFT_KEY', 'ឍ', 'ឃ', 'ជ', 'េះ', 'ព', 'ណ', 'ំ', 'ឱ', '៕', 'ឯ']
+    ['SHIFT_KEY', 'ឍ', 'ឃ', 'ជ', 'ះ', 'ព', 'ណ', 'ំ', 'ឱ', '៕', 'ឯ']
   ],
   // Layer 3: Subscript Consonants (្ Coeng Layer — mapped in-place onto the consonant keys)
   coengLayer1: [
