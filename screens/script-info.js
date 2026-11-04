@@ -86,7 +86,40 @@ const KHMER_CHAR_LOOKUP = {
   'ឯ': { type: 'indep_vowel', romaji: '’ae', note: 'Indep. ae' },
   'ឰ': { type: 'indep_vowel', romaji: '’ai', note: 'Indep. ai' },
   'ឱ': { type: 'indep_vowel', romaji: '’ao', note: 'Indep. ao' },
-  'ឳ': { type: 'indep_vowel', romaji: '’au', note: 'Indep. au' }
+  'ឳ': { type: 'indep_vowel', romaji: '’au', note: 'Indep. au' },
+  'ឲ': { type: 'indep_vowel', romaji: 'aoy', note: 'Indep. aoy ("give")' },
+
+  // 10 Khmer Digits
+  '១': { type: 'digit', romaji: '1', note: '1 (muoy) — Khmer Digit 1' },
+  '២': { type: 'digit', romaji: '2', note: '2 (pii) — Khmer Digit 2' },
+  '៣': { type: 'digit', romaji: '3', note: '3 (bei) — Khmer Digit 3' },
+  '៤': { type: 'digit', romaji: '4', note: '4 (buon) — Khmer Digit 4' },
+  '៥': { type: 'digit', romaji: '5', note: '5 (pram) — Khmer Digit 5' },
+  '៦': { type: 'digit', romaji: '6', note: '6 (pram-muoy) — Khmer Digit 6' },
+  '៧': { type: 'digit', romaji: '7', note: '7 (pram-pii) — Khmer Digit 7' },
+  '៨': { type: 'digit', romaji: '8', note: '8 (pram-bei) — Khmer Digit 8' },
+  '៩': { type: 'digit', romaji: '9', note: '9 (pram-buon) — Khmer Digit 9' },
+  '០': { type: 'digit', romaji: '0', note: '0 (soun) — Khmer Digit 0' },
+
+  // Khmer Diacritics & Punctuation Signs
+  '់': { type: 'sign', displayChar: '◌់', romaji: 'bantoc', note: 'Bantoc — shortens preceding vowel sound' },
+  '៉': { type: 'sign', displayChar: '◌៉', romaji: 'muusik.', note: 'Muusikatoan — shifts O-series consonants to A-series sound' },
+  '៊': { type: 'sign', displayChar: '◌៊', romaji: 'triisap', note: 'Triisap — shifts A-series consonants to O-series sound' },
+  'ៗ': { type: 'sign', romaji: 'repeat', note: 'Lekhto / Lek Too — repetition mark for words & phrases' },
+  '។': { type: 'sign', romaji: 'khan (.)', note: 'Khan — sentence ending period / full stop' },
+  '៕': { type: 'sign', romaji: 'end', note: 'Bariyoosan — marks end of text, chapter, or story' },
+  '៖': { type: 'sign', romaji: 'colon (:)', note: 'Camnuc Pii Kuuh — Khmer colon / divider' },
+  '៛': { type: 'sign', romaji: 'riel', note: 'Khmer Riel currency symbol (៛)' },
+  '៍': { type: 'sign', displayChar: '◌៍', romaji: 'silent', note: 'Toandakhiat — silences the consonant beneath it' },
+  '័': { type: 'sign', displayChar: '◌័', romaji: 'samyok', note: 'Samyok Sannya — combines with consonants to modify vowel' },
+  '៏': { type: 'sign', displayChar: '◌៏', romaji: 'ahsda', note: 'Ahsda — used on short words (e.g. ក៏ "also")' },
+  '៌': { type: 'sign', displayChar: '◌៌', romaji: 'robat', note: 'Robat — Sanskrit repha symbol; appears in loanwords' },
+  '៎': { type: 'sign', displayChar: '◌៎', romaji: 'kakabat', note: 'Kakabat — exclamation / emphasis mark' },
+  '៑': { type: 'sign', displayChar: '◌៑', romaji: 'viriam', note: 'Viriam — virama / vowel killer in classical loanwords' },
+  '!': { type: 'sign', romaji: '!', note: 'Exclamation mark' },
+  '?': { type: 'sign', romaji: '?', note: 'Question mark' },
+  '(': { type: 'sign', romaji: '(', note: 'Left parenthesis' },
+  ')': { type: 'sign', romaji: ')', note: 'Right parenthesis' }
 };
 
 // Populate subscript consonants (`្ក` .. `្វ`) in KHMER_CHAR_LOOKUP
@@ -105,28 +138,32 @@ Object.entries({ ...KHMER_CHAR_LOOKUP }).forEach(([ch, meta]) => {
 
 // Khmer Mobile Phone Keyboard Rows (exact physical positions on Khmer mobile keyboard)
 const KHMER_KEYBOARD_ROWS = {
-  // Layer 1: Default Mobile Keyboard
+  // Layer 1: Default Mobile Keyboard (4 rows)
   layer1: [
-    ['ឆ', 'ឹ', 'េ', 'រ', 'ត', 'យ', 'ុ', 'ិ', 'ោ', 'ផ'],
-    ['ា', 'ស', 'ដ', 'ថ', 'ង', 'ហ', 'COENG_KEY', 'ក', 'ល'],
-    ['SHIFT_KEY', 'ឋ', 'ខ', 'ច', 'វ', 'ប', 'ន', 'ម', 'ើ', 'ៀ']
+    ['១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩', '០', 'ឥ', 'ឲ'],
+    ['ឆ', 'ឹ', 'េ', 'រ', 'ត', 'យ', 'ុ', 'ិ', 'ោ', 'ផ', 'ៀ', 'ឪ'],
+    ['ា', 'ស', 'ដ', 'ថ', 'ង', 'ហ', 'COENG_KEY', 'ក', 'ល', 'ើ', '់', 'ឮ'],
+    ['SHIFT_KEY', 'ឋ', 'ខ', 'ច', 'វ', 'ប', 'ន', 'ម', 'ុំ', '។', '៊']
   ],
-  // Layer 2: Shifted (⇧) Mobile Keyboard
+  // Layer 2: Shifted (⇧) Mobile Keyboard (4 rows)
   layer2: [
-    ['ឈ', 'ឺ', 'ែ', 'ឬ', 'ទ', 'ួ', 'ូ', 'ី', 'ៅ', 'ភ'],
-    ['ាំ', 'ៃ', 'ឌ', 'ធ', 'អ', 'ះ', 'ញ', 'គ', 'ឡ'],
-    ['SHIFT_KEY', 'ឍ', 'ឃ', 'ជ', 'េះ', 'ព', 'ណ', 'ំ', 'ឿ', 'ោះ']
+    ['!', 'ៗ', '៑', '៛', '៖', '៍', '័', '៏', '៌', '៎', '(', ')'],
+    ['ឈ', 'ឺ', 'ែ', 'ឬ', 'ទ', 'ួ', 'ូ', 'ី', 'ៅ', 'ភ', 'ឿ', 'ឰ'],
+    ['ាំ', 'ៃ', 'ឌ', 'ធ', 'អ', 'ះ', 'ញ', 'គ', 'ឡ', 'ោះ', '៉', 'ឯ'],
+    ['SHIFT_KEY', 'ឍ', 'ឃ', 'ជ', 'េះ', 'ព', 'ណ', 'ំ', 'ុះ', '៕', '?']
   ],
   // Layer 3: Subscript Consonants (្ Coeng Layer — laid out on the exact same consonant keys!)
   coengLayer1: [
-    ['្ឆ', null, null, '្រ', '្ត', '្យ', null, null, null, '្ផ'],
-    [null, '្ស', '្ដ', '្ថ', '្ង', '្ហ', 'COENG_KEY', '្ក', '្ល'],
-    ['SHIFT_KEY', '្ឋ', '្ខ', '្ច', '្វ', '្ប', '្ន', '្ម', null, null]
+    [null, null, null, null, null, null, null, null, null, null, null, null],
+    ['្ឆ', null, null, '្រ', '្ត', '្យ', null, null, null, '្ផ', null, null],
+    [null, '្ស', '្ដ', '្ថ', '្ង', '្ហ', 'COENG_KEY', '្ក', '្ល', null, null, null],
+    ['SHIFT_KEY', '្ឋ', '្ខ', '្ច', '្វ', '្ប', '្ន', '្ម', null, null, null]
   ],
   coengLayer2: [
-    ['្ឈ', null, null, null, '្ទ', null, null, null, null, '្ភ'],
-    [null, null, '្ឌ', '្ធ', '្អ', null, '្ញ', '្គ', '្ឡ'],
-    ['SHIFT_KEY', '្ឍ', '្ឃ', '្ជ', null, '្ព', '្ណ', null, null, null]
+    [null, null, null, null, null, null, null, null, null, null, null, null],
+    ['្ឈ', null, null, null, '្ទ', null, null, null, null, '្ភ', null, null],
+    [null, null, '្ឌ', '្ធ', '្អ', null, '្ញ', '្គ', '្ឡ', null, null, null],
+    ['SHIFT_KEY', '្ឍ', '្ឃ', '្ជ', null, '្ព', '្ណ', null, null, null, 'COENG_KEY']
   ],
   // Additional Multi-keystroke Dependent Vowels & Independent Vowels row
   compoundVowels: ['ុំ', 'ុះ', 'ាំ', 'េះ', 'ោះ'],
@@ -1141,9 +1178,15 @@ function renderKhmerKeyboardChecklistScreen(container) {
           <span class="ao-pill series-o">O: <strong>${meta.oForm}</strong> <em>(${meta.oRom})</em></span>
         </div>
       `;
+    } else if (meta.type === 'digit') {
+      extraInfoHtml = `<div class="char-action-submeta">Khmer Digit (${meta.note || ''})</div>`;
+    } else if (meta.type === 'sign') {
+      extraInfoHtml = `<div class="char-action-submeta">Diacritic / Sign (${meta.note || ''})</div>`;
     } else {
       extraInfoHtml = `<div class="char-action-submeta">${meta.note || 'Independent Vowel'}</div>`;
     }
+
+    const hasPractice = allChars.some(c => c.char === selectedKhmerChar);
 
     return `
       <div class="jp-focus-overlay char-action-overlay" id="khmer-char-action-overlay" role="dialog" aria-modal="true">
@@ -1169,13 +1212,15 @@ function renderKhmerKeyboardChecklistScreen(container) {
             >
               ${isRemembered ? '↺ Mark as Needs Practice' : '✓ Mark as Remembered'}
             </button>
-            <button
-              type="button"
-              class="btn btn-secondary char-action-btn"
-              id="khmer-modal-practice-btn"
-            >
-              ✍️ Practice Writing
-            </button>
+            ${hasPractice ? `
+              <button
+                type="button"
+                class="btn btn-secondary char-action-btn"
+                id="khmer-modal-practice-btn"
+              >
+                ✍️ Practice Writing
+              </button>
+            ` : ''}
           </div>
         </div>
       </div>
