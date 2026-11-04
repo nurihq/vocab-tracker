@@ -138,23 +138,23 @@ Object.entries({ ...KHMER_CHAR_LOOKUP }).forEach(([ch, meta]) => {
   }
 });
 
-// Khmer Mobile Phone Keyboard Rows (exact physical positions on Khmer mobile keyboard)
+// Apple iOS Khmer Native Mobile Keyboard Layout (4 rows, 12 columns, 46 keys per layer)
 const KHMER_KEYBOARD_ROWS = {
-  // Layer 1: Default Mobile Keyboard (4 rows)
+  // Layer 1: Default Mobile Keyboard (4 rows: 12 + 12 + 12 + 10 chars)
   layer1: [
     ['១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩', '០', 'ឥ', 'ឲ'],
     ['ឆ', 'ឹ', 'េ', 'រ', 'ត', 'យ', 'ុ', 'ិ', 'ោ', 'ផ', 'ៀ', 'ឪ'],
-    ['ា', 'ស', 'ដ', 'ថ', 'ង', 'ហ', 'COENG_KEY', 'ក', 'ល', 'ើ', '់', 'ឮ'],
-    ['SHIFT_KEY', 'ឋ', 'ខ', 'ច', 'វ', 'ប', 'ន', 'ម', 'ុំ', '។', '៊']
+    ['ា', 'ស', 'ដ', 'ថ', 'ង', 'ហ', 'COENG_KEY', 'ក', 'ល', 'ើ', '់', 'ឭ'],
+    ['SHIFT_KEY', 'ឋ', 'ខ', 'ច', 'វ', 'ប', 'ន', 'ម', 'ឦ', '។', '៊']
   ],
-  // Layer 2: Shifted (⇧) Mobile Keyboard (4 rows)
+  // Layer 2: Shifted (⇧) Mobile Keyboard (4 rows: 12 + 12 + 12 + 10 chars)
   layer2: [
-    ['!', 'ៗ', '"', '៛', '%', '៍', '័', '៏', '(', ')', '៌', '៎'],
+    ['!', 'ៗ', '"', '៛', '%', '៍', '័', '៏', 'ឰ', 'ឳ', '៌', '៎'],
     ['ឈ', 'ឺ', 'ែ', 'ឬ', 'ទ', 'ួ', 'ូ', 'ី', 'ៅ', 'ភ', 'ឿ', 'ឧ'],
-    ['ាំ', 'ៃ', 'ឌ', 'ធ', 'អ', 'ះ', 'ញ', 'គ', 'ឡ', 'ោះ', '៉', 'ឭ'],
-    ['SHIFT_KEY', 'ឍ', 'ឃ', 'ជ', 'េះ', 'ព', 'ណ', 'ំ', 'ុះ', '៕', '?']
+    ['ឫ', 'ៃ', 'ឌ', 'ធ', 'អ', 'ះ', 'ញ', 'គ', 'ឡ', 'ោះ', '៉', 'ឮ'],
+    ['SHIFT_KEY', 'ឍ', 'ឃ', 'ជ', 'េះ', 'ព', 'ណ', 'ំ', 'ឱ', '៕', 'ឯ']
   ],
-  // Layer 3: Subscript Consonants (្ Coeng Layer — laid out on the exact same consonant keys!)
+  // Layer 3: Subscript Consonants (្ Coeng Layer — mapped in-place onto the consonant keys)
   coengLayer1: [
     [null, null, null, null, null, null, null, null, null, null, null, null],
     ['្ឆ', null, null, '្រ', '្ត', '្យ', null, null, null, '្ផ', null, null],
