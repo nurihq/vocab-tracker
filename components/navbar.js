@@ -1,8 +1,8 @@
-import { LANGUAGES } from '../languages.js?v=20260918_1789711631718';
-import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260918_1789711631718';
-import { Auth, Api } from '../api.js?v=20260918_1789711631718';
-import { trackEvent } from '../analytics.js?v=20260918_1789711631718';
-import { navigate } from '../app.js?v=20260918_1789711631718';
+import { LANGUAGES } from '../languages.js?v=20261104_scripts3';
+import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
+import { Auth, Api } from '../api.js?v=20261104_scripts3';
+import { trackEvent } from '../analytics.js?v=20261104_scripts3';
+import { navigate } from '../app.js?v=20261104_scripts3';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {
@@ -61,6 +61,56 @@ export class Navbar {
       };
     }
 
+    if (cleanRoute === '/scripts') {
+      return {
+        label: t('home'),
+        target: '#/'
+      };
+    }
+
+    if (cleanRoute === '/scripts/khmer/practice') {
+      return {
+        label: 'Khmer',
+        target: '/scripts/khmer'
+      };
+    }
+
+    if (cleanRoute === '/scripts/japanese/hiragana/practice') {
+      return {
+        label: 'Hiragana',
+        target: '/scripts/japanese/hiragana'
+      };
+    }
+
+    if (cleanRoute === '/scripts/japanese/katakana/practice') {
+      return {
+        label: 'Katakana',
+        target: '/scripts/japanese/katakana'
+      };
+    }
+
+    if (cleanRoute === '/scripts/japanese/hiragana' || cleanRoute === '/scripts/japanese/katakana') {
+      return {
+        label: 'Japanese',
+        target: '/scripts/japanese'
+      };
+    }
+
+    if (cleanRoute === '/scripts/japanese' || cleanRoute === '/scripts/khmer') {
+      return {
+        label: t('scripts') || 'Scripts',
+        target: '/scripts'
+      };
+    }
+
+    const scriptMatch = cleanRoute.match(/^\/scripts\/([^/]+)\/?$/);
+    if (scriptMatch) {
+      return {
+        label: t('scripts') || 'Scripts',
+        target: '/scripts'
+      };
+    }
+
     return null;
   }
 
@@ -70,6 +120,7 @@ export class Navbar {
     const backInfo = this.getNavBackInfo(currentRoute);
     const cleanPath = (currentRoute || '').replace(/^#/, '') || '/';
     const isHomeScreen = cleanPath === '/' || cleanPath === '';
+    const isScriptsActive = cleanPath === '/scripts' || cleanPath.startsWith('/scripts/');
 
     container.innerHTML = `
       <header class="navbar">
@@ -90,6 +141,16 @@ export class Navbar {
         </div>
 
         <div class="nav-right">
+          <a href="/scripts" class="nav-about-btn ${isScriptsActive ? 'active' : ''}" id="nav-scripts-btn" title="Scripts">
+            <svg class="nav-about-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+              <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+              <path d="M2 2l7.586 7.586"/>
+              <circle cx="11" cy="11" r="2"/>
+            </svg>
+            <span class="nav-about-text" data-i18n="scripts">${t('scripts') || 'Scripts'}</span>
+          </a>
+
           ${isHomeScreen ? `
             <a href="#/about" class="nav-about-btn" id="nav-about-btn" title="${t('about')}">
               <svg class="nav-about-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -126,6 +187,17 @@ export class Navbar {
           `}
         </div>
       </header>
+      ${!isAuthed ? `
+        <div class="unauth-warning-banner" role="alert">
+          <div class="unauth-warning-content">
+            <span class="unauth-warning-icon">⚠️</span>
+            <span class="unauth-warning-text">
+              <strong>You are not signed in.</strong> Any words, decks, or script progress you add are not synced to your account and will be lost.
+            </span>
+          </div>
+          <a href="#/signin" class="unauth-warning-cta">Sign In to Save →</a>
+        </div>
+      ` : ''}
     `;
 
     autoTranslateUi(container);

@@ -1,22 +1,70 @@
-import { Navbar } from './components/navbar.js?v=20260918_1789711631718';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20260918_1789711631718';
-import { setI18nBaseLang } from './i18n.js?v=20260918_1789711631718';
-import { Auth, syncLocalToCloud } from './api.js?v=20260918_1789711631718';
-import { trackPageView } from './analytics.js?v=20260918_1789711631718';
+import { Navbar } from './components/navbar.js?v=20261104_scripts3';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261104_scripts3';
+import { setI18nBaseLang } from './i18n.js?v=20261104_scripts3';
+import { Auth, syncLocalToCloud } from './api.js?v=20261104_scripts3';
+import { trackPageView } from './analytics.js?v=20261104_scripts3';
 
-import { renderHomeScreen } from './screens/home.js?v=20260918_1789711631718';
-import { renderSignInScreen } from './screens/signin.js?v=20260918_1789711631718';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20260918_1789711631718';
-import { renderDecksScreen } from './screens/decks.js?v=20260918_1789711631718';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20260918_1789711631718';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20260918_1789711631718';
-import { renderAboutScreen } from './screens/about.js?v=20260918_1789711631718';
+import { renderHomeScreen } from './screens/home.js?v=20261104_scripts3';
+import { renderSignInScreen } from './screens/signin.js?v=20261104_scripts3';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261104_scripts3';
+import { renderDecksScreen } from './screens/decks.js?v=20261104_scripts3';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261104_scripts3';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261104_scripts3';
+import { renderAboutScreen } from './screens/about.js?v=20261104_scripts3';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261104_scripts3';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261104_scripts3';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261104_scripts3';
+
+function normalizeScriptAlias(rawPath) {
+  let p = rawPath.replace(/^\/scripts\/japananese(\/|$)/, '/scripts/japanese$1');
+  if (p === '/scripts/hiragana') return '/scripts/japanese/hiragana';
+  if (p === '/scripts/hiragana/practice') return '/scripts/japanese/hiragana/practice';
+  if (p === '/scripts/katakana') return '/scripts/japanese/katakana';
+  if (p === '/scripts/katakana/practice') return '/scripts/japanese/katakana/practice';
+  return p;
+}
+
+function getActiveRoutePath() {
+  const rawHash = window.location.hash || '';
+  if (rawHash && rawHash !== '#' && rawHash !== '#/') {
+    const hashPath = rawHash.replace(/^#/, '').replace(/\/+$/, '') || '/';
+    const withSlash = hashPath.startsWith('/') ? hashPath : '/' + hashPath;
+    return normalizeScriptAlias(withSlash);
+  }
+  const pathname = (window.location.pathname || '/').replace(/\/index\.html$/, '').replace(/\/+$/, '') || '/';
+  if (pathname === '/scripts' || pathname.startsWith('/scripts/')) {
+    return normalizeScriptAlias(pathname);
+  }
+  return '/';
+}
 
 export function navigate(to) {
-  let cleanTo = to;
+  const raw = (to || '/').trim();
+  const normalized = normalizeScriptAlias(raw.replace(/^#/, '').replace(/\/+$/, '') || '/');
+  const isScriptPath = normalized === '/scripts' || normalized.startsWith('/scripts/');
+
+  if (isScriptPath) {
+    if (window.location.pathname.replace(/\/+$/, '') !== normalized || window.location.hash) {
+      window.history.pushState(null, '', normalized);
+    }
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    return;
+  }
+
+  let cleanTo = raw;
   if (!cleanTo.startsWith('#')) {
     cleanTo = '#' + (cleanTo.startsWith('/') ? cleanTo : '/' + cleanTo);
   }
+
+  // If currently on a /scripts/* pathname, move back to root path with the target hash
+  const currentPathname = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
+  if (currentPathname !== '/') {
+    const nextUrl = cleanTo === '#/' ? '/' : '/' + cleanTo;
+    window.history.pushState(null, '', nextUrl);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    return;
+  }
+
   if (window.location.hash !== cleanTo) {
     window.location.hash = cleanTo;
   } else {
@@ -58,7 +106,7 @@ class App {
       const link = e.target.closest('a');
       if (link && link.getAttribute('href')) {
         const href = link.getAttribute('href');
-        if (href.startsWith('#/')) {
+        if (href.startsWith('#/') || href === '/scripts' || href.startsWith('/scripts/')) {
           e.preventDefault();
           navigate(href);
         }
@@ -72,9 +120,9 @@ class App {
     window.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && Auth.isAuthenticated()) {
         syncLocalToCloud().then(() => {
-          const currentHash = window.location.hash || '';
-          // Never interrupt an active study session or active text editing
-          if (currentHash.includes('/study')) return;
+          const currentPath = getActiveRoutePath();
+          // Never interrupt an active study session, script drawing, or active text editing
+          if (currentPath.includes('/study') || currentPath.startsWith('/scripts')) return;
           if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
           this.handleRoute();
         });
@@ -84,9 +132,9 @@ class App {
     window.addEventListener('focus', () => {
       if (Auth.isAuthenticated()) {
         syncLocalToCloud().then(() => {
-          const currentHash = window.location.hash || '';
-          // Never interrupt an active study session or active text editing
-          if (currentHash.includes('/study')) return;
+          const currentPath = getActiveRoutePath();
+          // Never interrupt an active study session, script drawing, or active text editing
+          if (currentPath.includes('/study') || currentPath.startsWith('/scripts')) return;
           if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
           this.handleRoute();
         });
@@ -116,18 +164,18 @@ class App {
   }
 
   handleRoute() {
-    const hash = window.location.hash || '#/';
-    const path = hash.replace(/^#/, '') || '/';
+    const path = getActiveRoutePath();
+    const routeToken = path === '/' ? '#/' : `#${path}`;
 
-    // Re-render navbar with updated active state
-    this.navbar.render(this.navContainer, hash);
+    const practiceMatch = path.match(/^\/scripts\/(?:japanese\/(hiragana|katakana)|(khmer))\/practice$/);
+    const infoMatch = path.match(/^\/scripts\/(?:japanese\/(hiragana|katakana)|(khmer))$/);
+    const isJapaneseLanding = path === '/scripts/japanese';
+    const isScriptsRoute = path === '/scripts' || path.startsWith('/scripts/');
 
-    // Protected Route Check: Strictly check valid token & session
-    const isPublic = path === '/' || path === '' || path === '/signin' || path === '/about';
-    if (!isPublic && !Auth.isAuthenticated()) {
-      navigate('#/signin');
-      return;
-    }
+    document.body.classList.toggle('is-script-practice-route', Boolean(practiceMatch));
+
+    // Re-render navbar (and global unauthenticated warning banner) with updated active state
+    this.navbar.render(this.navContainer, routeToken);
 
     // Router Pattern Matching with Dynamic Title & GA4 Page View Tracking
     if (path === '/' || path === '') {
@@ -138,6 +186,35 @@ class App {
       document.title = 'About — Vocabulary Growth & CEFR Milestones | monogenesis';
       trackPageView('/about', document.title);
       renderAboutScreen(this.mainContainer);
+    } else if (path === '/scripts') {
+      document.title = 'Scripts & Writing Systems — Japanese & Khmer | monogenesis';
+      trackPageView('/scripts', document.title);
+      renderScriptsScreen(this.mainContainer);
+    } else if (isJapaneseLanding) {
+      document.title = 'Japanese Writing Systems — Hiragana & Katakana | monogenesis';
+      trackPageView('/scripts/japanese', document.title);
+      renderJapaneseScriptsLandingScreen(this.mainContainer);
+    } else if (infoMatch) {
+      const scriptId = (infoMatch[1] || infoMatch[2]).toLowerCase();
+      const infoTitles = {
+        hiragana: 'Hiragana Guide, Romanisation & Phone Keyboard Layout | monogenesis',
+        katakana: 'Katakana Guide, Romanisation & Phone Keyboard Layout | monogenesis',
+        khmer: 'Khmer Script Guide, Phone Keyboard Layout & A/O Series Vowels | monogenesis'
+      };
+      document.title = infoTitles[scriptId] || 'Script Guide | monogenesis';
+      trackPageView(path, document.title);
+      window.scrollTo(0, 0);
+      renderScriptInfoScreen(this.mainContainer, { scriptId });
+    } else if (practiceMatch) {
+      const scriptId = (practiceMatch[1] || practiceMatch[2]).toLowerCase();
+      const practiceTitles = {
+        hiragana: 'Hiragana Writing Practice — Interactive Stroke Order | monogenesis',
+        katakana: 'Katakana Writing Practice — Interactive Stroke Order | monogenesis',
+        khmer: 'Khmer Script Writing Practice — Interactive Stroke Order | monogenesis'
+      };
+      document.title = practiceTitles[scriptId] || 'Script Practice | monogenesis';
+      trackPageView(path, document.title);
+      renderScriptPracticeScreen(this.mainContainer, { scriptId });
     } else if (path === '/signin') {
       if (Auth.isAuthenticated()) {
         navigate('#/languages');

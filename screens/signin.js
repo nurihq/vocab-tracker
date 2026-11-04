@@ -1,8 +1,8 @@
-import { CONFIG } from '../config.js?v=20260918_1789711631718';
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260918_1789711631718';
-import { Auth, Api } from '../api.js?v=20260918_1789711631718';
-import { trackEvent } from '../analytics.js?v=20260918_1789711631718';
-import { navigate } from '../app.js?v=20260918_1789711631718';
+import { CONFIG } from '../config.js?v=20261104_scripts3';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
+import { Auth, Api } from '../api.js?v=20261104_scripts3';
+import { trackEvent } from '../analytics.js?v=20261104_scripts3';
+import { navigate } from '../app.js?v=20261104_scripts3';
 
 export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();
@@ -19,9 +19,13 @@ export function renderSignInScreen(container) {
           <div id="google-signin-btn"></div>
         </div>
 
-        <div class="signin-footer">
-          <p style="font-size: 0.8rem; color: var(--text-muted);">
-            Protected with Google Identity Services & AWS DynamoDB.
+        <div class="signin-unauth-section">
+          <div class="signin-divider"><span>or</span></div>
+          <button type="button" class="btn btn-secondary signin-unauth-btn" id="continue-unauth-btn">
+            Continue Unauthenticated →
+          </button>
+          <p class="signin-unauth-warning">
+            ⚠️ <strong>Warning:</strong> All progress and vocabulary you add will be lost if you do not sign in.
           </p>
         </div>
       </div>
@@ -29,6 +33,14 @@ export function renderSignInScreen(container) {
   `;
 
   autoTranslateUi(container);
+
+  const unauthBtn = container.querySelector('#continue-unauth-btn');
+  if (unauthBtn) {
+    unauthBtn.addEventListener('click', () => {
+      trackEvent('continue_unauthenticated');
+      navigate('#/languages');
+    });
+  }
 
   // Initialize Google Sign-In button
   function initGoogleBtn() {

@@ -55,6 +55,14 @@ Dedicated language documentation available for international AI crawlers:
 - **Home**: `https://monogenesis.org/#/`
 - **About & CEFR Framework**: `https://monogenesis.org/#/about`
 - **Study Languages**: `https://monogenesis.org/#/languages`
+- **Writing Scripts Hub**: `https://monogenesis.org/scripts`
+- **Japanese Scripts Overview**: `https://monogenesis.org/scripts/japanese`
+- **Hiragana Guide & Phone Keyboard**: `https://monogenesis.org/scripts/japanese/hiragana`
+- **Hiragana Writing Practice**: `https://monogenesis.org/scripts/japanese/hiragana/practice`
+- **Katakana Guide & Phone Keyboard**: `https://monogenesis.org/scripts/japanese/katakana`
+- **Katakana Writing Practice**: `https://monogenesis.org/scripts/japanese/katakana/practice`
+- **Khmer Script Guide, Phone Keyboard & A/O Vowels**: `https://monogenesis.org/scripts/khmer`
+- **Khmer Script Writing Practice**: `https://monogenesis.org/scripts/khmer/practice`
 - **Decks Overview**: `https://monogenesis.org/#/languages/{langCode}/decks`
 - **Word Manager & Search**: `https://monogenesis.org/#/languages/{langCode}/decks/{deckId}`
 - **Flashcard Study Mode**: `https://monogenesis.org/#/languages/{langCode}/decks/{deckId}/study`
