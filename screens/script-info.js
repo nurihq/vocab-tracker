@@ -1013,9 +1013,9 @@ function renderKhmerKeyboardChecklistScreen(container) {
           data-kb-action="shift"
           title="Tap to toggle Shift Layer (⇧)"
         >
-          <span class="khmer-key-mod-icon">⇧ ${isShifted ? 'ON' : 'Shift'}</span>
-          <span class="khmer-key-mod-label">${isShifted ? 'Back to Layer 1' : 'View Shifted Keys'}</span>
-          <span class="khmer-key-mod-hint">${targetDone}/${targetTotal} Remembered</span>
+          <span class="khmer-key-mod-icon">⇧</span>
+          <span class="khmer-key-mod-label">${isShifted ? 'Layer 1' : 'Shift'}</span>
+          <span class="khmer-key-mod-hint">${targetDone}/${targetTotal}</span>
         </button>
       `;
     }
@@ -1028,9 +1028,9 @@ function renderKhmerKeyboardChecklistScreen(container) {
           data-kb-action="coeng"
           title="Tap to toggle Subscript Consonants (្ Coeng) on the keyboard"
         >
-          <span class="khmer-key-mod-icon">្ ${isCoeng ? 'ON' : ''}</span>
-          <span class="khmer-key-mod-label">Subscripts (Coeng)</span>
-          <span class="khmer-key-mod-hint">${layerStats.coengDone}/${layerStats.coengAll.length} Remembered</span>
+          <span class="khmer-key-mod-icon">្</span>
+          <span class="khmer-key-mod-label">Coeng</span>
+          <span class="khmer-key-mod-hint">${layerStats.coengDone}/${layerStats.coengAll.length}</span>
         </button>
       `;
     }
@@ -1043,9 +1043,9 @@ function renderKhmerKeyboardChecklistScreen(container) {
           data-kb-action="extra"
           title="Toggle Independent Vowels & Compound Vowels layer"
         >
-          <span class="khmer-key-mod-icon">${isExtraVowelsLayer ? '⌨️ Back' : 'ឥឦឧ'}</span>
-          <span class="khmer-key-mod-label">${isExtraVowelsLayer ? 'Main Keyboard' : 'Indep. Vowels'}</span>
-          <span class="khmer-key-mod-hint">${layerStats.exDone}/${layerStats.ex.length} Remembered</span>
+          <span class="khmer-key-mod-icon">${isExtraVowelsLayer ? '⌨️' : 'ឥឦឧ'}</span>
+          <span class="khmer-key-mod-label">${isExtraVowelsLayer ? 'Back' : 'Indep.'}</span>
+          <span class="khmer-key-mod-hint">${layerStats.exDone}/${layerStats.ex.length}</span>
         </button>
       `;
     }
@@ -1060,7 +1060,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
     if (meta.type === 'consonant' || meta.type === 'subscript') {
       detailsHtml = `
         <div class="khmer-key-top-badges">
-          <span class="khmer-key-series series-${meta.series.toLowerCase()}">${meta.series}-Series</span>
+          <span class="khmer-key-series series-${meta.series.toLowerCase()}">${meta.series}<span class="khmer-series-suffix">-Series</span></span>
           ${meta.sub ? `<span class="khmer-key-corner-sub" title="Shift pair: ${meta.sub}">⇧${meta.sub}</span>` : ''}
         </div>
         <div class="khmer-key-glyph">${displayGlyph}</div>
@@ -1069,7 +1069,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
     } else if (meta.type === 'vowel') {
       detailsHtml = `
         <div class="khmer-key-top-badges">
-          <span class="khmer-key-series is-vowel-badge">Vowel</span>
+          <span class="khmer-key-series is-vowel-badge">V<span class="khmer-series-suffix">owel</span></span>
           ${meta.combo ? `<span class="khmer-key-corner-sub">${meta.combo}</span>` : (meta.sub ? `<span class="khmer-key-corner-sub">⇧${meta.sub}</span>` : '')}
         </div>
         <div class="khmer-key-glyph">${displayGlyph}</div>
@@ -1082,7 +1082,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
     } else {
       detailsHtml = `
         <div class="khmer-key-top-badges">
-          <span class="khmer-key-series is-indep-badge">Indep.</span>
+          <span class="khmer-key-series is-indep-badge">Ind<span class="khmer-series-suffix">ep.</span></span>
           ${meta.sub ? `<span class="khmer-key-corner-sub">${meta.sub}</span>` : ''}
         </div>
         <div class="khmer-key-glyph">${displayGlyph}</div>
@@ -1108,7 +1108,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
           title="${isRemembered ? 'Remembered — uncheck if needs practice' : 'Check when remembered'}"
         >
           <input type="checkbox" data-check-char="${keyToken}" ${isRemembered ? 'checked' : ''} />
-          <span>Remembered</span>
+          <span class="key-rem-text-adaptive">Remembered</span>
         </label>
       </div>
     `;
@@ -1124,20 +1124,6 @@ function renderKhmerKeyboardChecklistScreen(container) {
     return isShifted ? KHMER_KEYBOARD_ROWS.layer2 : KHMER_KEYBOARD_ROWS.layer1;
   }
 
-  function getActiveLayerTitle() {
-    if (isExtraVowelsLayer) {
-      return '🏛️ Independent Vowels & Compound Dependent Vowels Layer';
-    }
-    if (isCoeng) {
-      return isShifted
-        ? '្ + ⇧ Subscript Consonants — Shifted Layer 2 (Coeng)'
-        : '្ Subscript Consonants — Default Layer 1 (Coeng)';
-    }
-    return isShifted
-      ? '⇧ Phone Keyboard — Layer 2 (Shifted Keys)'
-      : '📱 Phone Keyboard — Layer 1 (Default Keys)';
-  }
-
   function toggleGroupLearned(chars) {
     const valid = chars.filter(k => k && !k.endsWith('_KEY'));
     const allLearned = valid.every(c => learnedMap[c]);
@@ -1150,114 +1136,68 @@ function renderKhmerKeyboardChecklistScreen(container) {
   }
 
   function renderPage() {
-    const learnedTotal = allChars.filter(c => learnedMap[c.char]).length;
-    const total = allChars.length;
-    const needsPracticeCount = total - learnedTotal;
-    const pct = Math.round((learnedTotal / total) * 100);
     const layerStats = getLayerCounts();
-
     const activeRows = getActiveRows();
     const activeLayerChars = activeRows.flat().filter(k => k && !k.endsWith('_KEY'));
     const activeLayerDone = activeLayerChars.filter(c => learnedMap[c]).length;
 
     container.innerHTML = `
       <div class="script-info-page">
-        <!-- Hero Banner -->
-        <div class="script-info-hero">
-          <div class="script-info-hero-main">
-            <div class="screen-lang-tag">
-              <span>🇰🇭</span>
-              <span>អក្សរខ្មែរ · Interactive Phone Keyboard & Remembered Checklist</span>
+        <!-- Interactive Khmer Phone Keyboard (Single Card) -->
+        <section class="script-info-section khmer-kb-section">
+          <div class="script-info-section-header jp-kb-top-bar">
+            <div class="jp-kb-title-group">
+              <h1 class="script-info-section-title">អក្សរខ្មែរ Khmer</h1>
+              <div class="script-kb-layer-tabs" style="flex-wrap: wrap;">
+                <button
+                  type="button"
+                  class="script-kb-tab ${!isShifted && !isCoeng && !isExtraVowelsLayer ? 'active' : ''}"
+                  data-preset="l1"
+                >
+                  Layer 1 (${layerStats.l1Done}/${layerStats.l1.length})
+                </button>
+                <button
+                  type="button"
+                  class="script-kb-tab ${isShifted && !isCoeng && !isExtraVowelsLayer ? 'active' : ''}"
+                  data-preset="l2"
+                >
+                  ⇧ Shift (${layerStats.l2Done}/${layerStats.l2.length})
+                </button>
+                <button
+                  type="button"
+                  class="script-kb-tab ${isCoeng && !isShifted && !isExtraVowelsLayer ? 'active' : ''}"
+                  data-preset="c1"
+                >
+                  ្ Coeng 1 (${layerStats.c1Done}/${layerStats.c1.length})
+                </button>
+                <button
+                  type="button"
+                  class="script-kb-tab ${isCoeng && isShifted && !isExtraVowelsLayer ? 'active' : ''}"
+                  data-preset="c2"
+                >
+                  ្+⇧ Coeng 2 (${layerStats.c2Done}/${layerStats.c2.length})
+                </button>
+                <button
+                  type="button"
+                  class="script-kb-tab ${isExtraVowelsLayer ? 'active' : ''}"
+                  data-preset="extra"
+                >
+                  ឥឦឧ Indep. (${layerStats.exDone}/${layerStats.ex.length})
+                </button>
+              </div>
             </div>
-            <h1 class="screen-title">Khmer Keyboard & Checklist</h1>
-            <p class="screen-subtitle">
-              Tap <strong>⇧ Shift</strong>, <strong>្ Coeng (Subscripts)</strong>, or <strong>ឥឦឧ Indep. Vowels</strong> on the keyboard below to switch layers just like on a phone. Consonants show their romanisation and series; vowels show their <strong>A-Series (ក)</strong> and <strong>O-Series (គ)</strong> forms. Check the <strong>Remembered</strong> checkbox on each key to track what needs practice.
-            </p>
-          </div>
 
-          <div class="script-info-cta-card">
-            <div class="script-info-cta-stat">
-              <span><strong>${learnedTotal}</strong> Remembered</span>
-              <span><strong>${needsPracticeCount}</strong> Need Practice</span>
-            </div>
-            <div class="script-hub-progress-track">
-              <div class="script-hub-progress-fill" style="width: ${Math.max(pct, 3)}%"></div>
-            </div>
-            <div class="script-section-mini-pills">
-              ${KHMER_SECTIONS.map(sec => {
-                const secLearned = sec.characters.filter(c => learnedMap[c.char]).length;
-                return `<span>${sec.shortName}: <strong>${secLearned}/${sec.characters.length}</strong></span>`;
-              }).join('')}
-            </div>
-            <a href="/scripts/khmer/practice" class="btn btn-primary script-info-practice-btn">
-              ✍️ Practice ${needsPracticeCount > 0 ? `${needsPracticeCount} Remaining` : 'All'} Characters →
-            </a>
-          </div>
-        </div>
-
-        <!-- Interactive Khmer Phone Keyboard -->
-        <section class="script-info-section">
-          <div class="script-info-section-header">
-            <div>
-              <h2 class="script-info-section-title">${getActiveLayerTitle()}</h2>
-              <p class="script-info-section-desc">
-                Tap <strong>⇧ Shift</strong> or <strong>្ Subscripts</strong> right on the keyboard (or use the layer bar) to flip the keys. Every key has its own <strong>Remembered</strong> checkbox.
-              </p>
-            </div>
-            <div class="script-header-actions">
+            <div class="script-header-actions" style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
               <button type="button" class="btn btn-secondary btn-sm" id="toggleActiveLayerBtn">
-                ${activeLayerDone}/${activeLayerChars.length} Remembered · Toggle Layer
+                ${activeLayerDone}/${activeLayerChars.length} ✓
               </button>
+              <a href="/scripts/khmer/practice" class="btn btn-primary btn-sm jp-top-practice-btn">
+                ✍️ Practice →
+              </a>
             </div>
           </div>
 
-          <!-- Quick Layer Switcher Bar (synced with the keyboard modifier keys) -->
-          <div class="script-checklist-toolbar" style="padding: 0.55rem 0.85rem;">
-            <div class="script-kb-layer-tabs" style="flex-wrap: wrap;">
-              <button
-                type="button"
-                class="script-kb-tab ${!isShifted && !isCoeng && !isExtraVowelsLayer ? 'active' : ''}"
-                data-preset="l1"
-              >
-                Layer 1 Default (${layerStats.l1Done}/${layerStats.l1.length})
-              </button>
-              <button
-                type="button"
-                class="script-kb-tab ${isShifted && !isCoeng && !isExtraVowelsLayer ? 'active' : ''}"
-                data-preset="l2"
-              >
-                ⇧ Layer 2 Shift (${layerStats.l2Done}/${layerStats.l2.length})
-              </button>
-              <button
-                type="button"
-                class="script-kb-tab ${isCoeng && !isShifted && !isExtraVowelsLayer ? 'active' : ''}"
-                data-preset="c1"
-              >
-                ្ Subscripts 1 (${layerStats.c1Done}/${layerStats.c1.length})
-              </button>
-              <button
-                type="button"
-                class="script-kb-tab ${isCoeng && isShifted && !isExtraVowelsLayer ? 'active' : ''}"
-                data-preset="c2"
-              >
-                ្ + ⇧ Subscripts 2 (${layerStats.c2Done}/${layerStats.c2.length})
-              </button>
-              <button
-                type="button"
-                class="script-kb-tab ${isExtraVowelsLayer ? 'active' : ''}"
-                data-preset="extra"
-              >
-                ឥឦឧ Indep. & Compound Vowels (${layerStats.exDone}/${layerStats.ex.length})
-              </button>
-            </div>
-
-            <div class="script-toolbar-right">
-              <span class="script-legend-item"><span class="script-series-badge series-a">A</span> A-Series (â)</span>
-              <span class="script-legend-item"><span class="script-series-badge series-o">O</span> O-Series (ô)</span>
-            </div>
-          </div>
-
-          <!-- Live Phone Keyboard Grid -->
+          <!-- Live Phone Keyboard Grid (Always Shrinks, Never Scrolls Horizontally) -->
           <div class="khmer-kb-rows-container">
             ${activeRows.map(row => `
               <div class="khmer-kb-row">
@@ -1265,15 +1205,15 @@ function renderKhmerKeyboardChecklistScreen(container) {
               </div>
             `).join('')}
 
-            <!-- Bottom Keyboard Control Row (Indep/Compound Vowels Key + Spacebar Info + Coeng Key + Shift Key) -->
+            <!-- Bottom Keyboard Control Row -->
             <div class="khmer-kb-bottom-bar">
               <button
                 type="button"
                 class="khmer-kb-mod-pill ${isExtraVowelsLayer ? 'is-active' : ''}"
                 data-kb-action="extra"
               >
-                <span>ឥឦឧ / ុំ</span>
-                <span>Indep. & Compound Vowels (${layerStats.exDone}/${layerStats.ex.length})</span>
+                <span>ឥឦឧ Indep.</span>
+                <span>${layerStats.exDone}/${layerStats.ex.length}</span>
               </button>
 
               <button
@@ -1282,7 +1222,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
                 data-kb-action="coeng"
               >
                 <span>្ Coeng</span>
-                <span>Subscript Consonants (${layerStats.coengDone}/${layerStats.coengAll.length})</span>
+                <span>${layerStats.coengDone}/${layerStats.coengAll.length}</span>
               </button>
 
               <button
@@ -1291,7 +1231,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
                 data-kb-action="shift"
               >
                 <span>⇧ Shift</span>
-                <span>${isShifted ? 'Shifted (Layer 2)' : 'Default (Layer 1)'}</span>
+                <span>${isShifted ? 'Layer 2' : 'Layer 1'}</span>
               </button>
             </div>
           </div>
