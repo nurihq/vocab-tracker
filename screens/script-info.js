@@ -97,7 +97,7 @@ Object.entries({ ...KHMER_CHAR_LOOKUP }).forEach(([ch, meta]) => {
       baseChar: ch,
       displayChar: `\u200d្${ch}`,
       series: meta.series,
-      romaji: `coeng ${meta.romaji}`,
+      romaji: meta.romaji,
       sub: ch
     };
   }
