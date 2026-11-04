@@ -349,6 +349,7 @@ export async function syncLocalToCloud() {
             });
 
             if (res && res.word) {
+              delete lw._needsSync;
               cloudWords.push(res.word);
               cloudIds.add(res.word.wordId);
               cloudTexts.add(studyKey);
@@ -356,6 +357,27 @@ export async function syncLocalToCloud() {
           } catch (err) {
             console.warn('Failed to upload local word:', lw.studyWord, err);
             cloudWords.push(lw);
+          }
+        } else if (lw._needsSync && lw.wordId && !lw.wordId.startsWith('w_')) {
+          try {
+            const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
+              method: 'POST',
+              body: JSON.stringify({
+                action: 'update',
+                wordId: lw.wordId,
+                langCode: l.code,
+                deckId: lw.deckId || 'nouns_practice',
+                baseWord: lw.baseWord,
+                studyWord: lw.studyWord,
+                pronunciation: lw.pronunciation || '',
+                createdAt: lw.createdAt
+              })
+            });
+            if (res && res.word) {
+              delete lw._needsSync;
+            }
+          } catch (err) {
+            console.warn('Failed to upload word update:', lw.studyWord, err);
           }
         }
       }
@@ -482,6 +504,7 @@ export function notifyScriptProgressChange(key, value, updatedAt) {
       });
     } catch (e) {
       console.warn('Failed to sync script progress to cloud:', e);
+      pendingScriptProgressChanges = { ...toSend, ...pendingScriptProgressChanges };
     }
   }, 350);
 }
