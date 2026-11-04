@@ -1,7 +1,7 @@
 import { autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
 import { trackEvent } from '../analytics.js?v=20261104_scripts3';
 import { navigate } from '../app.js?v=20261104_scripts3';
-import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261104_scripts30';
+import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261104_scripts31';
 import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261104_scripts3';
 import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261104_scripts3';
 import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261104_scripts3';
@@ -110,6 +110,7 @@ const KHMER_CHAR_LOOKUP = {
   '។': { type: 'sign', romaji: 'khan (.)', note: 'Khan — sentence ending period / full stop' },
   '៕': { type: 'sign', romaji: 'end', note: 'Bariyoosan — marks end of text, chapter, or story' },
   '៖': { type: 'sign', romaji: 'colon (:)', note: 'Camnuc Pii Kuuh — Khmer colon / divider' },
+  'ៈ': { type: 'sign', romaji: 'yuukal.', note: 'Yuukaleapintu (យុគលពិន្ទុ) — short vowel / glottal stop' },
   '៛': { type: 'sign', romaji: 'riel', note: 'Khmer Riel currency symbol (៛)' },
   '៍': { type: 'sign', romaji: 'silent', note: 'Toandakhiat — silences the consonant beneath it' },
   '័': { type: 'sign', romaji: 'samyok', note: 'Samyok Sannya — combines with consonants to modify vowel' },
@@ -153,7 +154,7 @@ const KHMER_KEYBOARD_ROWS = {
     ['!', 'ៗ', '"', '៛', '%', '៍', '័', '៏', 'ឰ', 'ឳ', '៌', '៎'],
     ['ឈ', 'ឺ', 'ែ', 'ឬ', 'ទ', 'ួ', 'ូ', 'ី', 'ៅ', 'ភ', 'ឿ', 'ឧ'],
     ['ឫ', 'ៃ', 'ឌ', 'ធ', 'អ', 'ះ', 'ញ', 'គ', 'ឡ', '៖', '៉', 'ឮ'],
-    ['SHIFT_KEY', 'ឍ', 'ឃ', 'ជ', 'ះ', 'ព', 'ណ', 'ំ', 'ឱ', '៕', 'ឯ']
+    ['SHIFT_KEY', 'ឍ', 'ឃ', 'ជ', 'ៈ', 'ព', 'ណ', 'ំ', 'ឱ', '៕', 'ឯ']
   ],
   // Layer 3: Subscript Consonants (្ Coeng Layer — mapped in-place onto the consonant keys)
   coengLayer1: [
