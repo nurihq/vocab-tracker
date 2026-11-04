@@ -559,6 +559,7 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
   const allChars = sections.flatMap(s => s.characters);
   let activeModifier = 'basic'; // 'basic' | 'dakuten' | 'handakuten'
   let focusedBaseCol = null; // e.g. 'a', 'ka', 'sa', ..., 'wa' when focused on mobile/small screen
+  let selectedCharSlot = null; // For individual letter action modal ({ char, romaji, groupLabel })
 
   // Map voiced clusters by base column so toggling ゛ or ゜ swaps the clusters in-place on the 9-key grid
   const dakutenByCol = {
@@ -570,6 +571,14 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
   const handakutenByCol = {
     ha: kbData.voiced.find(v => v.col === 'pa')
   };
+
+  // Lookup any character's metadata across the script
+  const charMetaLookup = {};
+  [...kbData.basic, kbData.waKey, ...kbData.voiced].forEach(cluster => {
+    [cluster.center, cluster.left, cluster.up, cluster.right, cluster.down].filter(Boolean).forEach(s => {
+      charMetaLookup[s.char] = { char: s.char, romaji: s.romaji, groupLabel: cluster.label };
+    });
+  });
 
   function getCounts() {
     const basicSec = sections[0]?.characters || [];
@@ -613,25 +622,15 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
     }
     const isRemembered = Boolean(learnedMap[slot.char]);
     return `
-      <div
+      <button
+        type="button"
         class="jp-petal-key jp-petal-${posName} ${isRemembered ? 'is-learned' : 'needs-practice'} ${dimmed ? 'is-dimmed-key' : ''}"
         data-char="${slot.char}"
+        title="${slot.char} (${slot.romaji})"
       >
-        <button
-          type="button"
-          class="jp-petal-practice-mini"
-          data-practice-char="${slot.char}"
-          title="Practice writing ${slot.char}"
-        >✍️</button>
         <span class="jp-petal-glyph">${slot.char}</span>
         <span class="jp-petal-romaji">${slot.romaji}</span>
-        <label
-          class="key-remembered-checkbox ${isRemembered ? 'is-remembered' : 'is-needs-practice'}"
-          title="${isRemembered ? 'Remembered — uncheck if needs practice' : 'Check when remembered'}"
-        >
-          <input type="checkbox" data-check-char="${slot.char}" ${isRemembered ? 'checked' : ''} />
-        </label>
-      </div>
+      </button>
     `;
   }
 
@@ -701,7 +700,7 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
           <div class="jp-focus-card-header">
             <div>
               <h3 class="jp-focus-card-title">${cluster.label}</h3>
-              <p class="jp-focus-card-subtitle">Tap any key or checkbox to mark as Remembered</p>
+              <p class="jp-focus-card-subtitle">Tap any letter for actions</p>
             </div>
             <div class="jp-focus-card-actions">
               <button
@@ -721,6 +720,48 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
             ${renderSubKey(cluster.center, 'center', dimmed)}
             ${renderSubKey(cluster.right, 'right', dimmed)}
             ${renderSubKey(cluster.down, 'down', dimmed)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderCharActionModal() {
+    if (!selectedCharSlot) return '';
+    const { char, romaji, groupLabel } = selectedCharSlot;
+    const isRemembered = Boolean(learnedMap[char]);
+
+    return `
+      <div class="jp-focus-overlay char-action-overlay" id="char-action-overlay" role="dialog" aria-modal="true">
+        <div class="jp-focus-card char-action-modal-card">
+          <div class="char-action-modal-top">
+            <span class="char-action-status-pill ${isRemembered ? 'is-remembered' : 'needs-practice'}">
+              ${isRemembered ? '✓ Remembered' : 'Needs Practice'}
+            </span>
+            <button type="button" class="jp-focus-close-btn" id="char-action-close-btn" aria-label="Close">✕</button>
+          </div>
+
+          <div class="char-action-hero">
+            <div class="char-action-big-glyph">${char}</div>
+            <div class="char-action-romaji">${romaji}</div>
+            ${groupLabel ? `<div class="char-action-submeta">${groupLabel}</div>` : ''}
+          </div>
+
+          <div class="char-action-buttons">
+            <button
+              type="button"
+              class="btn ${isRemembered ? 'btn-secondary' : 'btn-primary'} char-action-btn"
+              id="char-modal-toggle-remembered"
+            >
+              ${isRemembered ? '↺ Mark as Needs Practice' : '✓ Mark as Remembered'}
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary char-action-btn"
+              id="char-modal-practice-btn"
+            >
+              ✍️ Practice Writing
+            </button>
           </div>
         </div>
       </div>
@@ -782,7 +823,6 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
                 >
                   <span class="mod-glyph">${isKatakana ? 'ア' : 'あ'}</span>
                   <span class="mod-title">Basic</span>
-                  <span class="mod-count">${counts.basicLearned}/${counts.basicTotal}</span>
                 </button>
                 <button
                   type="button"
@@ -791,7 +831,6 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
                 >
                   <span class="mod-glyph">゛</span>
                   <span class="mod-title">Dakuten</span>
-                  <span class="mod-count">${counts.dakutenLearned}/${counts.dakutenTotal}</span>
                 </button>
                 <button
                   type="button"
@@ -800,7 +839,6 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
                 >
                   <span class="mod-glyph">゜</span>
                   <span class="mod-title">Handakuten</span>
-                  <span class="mod-count">${counts.handakutenLearned}/${counts.handakutenTotal}</span>
                 </button>
               </div>
             </div>
@@ -846,6 +884,7 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
         </section>
 
         ${renderFocusedClusterModal()}
+        ${renderCharActionModal()}
       </div>
     `;
 
@@ -908,31 +947,41 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
       });
     }
 
-    // Remembered checkbox on each key
-    container.querySelectorAll('.key-remembered-checkbox').forEach(lbl => {
-      lbl.addEventListener('click', (e) => e.stopPropagation());
-    });
-    container.querySelectorAll('input[data-check-char]').forEach(input => {
-      input.addEventListener('change', (e) => {
+    // Clicking an individual letter key opens the Letter Action Modal
+    container.querySelectorAll('.jp-petal-key[data-char]').forEach(card => {
+      card.addEventListener('click', (e) => {
         e.stopPropagation();
-        toggleCharLearned(input.getAttribute('data-check-char'));
-      });
-    });
-
-    // Direct ✍️ mini button on each key
-    container.querySelectorAll('[data-practice-char]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        jumpToPractice(btn.getAttribute('data-practice-char'));
-      });
-    });
-
-    // Clicking the key card itself also toggles Remembered
-    container.querySelectorAll('.jp-petal-key').forEach(card => {
-      card.addEventListener('click', () => {
         const ch = card.getAttribute('data-char');
-        toggleCharLearned(ch);
+        selectedCharSlot = charMetaLookup[ch] || { char: ch, romaji: '', groupLabel: '' };
+        renderPage();
       });
+    });
+
+    // Letter Action Modal events
+    container.querySelector('#char-action-close-btn')?.addEventListener('click', () => {
+      selectedCharSlot = null;
+      renderPage();
+    });
+    const actionOverlay = container.querySelector('#char-action-overlay');
+    if (actionOverlay) {
+      actionOverlay.addEventListener('click', (e) => {
+        if (e.target === actionOverlay) {
+          selectedCharSlot = null;
+          renderPage();
+        }
+      });
+    }
+    container.querySelector('#char-modal-toggle-remembered')?.addEventListener('click', () => {
+      if (!selectedCharSlot) return;
+      const ch = selectedCharSlot.char;
+      selectedCharSlot = null;
+      toggleCharLearned(ch);
+    });
+    container.querySelector('#char-modal-practice-btn')?.addEventListener('click', () => {
+      if (!selectedCharSlot) return;
+      const ch = selectedCharSlot.char;
+      selectedCharSlot = null;
+      jumpToPractice(ch);
     });
 
     // Cluster toggle-all button
@@ -962,7 +1011,7 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
 //    - Pressing `្ Coeng` changes the consonant keys in-place to Subscripts (`្ក`..`្វ`)
 //      while greying out non-consonant keys so the keyboard height & layout never shift
 //    - Independent & Compound Vowels live in their own card directly beneath the main card
-//    - Every key has a clean checkbox
+//    - Clicking any letter opens a clean modal with Remembered & Practice Writing actions
 // ============================================================================
 
 function renderKhmerKeyboardChecklistScreen(container) {
@@ -970,6 +1019,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
   const allChars = KHMER_SECTIONS.flatMap(s => s.characters);
   let isShifted = false;
   let isCoeng = false;
+  let selectedKhmerChar = null; // Key token currently open in the Letter Action Modal
 
   // Independent & Compound Vowels rows (own card beneath the main keyboard card)
   const extraVowelRows = [
@@ -1015,18 +1065,12 @@ function renderKhmerKeyboardChecklistScreen(container) {
     };
   }
 
-  function renderKhmerKeyCard(keyToken, layerStats, dimmed = false) {
+  function renderKhmerKeyCard(keyToken, dimmed = false) {
     if (!keyToken) {
       return `<div class="khmer-kb-key is-placeholder" aria-hidden="true"></div>`;
     }
 
     if (keyToken === 'SHIFT_KEY') {
-      const targetDone = isCoeng
-        ? (isShifted ? layerStats.c1Done : layerStats.c2Done)
-        : (isShifted ? layerStats.l1Done : layerStats.l2Done);
-      const targetTotal = isCoeng
-        ? (isShifted ? layerStats.c1.length : layerStats.c2.length)
-        : (isShifted ? layerStats.l1.length : layerStats.l2.length);
       return `
         <button
           type="button"
@@ -1035,8 +1079,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
           title="Tap to toggle Shift Layer (⇧)"
         >
           <span class="khmer-key-mod-icon">⇧</span>
-          <span class="khmer-key-mod-label">${isShifted ? 'Layer 1' : 'Shift'}</span>
-          <span class="khmer-key-mod-hint">${targetDone}/${targetTotal}</span>
+          <span class="khmer-key-mod-label">Shift</span>
         </button>
       `;
     }
@@ -1047,11 +1090,10 @@ function renderKhmerKeyboardChecklistScreen(container) {
           type="button"
           class="khmer-kb-key is-coeng-key ${isCoeng ? 'is-active' : ''}"
           data-kb-action="coeng"
-          title="Tap to toggle Subscript Consonants (្ Coeng) on the keyboard"
+          title="Tap to toggle Subscript Consonants (្ Coeng)"
         >
           <span class="khmer-key-mod-icon">្</span>
           <span class="khmer-key-mod-label">Coeng</span>
-          <span class="khmer-key-mod-hint">${layerStats.coengDone}/${layerStats.coengAll.length}</span>
         </button>
       `;
     }
@@ -1062,59 +1104,89 @@ function renderKhmerKeyboardChecklistScreen(container) {
     const isRemembered = Boolean(learnedMap[keyToken]);
     const displayGlyph = meta.displayChar || (meta.type === 'vowel' ? `◌${keyToken}` : keyToken);
 
-    let detailsHtml = '';
+    let badgeHtml = '';
     if (meta.type === 'consonant' || meta.type === 'subscript') {
-      detailsHtml = `
-        <div class="khmer-key-top-badges">
-          <span class="khmer-key-series series-${meta.series.toLowerCase()}">${meta.series}<span class="khmer-series-suffix">-Series</span></span>
-          ${meta.sub ? `<span class="khmer-key-corner-sub" title="Shift pair: ${meta.sub}">⇧${meta.sub}</span>` : ''}
-        </div>
-        <div class="khmer-key-glyph">${displayGlyph}</div>
-        <div class="khmer-key-romaji">${meta.romaji}</div>
-      `;
+      badgeHtml = `<span class="khmer-key-series series-${meta.series.toLowerCase()}">${meta.series}<span class="khmer-series-suffix">-Series</span></span>`;
     } else if (meta.type === 'vowel') {
-      detailsHtml = `
-        <div class="khmer-key-top-badges">
-          <span class="khmer-key-series is-vowel-badge">V<span class="khmer-series-suffix">owel</span></span>
-          ${meta.combo ? `<span class="khmer-key-corner-sub">${meta.combo}</span>` : (meta.sub ? `<span class="khmer-key-corner-sub">⇧${meta.sub}</span>` : '')}
-        </div>
-        <div class="khmer-key-glyph">${displayGlyph}</div>
-        <div class="khmer-key-romaji">${meta.romaji}</div>
-        <div class="khmer-key-ao-forms">
-          <span class="ao-pill series-a" title="A-Series form & romanisation">${meta.aForm} <em>${meta.aRom}</em></span>
-          <span class="ao-pill series-o" title="O-Series form & romanisation">${meta.oForm} <em>${meta.oRom}</em></span>
-        </div>
-      `;
+      badgeHtml = `<span class="khmer-key-series is-vowel-badge">V<span class="khmer-series-suffix">owel</span></span>`;
     } else {
-      detailsHtml = `
-        <div class="khmer-key-top-badges">
-          <span class="khmer-key-series is-indep-badge">Ind<span class="khmer-series-suffix">ep.</span></span>
-          ${meta.sub ? `<span class="khmer-key-corner-sub">${meta.sub}</span>` : ''}
-        </div>
-        <div class="khmer-key-glyph">${displayGlyph}</div>
-        <div class="khmer-key-romaji">${meta.romaji}</div>
-        <div class="khmer-key-note">${meta.note || ''}</div>
-      `;
+      badgeHtml = `<span class="khmer-key-series is-indep-badge">Ind<span class="khmer-series-suffix">ep.</span></span>`;
     }
 
     return `
-      <div
+      <button
+        type="button"
         class="khmer-kb-key is-${meta.type} ${isRemembered ? 'is-learned' : 'needs-practice'} ${dimmed ? 'is-dimmed-key' : ''}"
         data-char="${keyToken}"
+        title="${displayGlyph} (${meta.romaji})"
       >
-        <button
-          type="button"
-          class="jp-petal-practice-mini"
-          data-practice-char="${keyToken}"
-          title="Practice writing ${displayGlyph}"
-        >✍️</button>
-        ${detailsHtml}
-        <label
-          class="key-remembered-checkbox ${isRemembered ? 'is-remembered' : 'is-needs-practice'}"
-          title="${isRemembered ? 'Remembered — uncheck if needs practice' : 'Check when remembered'}"
-        >
-          <input type="checkbox" data-check-char="${keyToken}" ${isRemembered ? 'checked' : ''} />
-        </label>
+        <div class="khmer-key-top-badges">
+          ${badgeHtml}
+        </div>
+        <div class="khmer-key-glyph">${displayGlyph}</div>
+        <div class="khmer-key-romaji">${meta.romaji}</div>
+      </button>
+    `;
+  }
+
+  function renderKhmerCharActionModal() {
+    if (!selectedKhmerChar) return '';
+    const meta = KHMER_CHAR_LOOKUP[selectedKhmerChar];
+    if (!meta) return '';
+
+    const isRemembered = Boolean(learnedMap[selectedKhmerChar]);
+    const displayGlyph = meta.displayChar || (meta.type === 'vowel' ? `◌${selectedKhmerChar}` : selectedKhmerChar);
+
+    let extraInfoHtml = '';
+    if (meta.type === 'consonant') {
+      extraInfoHtml = `<div class="char-action-submeta">${meta.series}-Series Consonant</div>`;
+    } else if (meta.type === 'subscript') {
+      extraInfoHtml = `<div class="char-action-submeta">${meta.series}-Series Subscript Consonant (Coeng ${meta.baseChar})</div>`;
+    } else if (meta.type === 'vowel') {
+      extraInfoHtml = `
+        <div class="char-action-submeta">Dependent Vowel${meta.combo ? ` (${meta.combo})` : ''}</div>
+        <div class="char-action-ao-pills">
+          <span class="ao-pill series-a">A-Series: <strong>${meta.aForm}</strong> <em>(${meta.aRom})</em></span>
+          <span class="ao-pill series-o">O-Series: <strong>${meta.oForm}</strong> <em>(${meta.oRom})</em></span>
+        </div>
+      `;
+    } else {
+      extraInfoHtml = `<div class="char-action-submeta">${meta.note || 'Independent Vowel'}</div>`;
+    }
+
+    return `
+      <div class="jp-focus-overlay char-action-overlay" id="khmer-char-action-overlay" role="dialog" aria-modal="true">
+        <div class="jp-focus-card char-action-modal-card">
+          <div class="char-action-modal-top">
+            <span class="char-action-status-pill ${isRemembered ? 'is-remembered' : 'needs-practice'}">
+              ${isRemembered ? '✓ Remembered' : 'Needs Practice'}
+            </span>
+            <button type="button" class="jp-focus-close-btn" id="khmer-char-action-close-btn" aria-label="Close">✕</button>
+          </div>
+
+          <div class="char-action-hero">
+            <div class="char-action-big-glyph">${displayGlyph}</div>
+            <div class="char-action-romaji">${meta.romaji}</div>
+            ${extraInfoHtml}
+          </div>
+
+          <div class="char-action-buttons">
+            <button
+              type="button"
+              class="btn ${isRemembered ? 'btn-secondary' : 'btn-primary'} char-action-btn"
+              id="khmer-modal-toggle-remembered"
+            >
+              ${isRemembered ? '↺ Mark as Needs Practice' : '✓ Mark as Remembered'}
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary char-action-btn"
+              id="khmer-modal-practice-btn"
+            >
+              ✍️ Practice Writing
+            </button>
+          </div>
+        </div>
       </div>
     `;
   }
@@ -1223,7 +1295,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
           <div class="khmer-kb-rows-container">
             ${resolvedRows.map(row => `
               <div class="khmer-kb-row">
-                ${row.map(({ token, dimmed }) => renderKhmerKeyCard(token, layerStats, dimmed)).join('')}
+                ${row.map(({ token, dimmed }) => renderKhmerKeyCard(token, dimmed)).join('')}
               </div>
             `).join('')}
           </div>
@@ -1245,7 +1317,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
           <div class="khmer-kb-rows-container">
             ${extraVowelRows.map(row => `
               <div class="khmer-kb-row">
-                ${row.map(token => renderKhmerKeyCard(token, layerStats, false)).join('')}
+                ${row.map(token => renderKhmerKeyCard(token, false)).join('')}
               </div>
             `).join('')}
           </div>
@@ -1272,6 +1344,8 @@ function renderKhmerKeyboardChecklistScreen(container) {
             </a>
           </div>
         </section>
+
+        ${renderKhmerCharActionModal()}
       </div>
     `;
 
@@ -1301,30 +1375,39 @@ function renderKhmerKeyboardChecklistScreen(container) {
       });
     });
 
-    // Bind Remembered checkbox on each key
-    container.querySelectorAll('.key-remembered-checkbox').forEach(lbl => {
-      lbl.addEventListener('click', (e) => e.stopPropagation());
-    });
-    container.querySelectorAll('input[data-check-char]').forEach(input => {
-      input.addEventListener('change', (e) => {
-        e.stopPropagation();
-        toggleCharLearned(input.getAttribute('data-check-char'));
-      });
-    });
-
-    // Bind ✍️ practice mini button on each key
-    container.querySelectorAll('[data-practice-char]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        jumpToPractice(btn.getAttribute('data-practice-char'));
-      });
-    });
-
-    // Clicking the key card itself also toggles Remembered
+    // Clicking any letter key opens the Letter Action Modal
     container.querySelectorAll('.khmer-kb-key[data-char]').forEach(card => {
       card.addEventListener('click', () => {
-        toggleCharLearned(card.getAttribute('data-char'));
+        selectedKhmerChar = card.getAttribute('data-char');
+        renderPage();
       });
+    });
+
+    // Letter Action Modal events
+    container.querySelector('#khmer-char-action-close-btn')?.addEventListener('click', () => {
+      selectedKhmerChar = null;
+      renderPage();
+    });
+    const khmerOverlay = container.querySelector('#khmer-char-action-overlay');
+    if (khmerOverlay) {
+      khmerOverlay.addEventListener('click', (e) => {
+        if (e.target === khmerOverlay) {
+          selectedKhmerChar = null;
+          renderPage();
+        }
+      });
+    }
+    container.querySelector('#khmer-modal-toggle-remembered')?.addEventListener('click', () => {
+      if (!selectedKhmerChar) return;
+      const ch = selectedKhmerChar;
+      selectedKhmerChar = null;
+      toggleCharLearned(ch);
+    });
+    container.querySelector('#khmer-modal-practice-btn')?.addEventListener('click', () => {
+      if (!selectedKhmerChar) return;
+      const ch = selectedKhmerChar;
+      selectedKhmerChar = null;
+      jumpToPractice(ch);
     });
 
     // Toggle all keys on active main layer
