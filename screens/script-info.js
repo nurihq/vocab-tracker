@@ -1255,34 +1255,13 @@ function renderKhmerKeyboardChecklistScreen(container) {
           <div class="script-info-section-header jp-kb-top-bar">
             <div class="jp-kb-title-group">
               <h1 class="script-info-section-title">អក្សរខ្មែរ Khmer</h1>
-              <div class="script-kb-layer-tabs" style="flex-wrap: wrap;">
+              <div class="script-kb-layer-tabs">
                 <button
                   type="button"
-                  class="script-kb-tab ${!isShifted && !isCoeng ? 'active' : ''}"
-                  data-preset="l1"
+                  class="script-kb-tab ${isCoeng ? 'active' : ''}"
+                  data-kb-action="coeng"
                 >
-                  Layer 1 (${layerStats.l1Done}/${layerStats.l1.length})
-                </button>
-                <button
-                  type="button"
-                  class="script-kb-tab ${isShifted && !isCoeng ? 'active' : ''}"
-                  data-preset="l2"
-                >
-                  ⇧ Shift (${layerStats.l2Done}/${layerStats.l2.length})
-                </button>
-                <button
-                  type="button"
-                  class="script-kb-tab ${isCoeng && !isShifted ? 'active' : ''}"
-                  data-preset="c1"
-                >
-                  ្ Coeng 1 (${layerStats.c1Done}/${layerStats.c1.length})
-                </button>
-                <button
-                  type="button"
-                  class="script-kb-tab ${isCoeng && isShifted ? 'active' : ''}"
-                  data-preset="c2"
-                >
-                  ្+⇧ Coeng 2 (${layerStats.c2Done}/${layerStats.c2.length})
+                  ្ Coeng
                 </button>
               </div>
             </div>
@@ -1355,7 +1334,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
       </div>
     `;
 
-    // Bind modifier keys on keyboard (⇧ Shift, ្ Coeng)
+    // Bind modifier keys on keyboard and top Coeng button (⇧ Shift, ្ Coeng)
     container.querySelectorAll('[data-kb-action]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1365,18 +1344,6 @@ function renderKhmerKeyboardChecklistScreen(container) {
         } else if (act === 'coeng') {
           isCoeng = !isCoeng;
         }
-        renderPage();
-      });
-    });
-
-    // Bind top preset tabs
-    container.querySelectorAll('[data-preset]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const p = btn.getAttribute('data-preset');
-        if (p === 'l1') { isCoeng = false; isShifted = false; }
-        else if (p === 'l2') { isCoeng = false; isShifted = true; }
-        else if (p === 'c1') { isCoeng = true; isShifted = false; }
-        else if (p === 'c2') { isCoeng = true; isShifted = true; }
         renderPage();
       });
     });
