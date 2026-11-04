@@ -64,13 +64,13 @@ const KHMER_CHAR_LOOKUP = {
   'ៃ': { type: 'vowel', romaji: 'ai / ey', aForm: 'កៃ', aRom: 'kai', oForm: 'គៃ', oRom: 'key', sub: 'ស' },
   'ោ': { type: 'vowel', romaji: 'ao / ou', aForm: 'កោ', aRom: 'kao', oForm: 'គោ', oRom: 'kou', sub: 'ៅ' },
   'ៅ': { type: 'vowel', romaji: 'au / ov', aForm: 'កៅ', aRom: 'kau', oForm: 'គៅ', oRom: 'kov', sub: 'ោ' },
-  'ុំ': { type: 'vowel', romaji: 'om / um', aForm: 'កុំ', aRom: 'kom', oForm: 'គុំ', oRom: 'kum', combo: 'ុ + ំ' },
+  'ុំ': { type: 'vowel', displayChar: 'ុំ', romaji: 'om / um', aForm: 'កុំ', aRom: 'kom', oForm: 'គុំ', oRom: 'kum', combo: 'ុ + ំ' },
   'ំ': { type: 'vowel', romaji: 'am / um', aForm: 'កំ', aRom: 'kam', oForm: 'គំ', oRom: 'kum', sub: 'ម' },
-  'ាំ': { type: 'vowel', romaji: 'am / oam', aForm: 'កាំ', aRom: 'kam', oForm: 'គាំ', oRom: 'koam', sub: 'ា', combo: 'ា + ំ' },
+  'ាំ': { type: 'vowel', displayChar: 'ាំ', romaji: 'am / oam', aForm: 'កាំ', aRom: 'kam', oForm: 'គាំ', oRom: 'koam', sub: 'ា', combo: 'ា + ំ' },
   'ះ': { type: 'vowel', romaji: 'ah / eah', aForm: 'កះ', aRom: 'kah', oForm: 'គះ', oRom: 'keah', sub: 'ហ' },
-  'ុះ': { type: 'vowel', romaji: 'oh / uh', aForm: 'កុះ', aRom: 'koh', oForm: 'គុះ', oRom: 'kuh', combo: 'ុ + ះ' },
-  'េះ': { type: 'vowel', romaji: 'eh / ih', aForm: 'កេះ', aRom: 'keh', oForm: 'គេះ', oRom: 'kih', sub: 'វ', combo: 'េ + ះ' },
-  'ោះ': { type: 'vowel', romaji: 'aoh / uoh', aForm: 'កោះ', aRom: 'kaoh', oForm: 'គោះ', oRom: 'kuoh', sub: 'ៀ', combo: 'ោ + ះ' },
+  'ុះ': { type: 'vowel', displayChar: 'ុះ', romaji: 'oh / uh', aForm: 'កុះ', aRom: 'koh', oForm: 'គុះ', oRom: 'kuh', combo: 'ុ + ះ' },
+  'េះ': { type: 'vowel', displayChar: 'េះ', romaji: 'eh / ih', aForm: 'កេះ', aRom: 'keh', oForm: 'គេះ', oRom: 'kih', sub: 'វ', combo: 'េ + ះ' },
+  'ោះ': { type: 'vowel', displayChar: 'ោះ', romaji: 'aoh / uoh', aForm: 'កោះ', aRom: 'kaoh', oForm: 'គោះ', oRom: 'kuoh', sub: 'ៀ', combo: 'ោ + ះ' },
 
   // 14 Independent Vowels
   'ឥ': { type: 'indep_vowel', romaji: '’e', note: 'Indep. e' },
@@ -118,6 +118,8 @@ const KHMER_CHAR_LOOKUP = {
   '៑': { type: 'sign', displayChar: '◌៑', romaji: 'viriam', note: 'Viriam — virama / vowel killer in classical loanwords' },
   '!': { type: 'sign', romaji: '!', note: 'Exclamation mark' },
   '?': { type: 'sign', romaji: '?', note: 'Question mark' },
+  '"': { type: 'sign', romaji: '"', note: 'Double quotation mark' },
+  '%': { type: 'sign', romaji: '%', note: 'Percent sign' },
   '(': { type: 'sign', romaji: '(', note: 'Left parenthesis' },
   ')': { type: 'sign', romaji: ')', note: 'Right parenthesis' }
 };
@@ -147,9 +149,9 @@ const KHMER_KEYBOARD_ROWS = {
   ],
   // Layer 2: Shifted (⇧) Mobile Keyboard (4 rows)
   layer2: [
-    ['!', 'ៗ', '៑', '៛', '៖', '៍', '័', '៏', '៌', '៎', '(', ')'],
-    ['ឈ', 'ឺ', 'ែ', 'ឬ', 'ទ', 'ួ', 'ូ', 'ី', 'ៅ', 'ភ', 'ឿ', 'ឰ'],
-    ['ាំ', 'ៃ', 'ឌ', 'ធ', 'អ', 'ះ', 'ញ', 'គ', 'ឡ', 'ោះ', '៉', 'ឯ'],
+    ['!', 'ៗ', '"', '៛', '%', '៍', '័', '៏', '(', ')', '៌', '៎'],
+    ['ឈ', 'ឺ', 'ែ', 'ឬ', 'ទ', 'ួ', 'ូ', 'ី', 'ៅ', 'ភ', 'ឿ', 'ឧ'],
+    ['ាំ', 'ៃ', 'ឌ', 'ធ', 'អ', 'ះ', 'ញ', 'គ', 'ឡ', 'ោះ', '៉', 'ឭ'],
     ['SHIFT_KEY', 'ឍ', 'ឃ', 'ជ', 'េះ', 'ព', 'ណ', 'ំ', 'ុះ', '៕', '?']
   ],
   // Layer 3: Subscript Consonants (្ Coeng Layer — laid out on the exact same consonant keys!)
