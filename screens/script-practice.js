@@ -1,6 +1,6 @@
 import { autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
 import { trackEvent } from '../analytics.js?v=20261104_scripts3';
-import { notifyScriptProgressChange } from '../api.js?v=20261104_scripts23';
+import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261104_scripts24';
 import { HIRAGANA_SECTIONS, HIRAGANA_STROKE_ORDER } from '../scripts/data/hiragana-data.js?v=20261104_scripts3';
 import { KATAKANA_SECTIONS, KATAKANA_STROKE_ORDER } from '../scripts/data/katakana-data.js?v=20261104_scripts3';
 import { KHMER_SECTIONS, KHMER_STROKE_ORDER } from '../scripts/data/khmer-data.js?v=20261104_scripts3';
@@ -980,6 +980,14 @@ export function renderScriptPracticeScreen(container, params = {}) {
     populateCharacterGrids();
   };
   window.addEventListener('vocab-scripts-synced', onScriptsSynced);
+
+  syncScriptsProgress().then((changed) => {
+    if (changed) {
+      loadLearnedState();
+      updateDisplay();
+      populateCharacterGrids();
+    }
+  }).catch(() => {});
 
   activeCleanup = () => {
     window.removeEventListener('vocab-scripts-synced', onScriptsSynced);

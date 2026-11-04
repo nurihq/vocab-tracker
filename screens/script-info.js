@@ -1,7 +1,7 @@
 import { autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
 import { trackEvent } from '../analytics.js?v=20261104_scripts3';
 import { navigate } from '../app.js?v=20261104_scripts3';
-import { notifyScriptProgressChange } from '../api.js?v=20261104_scripts23';
+import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261104_scripts24';
 import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261104_scripts3';
 import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261104_scripts3';
 import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261104_scripts3';
@@ -1037,6 +1037,13 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
   };
   window.addEventListener('vocab-scripts-synced', onScriptsSynced);
 
+  syncScriptsProgress().then((changed) => {
+    if (changed) {
+      learnedMap = loadLearnedMap(scriptId);
+      renderPage();
+    }
+  }).catch(() => {});
+
   renderPage();
 }
 
@@ -1415,6 +1422,13 @@ function renderKhmerKeyboardChecklistScreen(container) {
     renderPage();
   };
   window.addEventListener('vocab-scripts-synced', onScriptsSynced);
+
+  syncScriptsProgress().then((changed) => {
+    if (changed) {
+      learnedMap = loadLearnedMap('khmer');
+      renderPage();
+    }
+  }).catch(() => {});
 
   renderPage();
 }

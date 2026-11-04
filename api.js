@@ -235,6 +235,10 @@ export async function syncLocalToCloud() {
   isSyncing = true;
 
   try {
+    // 1. Instantly sync script characters first (fast single profile request)
+    await syncScriptsProgress().catch(() => {});
+
+    // 2. Sync languages, decks, and words
     const store = getLocalStore();
     const cloudLangsRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.languages, { method: 'GET' }).catch(() => null);
     if (!cloudLangsRes) {
@@ -340,33 +344,35 @@ export async function syncLocalToCloud() {
     }
 
     saveLocalStore(store);
-
-    // 3. Continuous Sync for Script Character Progress (letters learned & practice position)
-    if (CONFIG.API_ENDPOINTS.profile) {
-      try {
-        const profileRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.profile, { method: 'GET' }).catch(() => null);
-        if (profileRes && profileRes.profile) {
-          const cloudScripts = profileRes.profile.scriptsProgress || {};
-          mergeScriptsProgress(cloudScripts);
-
-          // Upload any newly merged or local script progress back to DynamoDB
-          const localScripts = getLocalScriptsProgress();
-          if (Object.keys(localScripts).length > 0) {
-            await fetchWithAuth(CONFIG.API_ENDPOINTS.profile, {
-              method: 'POST',
-              body: JSON.stringify({ scriptsProgress: localScripts })
-            }).catch(() => {});
-          }
-        }
-      } catch (scriptErr) {
-        console.warn('Sync scripts progress background check:', scriptErr);
-      }
-    }
   } catch (err) {
     console.warn('Sync background check:', err);
   } finally {
     isSyncing = false;
   }
+}
+
+export async function syncScriptsProgress() {
+  if (!shouldUseCloud() || !CONFIG.API_ENDPOINTS.profile) return false;
+  try {
+    const profileRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.profile, { method: 'GET' }).catch(() => null);
+    if (profileRes && profileRes.profile) {
+      const cloudScripts = profileRes.profile.scriptsProgress || {};
+      const changed = mergeScriptsProgress(cloudScripts);
+
+      // Upload merged local scripts back to cloud so cloud profile has the complete union
+      const localScripts = getLocalScriptsProgress();
+      if (Object.keys(localScripts).length > 0) {
+        await fetchWithAuth(CONFIG.API_ENDPOINTS.profile, {
+          method: 'POST',
+          body: JSON.stringify({ scriptsProgress: localScripts })
+        }).catch(() => {});
+      }
+      return changed;
+    }
+  } catch (scriptErr) {
+    console.warn('Sync scripts progress failed:', scriptErr);
+  }
+  return false;
 }
 
 export function getLocalScriptsProgress() {
@@ -400,30 +406,15 @@ export function mergeScriptsProgress(cloudProgress) {
         try { if (localRaw) localMap = JSON.parse(localRaw) || {}; } catch (e) {}
 
         const cloudMap = (typeof cloudVal === 'object' && cloudVal !== null) ? cloudVal : {};
-        const prefix = key.slice(0, -('-learned'.length));
-        const localTimeStr = localStorage.getItem(`${prefix}-learned-updatedAt`);
-        const localTime = localTimeStr ? parseInt(localTimeStr, 10) : 0;
-        const cloudTime = cloudProgress[`${prefix}-learned-updatedAt`] ? parseInt(String(cloudProgress[`${prefix}-learned-updatedAt`]), 10) : 0;
 
-        let finalMap = {};
-        if (cloudTime > localTime) {
-          // Cloud has newer authoritative state
-          finalMap = cloudMap;
-        } else if (localTime > cloudTime) {
-          // Local has newer authoritative state
-          finalMap = localMap;
-        } else {
-          // Same or both unset (legacy): union of learned characters
-          finalMap = { ...cloudMap, ...localMap };
-        }
+        // Merge: union of cloud-saved characters and any local characters (never lose either side)
+        const mergedMap = { ...cloudMap, ...localMap };
 
-        const finalSerialized = JSON.stringify(finalMap);
+        const finalSerialized = JSON.stringify(mergedMap);
         if (finalSerialized !== localRaw) {
           localStorage.setItem(key, finalSerialized);
           changed = true;
         }
-        const effectiveTime = Math.max(localTime, cloudTime, Date.now());
-        localStorage.setItem(`${prefix}-learned-updatedAt`, String(effectiveTime));
       } else if (key.endsWith('-progress')) {
         const localRaw = localStorage.getItem(key);
         const localVal = localRaw !== null ? parseInt(localRaw, 10) : -1;
@@ -476,6 +467,7 @@ export function notifyScriptProgressChange(key, value, updatedAt) {
 
 export const Api = {
   syncLocalToCloud,
+  syncScriptsProgress,
   getLocalScriptsProgress,
   mergeScriptsProgress,
   notifyScriptProgressChange,
