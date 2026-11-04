@@ -558,6 +558,7 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
   let learnedMap = loadLearnedMap(scriptId);
   const allChars = sections.flatMap(s => s.characters);
   let activeModifier = 'basic'; // 'basic' | 'dakuten' | 'handakuten'
+  let focusedBaseCol = null; // e.g. 'a', 'ka', 'sa', ..., 'wa' when focused on mobile/small screen
 
   // Map voiced clusters by base column so toggling ゛ or ゜ swaps the clusters in-place on the 9-key grid
   const dakutenByCol = {
@@ -586,7 +587,27 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
     };
   }
 
-  function renderSubKey(slot, posName, dimmed = false) {
+  function resolveClusterForBaseCol(baseCol) {
+    if (baseCol === 'wa') {
+      return { baseCol: 'wa', cluster: kbData.waKey, dimmed: activeModifier !== 'basic' };
+    }
+    const baseCluster = kbData.basic.find(b => b.col === baseCol) || kbData.basic[0];
+    if (activeModifier === 'dakuten') {
+      const voiced = dakutenByCol[baseCluster.col];
+      return voiced
+        ? { baseCol, cluster: voiced, dimmed: false }
+        : { baseCol, cluster: baseCluster, dimmed: true };
+    }
+    if (activeModifier === 'handakuten') {
+      const semiVoiced = handakutenByCol[baseCluster.col];
+      return semiVoiced
+        ? { baseCol, cluster: semiVoiced, dimmed: false }
+        : { baseCol, cluster: baseCluster, dimmed: true };
+    }
+    return { baseCol, cluster: baseCluster, dimmed: false };
+  }
+
+  function renderSubKey(slot, posName, dimmed = false, showFullRememberedText = false) {
     if (!slot) {
       return `<div class="jp-petal-empty jp-petal-${posName}" aria-hidden="true"></div>`;
     }
@@ -609,37 +630,99 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
           title="${isRemembered ? 'Remembered — uncheck if needs practice' : 'Check when remembered'}"
         >
           <input type="checkbox" data-check-char="${slot.char}" ${isRemembered ? 'checked' : ''} />
-          <span>Remembered</span>
+          <span class="${showFullRememberedText ? 'key-rem-text-full' : 'key-rem-text-adaptive'}">Remembered</span>
         </label>
       </div>
     `;
   }
 
-  function renderClusterCard(cluster, dimmed = false) {
+  function renderClusterCard(baseCol, cluster, dimmed = false) {
+    const slots = [cluster.center, cluster.left, cluster.up, cluster.right, cluster.down].filter(Boolean);
+    const learnedInCluster = slots.filter(s => learnedMap[s.char]).length;
+    const allClusterLearned = learnedInCluster === slots.length;
+    const surroundingChars = [cluster.left, cluster.up, cluster.right, cluster.down]
+      .filter(Boolean)
+      .map(s => s.char)
+      .join(' ');
+
+    return `
+      <div
+        class="jp-expanded-cluster ${allClusterLearned ? 'cluster-all-learned' : ''} ${dimmed ? 'is-dimmed-cluster' : ''}"
+        data-base-col="${baseCol}"
+      >
+        <!-- Compact Single-Key Face (shown on small screens; clicking brings the 5-key cross into focus) -->
+        <button
+          type="button"
+          class="jp-compact-key-btn ${allClusterLearned ? 'is-learned' : ''}"
+          data-focus-col="${baseCol}"
+          title="Tap to expand ${cluster.label}"
+        >
+          <span class="jp-compact-key-status">${learnedInCluster}/${slots.length} ✓</span>
+          <span class="jp-compact-key-glyph">${cluster.center.char}</span>
+          <span class="jp-compact-key-romaji">${cluster.center.romaji}</span>
+          <span class="jp-compact-key-sub">${surroundingChars}</span>
+        </button>
+
+        <!-- Expanded 5-Key Cross Face (shrinking overview on larger screens) -->
+        <div class="jp-cluster-expanded-inner">
+          <div class="jp-cluster-header">
+            <span class="jp-cluster-label">${cluster.label}</span>
+            <button
+              type="button"
+              class="jp-cluster-toggle-all"
+              data-cluster-chars="${slots.map(s => s.char).join(',')}"
+              title="${allClusterLearned ? 'Mark group as Needs Practice' : 'Mark entire key group as Remembered'}"
+            >
+              ${allClusterLearned ? '✓ All' : `${learnedInCluster}/${slots.length} ✓`}
+            </button>
+          </div>
+
+          <div class="jp-cross-5grid">
+            ${renderSubKey(cluster.up, 'up', dimmed, false)}
+            ${renderSubKey(cluster.left, 'left', dimmed, false)}
+            ${renderSubKey(cluster.center, 'center', dimmed, false)}
+            ${renderSubKey(cluster.right, 'right', dimmed, false)}
+            ${renderSubKey(cluster.down, 'down', dimmed, false)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderFocusedClusterModal() {
+    if (!focusedBaseCol) return '';
+    const { cluster, dimmed } = resolveClusterForBaseCol(focusedBaseCol);
     const slots = [cluster.center, cluster.left, cluster.up, cluster.right, cluster.down].filter(Boolean);
     const learnedInCluster = slots.filter(s => learnedMap[s.char]).length;
     const allClusterLearned = learnedInCluster === slots.length;
 
     return `
-      <div class="jp-expanded-cluster ${allClusterLearned ? 'cluster-all-learned' : ''} ${dimmed ? 'is-dimmed-cluster' : ''}">
-        <div class="jp-cluster-header">
-          <span class="jp-cluster-label">${cluster.label}</span>
-          <button
-            type="button"
-            class="jp-cluster-toggle-all"
-            data-cluster-chars="${slots.map(s => s.char).join(',')}"
-            title="${allClusterLearned ? 'Mark group as Needs Practice' : 'Mark entire key group as Remembered'}"
-          >
-            ${allClusterLearned ? '✓ All Remembered' : `${learnedInCluster}/${slots.length} Remembered`}
-          </button>
-        </div>
+      <div class="jp-focus-overlay" id="jp-focus-overlay" role="dialog" aria-modal="true">
+        <div class="jp-focus-card">
+          <div class="jp-focus-card-header">
+            <div>
+              <h3 class="jp-focus-card-title">${cluster.label}</h3>
+              <p class="jp-focus-card-subtitle">Tap any key or checkbox to mark as Remembered</p>
+            </div>
+            <div class="jp-focus-card-actions">
+              <button
+                type="button"
+                class="jp-cluster-toggle-all"
+                data-cluster-chars="${slots.map(s => s.char).join(',')}"
+              >
+                ${allClusterLearned ? '✓ All Remembered' : `${learnedInCluster}/${slots.length} Remembered`}
+              </button>
+              <button type="button" class="jp-focus-close-btn" id="jp-focus-close-btn" aria-label="Close">✕</button>
+            </div>
+          </div>
 
-        <div class="jp-cross-5grid">
-          ${renderSubKey(cluster.up, 'up', dimmed)}
-          ${renderSubKey(cluster.left, 'left', dimmed)}
-          ${renderSubKey(cluster.center, 'center', dimmed)}
-          ${renderSubKey(cluster.right, 'right', dimmed)}
-          ${renderSubKey(cluster.down, 'down', dimmed)}
+          <div class="jp-cross-5grid jp-focus-cross-grid">
+            ${renderSubKey(cluster.up, 'up', dimmed, true)}
+            ${renderSubKey(cluster.left, 'left', dimmed, true)}
+            ${renderSubKey(cluster.center, 'center', dimmed, true)}
+            ${renderSubKey(cluster.right, 'right', dimmed, true)}
+            ${renderSubKey(cluster.down, 'down', dimmed, true)}
+          </div>
         </div>
       </div>
     `;
@@ -647,87 +730,40 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
 
   function renderPage() {
     const counts = getCounts();
-    const needsPracticeCount = counts.total - counts.learnedTotal;
-    const pct = Math.round((counts.learnedTotal / counts.total) * 100);
 
     // Resolve the 9 keys on the grid based on activeModifier ('basic' | 'dakuten' | 'handakuten')
-    const displayedNineClusters = kbData.basic.map(baseCluster => {
-      if (activeModifier === 'dakuten') {
-        const voiced = dakutenByCol[baseCluster.col];
-        return voiced ? { cluster: voiced, dimmed: false } : { cluster: baseCluster, dimmed: true };
-      }
-      if (activeModifier === 'handakuten') {
-        const semiVoiced = handakutenByCol[baseCluster.col];
-        return semiVoiced ? { cluster: semiVoiced, dimmed: false } : { cluster: baseCluster, dimmed: true };
-      }
-      return { cluster: baseCluster, dimmed: false };
-    });
+    const displayedNineClusters = kbData.basic.map(baseCluster => resolveClusterForBaseCol(baseCluster.col));
 
     container.innerHTML = `
       <div class="script-info-page">
-        <!-- Hero Header + Progress + Practice CTA -->
-        <div class="script-info-hero">
-          <div class="script-info-hero-main">
-            <div class="screen-lang-tag">
-              <span>🇯🇵</span>
-              <span>${isKatakana ? 'カタカナ · Expanded Mobile Keyboard' : 'ひらがな · Expanded Mobile Keyboard'}</span>
+        <!-- Expanded 9-Key Mobile Flick Keyboard (Single Card) -->
+        <section class="script-info-section jp-kb-section">
+          <div class="script-info-section-header jp-kb-top-bar">
+            <div class="jp-kb-title-group">
+              <h1 class="script-info-section-title">
+                ${isKatakana ? 'カタカナ Katakana' : 'ひらがな Hiragana'}
+              </h1>
+              <div class="script-kb-layer-tabs">
+                <button type="button" class="script-kb-tab ${activeModifier === 'basic' ? 'active' : ''}" data-jp-mod="basic">
+                  Basic (${counts.basicLearned}/${counts.basicTotal})
+                </button>
+                <button type="button" class="script-kb-tab ${activeModifier === 'dakuten' ? 'active' : ''}" data-jp-mod="dakuten">
+                  ゛ Dakuten (${counts.dakutenLearned}/${counts.dakutenTotal})
+                </button>
+                <button type="button" class="script-kb-tab ${activeModifier === 'handakuten' ? 'active' : ''}" data-jp-mod="handakuten">
+                  ゜ Handakuten (${counts.handakutenLearned}/${counts.handakutenTotal})
+                </button>
+              </div>
             </div>
-            <h1 class="screen-title">${isKatakana ? 'Katakana Keyboard & Checklist' : 'Hiragana Keyboard & Checklist'}</h1>
-            <p class="screen-subtitle">
-              9-key mobile flick keyboard with all 4 surrounding vowel keys expanded. Tap the <strong>゛ Dakuten</strong> or <strong>゜ Handakuten</strong> modifier key on the bottom-left to shift the keyboard to voiced characters, and use the <strong>Remembered</strong> button on each key to track what still needs practice.
-            </p>
-          </div>
 
-          <div class="script-info-cta-card">
-            <div class="script-info-cta-stat">
-              <span><strong>${counts.learnedTotal}</strong> Remembered</span>
-              <span><strong>${needsPracticeCount}</strong> Need Practice</span>
-            </div>
-            <div class="script-hub-progress-track">
-              <div class="script-hub-progress-fill" style="width: ${Math.max(pct, 3)}%"></div>
-            </div>
-            <div class="script-section-mini-pills">
-              <span>Basic: <strong>${counts.basicLearned}/${counts.basicTotal}</strong></span>
-              <span>゛ Dakuten: <strong>${counts.dakutenLearned}/${counts.dakutenTotal}</strong></span>
-              <span>゜ Handakuten: <strong>${counts.handakutenLearned}/${counts.handakutenTotal}</strong></span>
-            </div>
-            <a href="${practiceUrl}" class="btn btn-primary script-info-practice-btn">
-              ✍️ Practice ${needsPracticeCount > 0 ? `${needsPracticeCount} Remaining` : 'All'} Characters →
+            <a href="${practiceUrl}" class="btn btn-primary btn-sm jp-top-practice-btn">
+              ✍️ Practice →
             </a>
           </div>
-        </div>
 
-        <!-- Expanded 9-Key Mobile Flick Keyboard -->
-        <section class="script-info-section">
-          <div class="script-info-section-header">
-            <div>
-              <h2 class="script-info-section-title">
-                📱 ${activeModifier === 'basic'
-                  ? `Basic Layer (${isKatakana ? '清音 46' : '清音 46'})`
-                  : activeModifier === 'dakuten'
-                  ? '゛ Dakuten Voiced Layer (濁音 20 — G · Z · D · B)'
-                  : '゜ Handakuten Voiced Layer (半濁音 5 — P)'}
-              </h2>
-              <p class="script-info-section-desc">
-                Tap <strong>✓ Remembered / ○ Needs Practice</strong> on any key to update your progress, or tap the <strong>゛ / ゜ modifier keys</strong> in the bottom-left corner of the keyboard to change layers.
-              </p>
-            </div>
-            <div class="script-kb-layer-tabs">
-              <button type="button" class="script-kb-tab ${activeModifier === 'basic' ? 'active' : ''}" data-jp-mod="basic">
-                Basic (${counts.basicLearned}/${counts.basicTotal})
-              </button>
-              <button type="button" class="script-kb-tab ${activeModifier === 'dakuten' ? 'active' : ''}" data-jp-mod="dakuten">
-                ゛ Dakuten (${counts.dakutenLearned}/${counts.dakutenTotal})
-              </button>
-              <button type="button" class="script-kb-tab ${activeModifier === 'handakuten' ? 'active' : ''}" data-jp-mod="handakuten">
-                ゜ Handakuten (${counts.handakutenLearned}/${counts.handakutenTotal})
-              </button>
-            </div>
-          </div>
-
-          <!-- 3x3 Main Expanded Flick Keys -->
+          <!-- 3x3 Main Flick Keys -->
           <div class="jp-expanded-kb-grid">
-            ${displayedNineClusters.map(({ cluster, dimmed }) => renderClusterCard(cluster, dimmed)).join('')}
+            ${displayedNineClusters.map(({ baseCol, cluster, dimmed }) => renderClusterCard(baseCol, cluster, dimmed)).join('')}
           </div>
 
           <!-- Bottom Mobile Row: [ ゛ / ゜ Modifier Keys ]  [ わ / ワ Key ]  [ Flick Direction Guide ] -->
@@ -735,7 +771,7 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
             <!-- Interactive ゛゜ Modifier Key Cluster -->
             <div class="jp-expanded-cluster jp-modifier-card">
               <div class="jp-cluster-header">
-                <span class="jp-cluster-label">゛゜小 Modifier Key (Tap to Shift Keyboard)</span>
+                <span class="jp-cluster-label">゛゜ Shift</span>
               </div>
               <div class="jp-modifier-buttons-grid">
                 <button
@@ -744,8 +780,8 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
                   data-jp-mod="basic"
                 >
                   <span class="mod-glyph">${isKatakana ? 'ア' : 'あ'}</span>
-                  <span class="mod-title">Basic (清音)</span>
-                  <span class="mod-count">${counts.basicLearned}/${counts.basicTotal} Remembered</span>
+                  <span class="mod-title">Basic</span>
+                  <span class="mod-count">${counts.basicLearned}/${counts.basicTotal}</span>
                 </button>
                 <button
                   type="button"
@@ -753,8 +789,8 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
                   data-jp-mod="dakuten"
                 >
                   <span class="mod-glyph">゛</span>
-                  <span class="mod-title">Dakuten (G·Z·D·B)</span>
-                  <span class="mod-count">${counts.dakutenLearned}/${counts.dakutenTotal} Remembered</span>
+                  <span class="mod-title">Dakuten</span>
+                  <span class="mod-count">${counts.dakutenLearned}/${counts.dakutenTotal}</span>
                 </button>
                 <button
                   type="button"
@@ -762,19 +798,19 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
                   data-jp-mod="handakuten"
                 >
                   <span class="mod-glyph">゜</span>
-                  <span class="mod-title">Handakuten (P)</span>
-                  <span class="mod-count">${counts.handakutenLearned}/${counts.handakutenTotal} Remembered</span>
+                  <span class="mod-title">Handakuten</span>
+                  <span class="mod-count">${counts.handakutenLearned}/${counts.handakutenTotal}</span>
                 </button>
               </div>
             </div>
 
             <!-- わ / ワ Key -->
-            ${renderClusterCard(kbData.waKey, activeModifier !== 'basic')}
+            ${renderClusterCard('wa', kbData.waKey, activeModifier !== 'basic')}
 
             <!-- Flick Direction Legend -->
-            <div class="jp-expanded-cluster jp-modifier-card">
+            <div class="jp-expanded-cluster jp-modifier-card jp-direction-cluster">
               <div class="jp-cluster-header">
-                <span class="jp-cluster-label">Mobile Flick Directions</span>
+                <span class="jp-cluster-label">Flick Directions</span>
               </div>
               <div class="jp-cross-5grid jp-direction-guide-cross">
                 <div class="jp-dir-pill jp-petal-up">↑ -u</div>
@@ -786,6 +822,8 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
             </div>
           </div>
         </section>
+
+        ${renderFocusedClusterModal()}
       </div>
     `;
 
@@ -821,6 +859,32 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
         renderPage();
       });
     });
+
+    // Mobile / Compact 9-Key click -> bring that key's 5-key cross into focus
+    container.querySelectorAll('[data-focus-col]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        focusedBaseCol = btn.getAttribute('data-focus-col');
+        renderPage();
+      });
+    });
+
+    // Close focused 5-key cross modal
+    const closeBtn = container.querySelector('#jp-focus-close-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        focusedBaseCol = null;
+        renderPage();
+      });
+    }
+    const focusOverlay = container.querySelector('#jp-focus-overlay');
+    if (focusOverlay) {
+      focusOverlay.addEventListener('click', (e) => {
+        if (e.target === focusOverlay) {
+          focusedBaseCol = null;
+          renderPage();
+        }
+      });
+    }
 
     // Remembered checkbox on each key
     container.querySelectorAll('.key-remembered-checkbox').forEach(lbl => {
