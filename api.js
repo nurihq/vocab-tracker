@@ -340,6 +340,28 @@ export async function syncLocalToCloud() {
     }
 
     saveLocalStore(store);
+
+    // 3. Continuous Sync for Script Character Progress (letters learned & practice position)
+    if (CONFIG.API_ENDPOINTS.profile) {
+      try {
+        const profileRes = await fetchWithAuth(CONFIG.API_ENDPOINTS.profile, { method: 'GET' }).catch(() => null);
+        if (profileRes && profileRes.profile) {
+          const cloudScripts = profileRes.profile.scriptsProgress || {};
+          mergeScriptsProgress(cloudScripts);
+
+          // Upload any newly merged or local script progress back to DynamoDB
+          const localScripts = getLocalScriptsProgress();
+          if (Object.keys(localScripts).length > 0) {
+            await fetchWithAuth(CONFIG.API_ENDPOINTS.profile, {
+              method: 'POST',
+              body: JSON.stringify({ scriptsProgress: localScripts })
+            }).catch(() => {});
+          }
+        }
+      } catch (scriptErr) {
+        console.warn('Sync scripts progress background check:', scriptErr);
+      }
+    }
   } catch (err) {
     console.warn('Sync background check:', err);
   } finally {
@@ -347,8 +369,116 @@ export async function syncLocalToCloud() {
   }
 }
 
+export function getLocalScriptsProgress() {
+  const result = {};
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.endsWith('-learned') || key.endsWith('-progress') || key.endsWith('-updatedAt'))) {
+        try {
+          result[key] = JSON.parse(localStorage.getItem(key));
+        } catch (e) {
+          result[key] = localStorage.getItem(key);
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Error reading local scripts progress:', e);
+  }
+  return result;
+}
+
+export function mergeScriptsProgress(cloudProgress) {
+  if (!cloudProgress || typeof cloudProgress !== 'object') return false;
+  let changed = false;
+  try {
+    for (const [key, cloudVal] of Object.entries(cloudProgress)) {
+      if (!key) continue;
+      if (key.endsWith('-learned')) {
+        const localRaw = localStorage.getItem(key);
+        let localMap = {};
+        try { if (localRaw) localMap = JSON.parse(localRaw) || {}; } catch (e) {}
+
+        const cloudMap = (typeof cloudVal === 'object' && cloudVal !== null) ? cloudVal : {};
+        const prefix = key.slice(0, -('-learned'.length));
+        const localTimeStr = localStorage.getItem(`${prefix}-learned-updatedAt`);
+        const localTime = localTimeStr ? parseInt(localTimeStr, 10) : 0;
+        const cloudTime = cloudProgress[`${prefix}-learned-updatedAt`] ? parseInt(String(cloudProgress[`${prefix}-learned-updatedAt`]), 10) : 0;
+
+        let finalMap = {};
+        if (cloudTime > localTime) {
+          // Cloud has newer authoritative state
+          finalMap = cloudMap;
+        } else if (localTime > cloudTime) {
+          // Local has newer authoritative state
+          finalMap = localMap;
+        } else {
+          // Same or both unset (legacy): union of learned characters
+          finalMap = { ...cloudMap, ...localMap };
+        }
+
+        const finalSerialized = JSON.stringify(finalMap);
+        if (finalSerialized !== localRaw) {
+          localStorage.setItem(key, finalSerialized);
+          changed = true;
+        }
+        const effectiveTime = Math.max(localTime, cloudTime, Date.now());
+        localStorage.setItem(`${prefix}-learned-updatedAt`, String(effectiveTime));
+      } else if (key.endsWith('-progress')) {
+        const localRaw = localStorage.getItem(key);
+        const localVal = localRaw !== null ? parseInt(localRaw, 10) : -1;
+        const cVal = parseInt(String(cloudVal), 10);
+        if (Number.isFinite(cVal) && (localVal === -1 || cVal > localVal)) {
+          localStorage.setItem(key, String(cVal));
+          changed = true;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Error merging scripts progress:', e);
+  }
+
+  if (changed) {
+    window.dispatchEvent(new CustomEvent('vocab-scripts-synced'));
+  }
+  return changed;
+}
+
+let scriptSaveTimeout = null;
+let pendingScriptProgressChanges = {};
+
+export function notifyScriptProgressChange(key, value, updatedAt) {
+  if (!key) return;
+  pendingScriptProgressChanges[key] = value;
+  if (updatedAt) {
+    const prefix = key.endsWith('-learned') ? key.slice(0, -('-learned'.length)) : key;
+    pendingScriptProgressChanges[`${prefix}-learned-updatedAt`] = updatedAt;
+  }
+
+  if (scriptSaveTimeout) {
+    clearTimeout(scriptSaveTimeout);
+  }
+
+  scriptSaveTimeout = setTimeout(async () => {
+    if (!shouldUseCloud() || !CONFIG.API_ENDPOINTS.profile) return;
+    const toSend = { ...pendingScriptProgressChanges };
+    pendingScriptProgressChanges = {};
+    try {
+      await fetchWithAuth(CONFIG.API_ENDPOINTS.profile, {
+        method: 'POST',
+        body: JSON.stringify({ scriptsProgress: toSend })
+      });
+    } catch (e) {
+      console.warn('Failed to sync script progress to cloud:', e);
+    }
+  }, 350);
+}
+
 export const Api = {
   syncLocalToCloud,
+  getLocalScriptsProgress,
+  mergeScriptsProgress,
+  notifyScriptProgressChange,
 
   async getProfile() {
     if (shouldUseCloud() && CONFIG.API_ENDPOINTS.profile) {

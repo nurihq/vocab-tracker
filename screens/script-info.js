@@ -1,6 +1,7 @@
 import { autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
 import { trackEvent } from '../analytics.js?v=20261104_scripts3';
 import { navigate } from '../app.js?v=20261104_scripts3';
+import { notifyScriptProgressChange } from '../api.js?v=20261104_scripts22';
 import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261104_scripts3';
 import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261104_scripts3';
 import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261104_scripts3';
@@ -442,7 +443,10 @@ function loadLearnedMap(storagePrefix) {
 }
 
 function saveLearnedMap(storagePrefix, map) {
+  const now = Date.now();
   localStorage.setItem(`${storagePrefix}-learned`, JSON.stringify(map));
+  localStorage.setItem(`${storagePrefix}-learned-updatedAt`, String(now));
+  notifyScriptProgressChange(`${storagePrefix}-learned`, map, now);
 }
 
 function getProgressStats(storagePrefix, sections) {
@@ -930,6 +934,7 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
     const idx = allChars.findIndex(c => c.char === charStr);
     if (idx !== -1) {
       localStorage.setItem(`${scriptId}-progress`, String(idx));
+      notifyScriptProgressChange(`${scriptId}-progress`, idx);
     }
     trackEvent('jump_to_script_char', { scriptId, char: charStr });
     navigate(practiceUrl);
@@ -1026,6 +1031,12 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
     });
   }
 
+  const onScriptsSynced = () => {
+    learnedMap = loadLearnedMap(scriptId);
+    renderPage();
+  };
+  window.addEventListener('vocab-scripts-synced', onScriptsSynced);
+
   renderPage();
 }
 
@@ -1067,6 +1078,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
     const idx = allChars.findIndex(c => c.char === charStr);
     if (idx !== -1) {
       localStorage.setItem('khmer-progress', String(idx));
+      notifyScriptProgressChange('khmer-progress', idx);
     }
     trackEvent('jump_to_script_char', { scriptId: 'khmer', char: charStr });
     navigate('/scripts/khmer/practice');
@@ -1397,6 +1409,12 @@ function renderKhmerKeyboardChecklistScreen(container) {
 
     autoTranslateUi(container);
   }
+
+  const onScriptsSynced = () => {
+    learnedMap = loadLearnedMap('khmer');
+    renderPage();
+  };
+  window.addEventListener('vocab-scripts-synced', onScriptsSynced);
 
   renderPage();
 }

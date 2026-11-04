@@ -1,5 +1,6 @@
 import { autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
 import { trackEvent } from '../analytics.js?v=20261104_scripts3';
+import { notifyScriptProgressChange } from '../api.js?v=20261104_scripts22';
 import { HIRAGANA_SECTIONS, HIRAGANA_STROKE_ORDER } from '../scripts/data/hiragana-data.js?v=20261104_scripts3';
 import { KATAKANA_SECTIONS, KATAKANA_STROKE_ORDER } from '../scripts/data/katakana-data.js?v=20261104_scripts3';
 import { KHMER_SECTIONS, KHMER_STROKE_ORDER } from '../scripts/data/khmer-data.js?v=20261104_scripts3';
@@ -98,7 +99,15 @@ export function renderScriptPracticeScreen(container, params = {}) {
     allCharacters.forEach(c => {
       if (c.learned) learnedMap[c.char] = true;
     });
+    const now = Date.now();
     localStorage.setItem(learnedKey, JSON.stringify(learnedMap));
+    localStorage.setItem(`${config.storagePrefix}-learned-updatedAt`, String(now));
+    notifyScriptProgressChange(learnedKey, learnedMap, now);
+  }
+
+  function saveCurrentProgress() {
+    localStorage.setItem(progressKey, String(currentIndex));
+    notifyScriptProgressChange(progressKey, currentIndex);
   }
 
   loadLearnedState();
@@ -515,7 +524,7 @@ export function renderScriptPracticeScreen(container, params = {}) {
     while (nextIdx < allCharacters.length) {
       if (!allCharacters[nextIdx].learned) {
         currentIndex = nextIdx;
-        localStorage.setItem(progressKey, String(currentIndex));
+        saveCurrentProgress();
         updateDisplay();
         clearCanvas();
         return;
@@ -525,7 +534,7 @@ export function renderScriptPracticeScreen(container, params = {}) {
     // If all remaining are learned, wrap or advance by 1 if possible
     if (currentIndex < allCharacters.length - 1) {
       currentIndex++;
-      localStorage.setItem(progressKey, String(currentIndex));
+      saveCurrentProgress();
       updateDisplay();
       clearCanvas();
     }
@@ -536,7 +545,7 @@ export function renderScriptPracticeScreen(container, params = {}) {
     while (prevIdx >= 0) {
       if (!allCharacters[prevIdx].learned) {
         currentIndex = prevIdx;
-        localStorage.setItem(progressKey, String(currentIndex));
+        saveCurrentProgress();
         updateDisplay();
         clearCanvas();
         return;
@@ -545,7 +554,7 @@ export function renderScriptPracticeScreen(container, params = {}) {
     }
     if (currentIndex > 0) {
       currentIndex--;
-      localStorage.setItem(progressKey, String(currentIndex));
+      saveCurrentProgress();
       updateDisplay();
       clearCanvas();
     }
@@ -778,7 +787,7 @@ export function renderScriptPracticeScreen(container, params = {}) {
         const newIdx = allCharacters.findIndex(c => c.char === target.char);
         if (newIdx !== -1 && newIdx !== currentIndex) {
           currentIndex = newIdx;
-          localStorage.setItem(progressKey, String(currentIndex));
+          saveCurrentProgress();
           updateDisplay();
           clearCanvas();
         }
@@ -858,7 +867,7 @@ export function renderScriptPracticeScreen(container, params = {}) {
           const idx = allCharacters.findIndex(c => c.char === charData.char);
           if (idx !== -1) {
             currentIndex = idx;
-            localStorage.setItem(progressKey, String(currentIndex));
+            saveCurrentProgress();
             updateDisplay();
             clearCanvas();
             container.querySelector('#charModal')?.classList.remove('is-open');
@@ -965,7 +974,15 @@ export function renderScriptPracticeScreen(container, params = {}) {
   setupProgressBarInteractions();
   updateDisplay();
 
+  const onScriptsSynced = () => {
+    loadLearnedState();
+    updateDisplay();
+    populateCharacterGrids();
+  };
+  window.addEventListener('vocab-scripts-synced', onScriptsSynced);
+
   activeCleanup = () => {
+    window.removeEventListener('vocab-scripts-synced', onScriptsSynced);
     document.removeEventListener('keydown', handleKeyDown);
     themeObserver.disconnect();
     if (autoProgressTimeout) clearTimeout(autoProgressTimeout);
