@@ -120,6 +120,8 @@ export class Navbar {
     const backInfo = this.getNavBackInfo(currentRoute);
     const cleanPath = (currentRoute || '').replace(/^#/, '') || '/';
     const isHomeScreen = cleanPath === '/' || cleanPath === '';
+    const isSignInScreen = cleanPath === '/signin';
+    const showUnauthBanner = !isAuthed && !isHomeScreen && !isSignInScreen;
     const isScriptsActive = cleanPath === '/scripts' || cleanPath.startsWith('/scripts/');
 
     container.innerHTML = `
@@ -187,7 +189,7 @@ export class Navbar {
           `}
         </div>
       </header>
-      ${!isAuthed ? `
+      ${showUnauthBanner ? `
         <div class="unauth-warning-banner" role="alert">
           <div class="unauth-warning-content">
             <span class="unauth-warning-icon">⚠️</span>
