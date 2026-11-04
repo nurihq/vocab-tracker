@@ -1,19 +1,19 @@
-import { Navbar } from './components/navbar.js?v=20261104_scripts27';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261104_scripts27';
-import { setI18nBaseLang } from './i18n.js?v=20261104_scripts27';
-import { Auth, syncLocalToCloud } from './api.js?v=20261104_scripts27';
-import { trackPageView } from './analytics.js?v=20261104_scripts27';
+import { Navbar } from './components/navbar.js?v=20261104_scripts28';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261104_scripts28';
+import { setI18nBaseLang } from './i18n.js?v=20261104_scripts28';
+import { Auth, syncLocalToCloud } from './api.js?v=20261104_scripts28';
+import { trackPageView } from './analytics.js?v=20261104_scripts28';
 
-import { renderHomeScreen } from './screens/home.js?v=20261104_scripts27';
-import { renderSignInScreen } from './screens/signin.js?v=20261104_scripts27';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261104_scripts27';
-import { renderDecksScreen } from './screens/decks.js?v=20261104_scripts27';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261104_scripts27';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261104_scripts27';
-import { renderAboutScreen } from './screens/about.js?v=20261104_scripts27';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261104_scripts27';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261104_scripts27';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261104_scripts27';
+import { renderHomeScreen } from './screens/home.js?v=20261104_scripts28';
+import { renderSignInScreen } from './screens/signin.js?v=20261104_scripts28';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261104_scripts28';
+import { renderDecksScreen } from './screens/decks.js?v=20261104_scripts28';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261104_scripts28';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261104_scripts28';
+import { renderAboutScreen } from './screens/about.js?v=20261104_scripts28';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261104_scripts28';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261104_scripts28';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261104_scripts28';
 
 function normalizeScriptAlias(rawPath) {
   let p = rawPath.replace(/^\/scripts\/japananese(\/|$)/, '/scripts/japanese$1');
