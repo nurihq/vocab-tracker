@@ -730,13 +730,15 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
 
   function renderPage() {
     const counts = getCounts();
+    const needsPracticeCount = counts.total - counts.learnedTotal;
+    const pct = Math.round((counts.learnedTotal / counts.total) * 100);
 
     // Resolve the 9 keys on the grid based on activeModifier ('basic' | 'dakuten' | 'handakuten')
     const displayedNineClusters = kbData.basic.map(baseCluster => resolveClusterForBaseCol(baseCluster.col));
 
     container.innerHTML = `
       <div class="script-info-page">
-        <!-- Expanded 9-Key Mobile Flick Keyboard (Single Card) -->
+        <!-- 1. Expanded 9-Key Mobile Flick Keyboard Card (First!) -->
         <section class="script-info-section jp-kb-section">
           <div class="script-info-section-header jp-kb-top-bar">
             <div class="jp-kb-title-group">
@@ -820,6 +822,27 @@ function renderJapaneseExpandedKeyboardScreen(container, scriptId) {
                 <div class="jp-dir-pill jp-petal-down">↓ -o</div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <!-- 2. Remembered Stats Card (Below the Keyboard Card) -->
+        <section class="script-info-section script-stats-bottom-card">
+          <div class="script-info-cta-stat">
+            <span><strong>${counts.learnedTotal}</strong> Remembered</span>
+            <span><strong>${needsPracticeCount}</strong> Need Practice (${pct}%)</span>
+          </div>
+          <div class="script-hub-progress-track">
+            <div class="script-hub-progress-fill" style="width: ${Math.max(pct, 3)}%"></div>
+          </div>
+          <div class="script-stats-bottom-footer">
+            <div class="script-section-mini-pills">
+              <span>Basic: <strong>${counts.basicLearned}/${counts.basicTotal}</strong></span>
+              <span>゛ Dakuten: <strong>${counts.dakutenLearned}/${counts.dakutenTotal}</strong></span>
+              <span>゜ Handakuten: <strong>${counts.handakutenLearned}/${counts.handakutenTotal}</strong></span>
+            </div>
+            <a href="${practiceUrl}" class="btn btn-primary btn-sm jp-top-practice-btn">
+              ✍️ Practice ${needsPracticeCount > 0 ? `${needsPracticeCount} Remaining` : 'All'} Characters →
+            </a>
           </div>
         </section>
 
@@ -1136,6 +1159,10 @@ function renderKhmerKeyboardChecklistScreen(container) {
   }
 
   function renderPage() {
+    const learnedTotal = allChars.filter(c => learnedMap[c.char]).length;
+    const total = allChars.length;
+    const needsPracticeCount = total - learnedTotal;
+    const pct = Math.round((learnedTotal / total) * 100);
     const layerStats = getLayerCounts();
     const activeRows = getActiveRows();
     const activeLayerChars = activeRows.flat().filter(k => k && !k.endsWith('_KEY'));
@@ -1143,7 +1170,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
 
     container.innerHTML = `
       <div class="script-info-page">
-        <!-- Interactive Khmer Phone Keyboard (Single Card) -->
+        <!-- 1. Interactive Khmer Phone Keyboard Card (First!) -->
         <section class="script-info-section khmer-kb-section">
           <div class="script-info-section-header jp-kb-top-bar">
             <div class="jp-kb-title-group">
@@ -1234,6 +1261,28 @@ function renderKhmerKeyboardChecklistScreen(container) {
                 <span>${isShifted ? 'Layer 2' : 'Layer 1'}</span>
               </button>
             </div>
+          </div>
+        </section>
+
+        <!-- 2. Remembered Stats Card (Below the Keyboard Card) -->
+        <section class="script-info-section script-stats-bottom-card">
+          <div class="script-info-cta-stat">
+            <span><strong>${learnedTotal}</strong> Remembered</span>
+            <span><strong>${needsPracticeCount}</strong> Need Practice (${pct}%)</span>
+          </div>
+          <div class="script-hub-progress-track">
+            <div class="script-hub-progress-fill" style="width: ${Math.max(pct, 3)}%"></div>
+          </div>
+          <div class="script-stats-bottom-footer">
+            <div class="script-section-mini-pills">
+              ${KHMER_SECTIONS.map(sec => {
+                const secLearned = sec.characters.filter(c => learnedMap[c.char]).length;
+                return `<span>${sec.shortName}: <strong>${secLearned}/${sec.characters.length}</strong></span>`;
+              }).join('')}
+            </div>
+            <a href="/scripts/khmer/practice" class="btn btn-primary btn-sm jp-top-practice-btn">
+              ✍️ Practice ${needsPracticeCount > 0 ? `${needsPracticeCount} Remaining` : 'All'} Characters →
+            </a>
           </div>
         </section>
       </div>
