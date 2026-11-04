@@ -83,6 +83,7 @@ export function renderSignInScreen(container) {
           picture: payload.picture
         };
         Auth.setUser(userObj);
+        Auth.setSessionExpiry();
         window.dispatchEvent(new CustomEvent('vocab-auth-changed'));
         trackEvent('sign_in', { method: 'google', sub: payload.sub });
 

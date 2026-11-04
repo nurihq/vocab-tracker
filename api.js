@@ -120,6 +120,14 @@ export const Auth = {
     if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
     else localStorage.removeItem(USER_KEY);
   },
+  getSessionExpiry() {
+    const raw = localStorage.getItem('vocab_auth_session_exp');
+    return raw ? Number(raw) : 0;
+  },
+  setSessionExpiry(timestamp = null) {
+    const exp = timestamp || (Date.now() + 30 * 24 * 60 * 60 * 1000);
+    localStorage.setItem('vocab_auth_session_exp', String(exp));
+  },
   isTokenValid() {
     const token = this.getToken();
     if (!token) return false;
@@ -131,11 +139,20 @@ export const Auth = {
     }
   },
   isAuthenticated() {
-    return this.isTokenValid() && !!this.getUser();
+    const user = this.getUser();
+    const token = this.getToken();
+    if (!user || !token) return false;
+    const exp = this.getSessionExpiry();
+    if (!exp) {
+      this.setSessionExpiry();
+      return true;
+    }
+    return exp > Date.now();
   },
   signOut() {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem('vocab_auth_session_exp');
     window.dispatchEvent(new CustomEvent('vocab-auth-changed'));
   }
 };
