@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_options_tiles';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_options_tiles';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261116_options_tiles';
-import { Modal } from '../components/modal.js?v=20261116_options_tiles';
-import { trackEvent } from '../analytics.js?v=20261116_options_tiles';
-import { navigate } from '../app.js?v=20261116_options_tiles';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_options_tiles';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_options_select';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_options_select';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261116_options_select';
+import { Modal } from '../components/modal.js?v=20261116_options_select';
+import { trackEvent } from '../analytics.js?v=20261116_options_select';
+import { navigate } from '../app.js?v=20261116_options_select';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_options_select';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -574,15 +574,15 @@ export function renderDeckWordsScreen(container, params = {}) {
             <span class="khmer-auto-translate-tag">🇰🇭 Khmer Translation</span>
             <span id="khmer-translate-status" class="khmer-auto-translate-status"></span>
           </div>
-          <div class="khmer-auto-translate-result">
-            <span id="khmer-translated-text" class="khmer-translated-word"></span>
-            <span id="khmer-translated-rom" class="khmer-translated-rom"></span>
-            <button type="button" id="khmer-auto-translate-speaker" class="khmer-auto-translate-speaker" title="Listen to pronunciation" style="display: none;">🔊</button>
-            <button type="button" id="khmer-options-toggle" class="khmer-options-toggle" title="More options" aria-expanded="false" style="display: none;">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </button>
+          <div class="khmer-select" id="khmer-select">
+            <div class="khmer-auto-translate-result khmer-select-trigger" id="khmer-options-toggle" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+              <span id="khmer-translated-text" class="khmer-translated-word"></span>
+              <span id="khmer-translated-rom" class="khmer-translated-rom"></span>
+              <button type="button" id="khmer-auto-translate-speaker" class="khmer-auto-translate-speaker" title="Listen to pronunciation" style="display: none;">🔊</button>
+              <svg class="khmer-select-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div id="khmer-auto-translate-options" class="khmer-select-menu" role="listbox" style="display: none;"></div>
           </div>
-          <div id="khmer-auto-translate-options" class="khmer-auto-translate-options-wrap" style="display: none;"></div>
         </div>
       </div>
 
@@ -700,6 +700,12 @@ export function renderDeckWordsScreen(container, params = {}) {
       const speakerBtn = overlay.querySelector('#khmer-auto-translate-speaker');
       const optionsWrap = overlay.querySelector('#khmer-auto-translate-options');
       const toggleBtn = overlay.querySelector('#khmer-options-toggle');
+      const chevronEl = overlay.querySelector('.khmer-select-chevron');
+      const selectEl = overlay.querySelector('#khmer-select');
+      const setHasOptions = (has) => {
+        if (chevronEl) chevronEl.style.display = has ? '' : 'none';
+        if (toggleBtn) toggleBtn.classList.toggle('has-options', has);
+      };
       const pronInput = overlay.querySelector('#new-pronunciation-input');
       let translateTimer = null;
 
@@ -735,6 +741,7 @@ export function renderDeckWordsScreen(container, params = {}) {
 
       function setOptionsOpen(open) {
         if (!optionsWrap || !toggleBtn) return;
+        if (open && !toggleBtn.classList.contains('has-options')) return;
         optionsWrap.style.display = open ? 'flex' : 'none';
         toggleBtn.classList.toggle('is-open', open);
         toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -746,10 +753,11 @@ export function renderDeckWordsScreen(container, params = {}) {
           const cRom = getKhmerWordRomanisation(c);
           const isSel = c === latestTranslatedKhmer;
           return `
-            <div class="khmer-option-tile ${isSel ? 'is-selected' : ''}" data-idx="${idx}" role="button" tabindex="0">
+            <div class="khmer-option-tile ${isSel ? 'is-selected' : ''}" data-idx="${idx}" role="option" aria-selected="${isSel}" tabindex="0">
               <span class="khmer-translated-word">${formatStudyTextHtml(c, shouldColorKhmer())}</span>
               ${cRom ? `<span class="khmer-translated-rom">(${formatStudyPronunciationHtml(cRom, c, 'km')})</span>` : ''}
               <button type="button" class="khmer-auto-translate-speaker khmer-option-speaker" data-idx="${idx}" title="Listen">🔊</button>
+              <span class="khmer-option-check">${isSel ? '✓' : ''}</span>
             </div>
           `;
         }).join('');
@@ -787,7 +795,7 @@ export function renderDeckWordsScreen(container, params = {}) {
           currentCandidates = [];
           if (previewBox) previewBox.style.display = 'none';
           if (speakerBtn) speakerBtn.style.display = 'none';
-          if (toggleBtn) toggleBtn.style.display = 'none';
+          setHasOptions(false);
           setOptionsOpen(false);
           return;
         }
@@ -807,17 +815,17 @@ export function renderDeckWordsScreen(container, params = {}) {
             setSelectedCandidate(candidates[0]);
             renderOptionTiles();
             setOptionsOpen(false);
-            if (toggleBtn) toggleBtn.style.display = candidates.length > 1 ? 'inline-flex' : 'none';
+            setHasOptions(candidates.length > 1);
           } else {
             if (statusEl) statusEl.textContent = 'Translation not found';
             if (speakerBtn) speakerBtn.style.display = 'none';
-            if (toggleBtn) toggleBtn.style.display = 'none';
+            setHasOptions(false);
             setOptionsOpen(false);
           }
         } catch (err) {
           if (statusEl) statusEl.textContent = 'Translation failed';
           if (speakerBtn) speakerBtn.style.display = 'none';
-          if (toggleBtn) toggleBtn.style.display = 'none';
+          setHasOptions(false);
           setOptionsOpen(false);
         }
       }
@@ -825,8 +833,19 @@ export function renderDeckWordsScreen(container, params = {}) {
       if (toggleBtn) {
         toggleBtn.addEventListener('click', (e) => {
           e.preventDefault();
-          e.stopPropagation();
           setOptionsOpen(optionsWrap.style.display === 'none');
+        });
+        toggleBtn.addEventListener('keydown', (e) => {
+          if (e.target !== toggleBtn) return;
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setOptionsOpen(optionsWrap.style.display === 'none');
+          } else if (e.key === 'Escape') {
+            setOptionsOpen(false);
+          }
+        });
+        overlay.addEventListener('click', (e) => {
+          if (selectEl && !selectEl.contains(e.target)) setOptionsOpen(false);
         });
       }
 

@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20261116_options_tiles';
+import { t } from '../i18n.js?v=20261116_options_select';
 
 export const Modal = {
   activeOverlay: null,

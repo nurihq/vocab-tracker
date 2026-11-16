@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261116_options_tiles';
-import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting, formatStudyTextHtml } from '../languages.js?v=20261116_options_tiles';
-import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261116_options_tiles';
-import { trackEvent } from '../analytics.js?v=20261116_options_tiles';
-import { navigate } from '../app.js?v=20261116_options_tiles';
+import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261116_options_select';
+import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting, formatStudyTextHtml } from '../languages.js?v=20261116_options_select';
+import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261116_options_select';
+import { trackEvent } from '../analytics.js?v=20261116_options_select';
+import { navigate } from '../app.js?v=20261116_options_select';
 
 export function renderHomeScreen(container) {
   const currentBase = getI18nBaseLang();

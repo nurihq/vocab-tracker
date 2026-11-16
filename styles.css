@@ -5303,69 +5303,80 @@ body.is-script-practice-route .main-content {
   border-color: var(--accent-zen);
 }
 
-/* Multi-candidate options: chevron toggle + styled option tiles */
-.khmer-options-toggle {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+/* Select-style translation picker: the tile is the trigger, the menu overlays it */
+.khmer-select {
+  position: relative;
 }
 
-.khmer-options-toggle svg {
+.khmer-select-trigger {
+  padding: 0.35rem 0.5rem;
+  margin: -0.35rem -0.5rem;
+  border-radius: var(--radius-sm);
+  cursor: default;
+}
+
+.khmer-select-trigger.has-options {
+  cursor: pointer;
+}
+
+.khmer-select-trigger.has-options:hover {
+  background: var(--bg-surface);
+}
+
+.khmer-select-chevron {
+  margin-left: auto;
+  color: var(--text-muted);
   transition: transform 0.18s ease;
 }
 
-.khmer-options-toggle:hover {
-  border-color: var(--accent-zen);
-  color: var(--accent-zen);
-}
-
-.khmer-options-toggle.is-open svg {
+.khmer-select-trigger.is-open .khmer-select-chevron {
   transform: rotate(180deg);
 }
 
-.khmer-auto-translate-options-wrap {
+.khmer-select-menu {
+  position: absolute;
+  top: -0.5rem;
+  left: -0.65rem;
+  right: -0.65rem;
+  z-index: 20;
   flex-direction: column;
-  gap: 0.4rem;
-  margin-top: 0.35rem;
-  padding-top: 0.5rem;
-  border-top: 1px dashed var(--border-color);
+  padding: 0.3rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--accent-zen);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg, 0 10px 25px -5px rgba(0, 0, 0, 0.18));
+  max-height: 260px;
+  overflow-y: auto;
 }
 
 .khmer-option-tile {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  flex-wrap: wrap;
-  padding: 0.5rem 0.75rem;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
+  padding: 0.45rem 0.55rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  outline: none;
 }
 
 .khmer-option-tile:hover,
 .khmer-option-tile:focus-visible {
-  border-color: var(--accent-zen);
-  outline: none;
+  background: var(--bg-subtle);
 }
 
 .khmer-option-tile.is-selected {
-  border-color: var(--accent-zen);
   background: rgba(99, 102, 241, 0.08);
 }
 
 .khmer-option-tile .khmer-option-speaker {
   margin-left: auto;
+}
+
+.khmer-option-check {
+  width: 1rem;
+  text-align: center;
+  color: var(--accent-zen);
+  font-weight: 700;
 }
 
 /* Tooltip for Settings Info Icons */

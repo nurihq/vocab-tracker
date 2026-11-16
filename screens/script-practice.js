@@ -1,9 +1,9 @@
-import { autoTranslateUi } from '../i18n.js?v=20261116_options_tiles';
-import { trackEvent } from '../analytics.js?v=20261116_options_tiles';
-import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261116_options_tiles';
-import { HIRAGANA_SECTIONS, HIRAGANA_STROKE_ORDER } from '../scripts/data/hiragana-data.js?v=20261116_options_tiles';
-import { KATAKANA_SECTIONS, KATAKANA_STROKE_ORDER } from '../scripts/data/katakana-data.js?v=20261116_options_tiles';
-import { KHMER_SECTIONS, KHMER_STROKE_ORDER } from '../scripts/data/khmer-data.js?v=20261116_options_tiles';
+import { autoTranslateUi } from '../i18n.js?v=20261116_options_select';
+import { trackEvent } from '../analytics.js?v=20261116_options_select';
+import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261116_options_select';
+import { HIRAGANA_SECTIONS, HIRAGANA_STROKE_ORDER } from '../scripts/data/hiragana-data.js?v=20261116_options_select';
+import { KATAKANA_SECTIONS, KATAKANA_STROKE_ORDER } from '../scripts/data/katakana-data.js?v=20261116_options_select';
+import { KHMER_SECTIONS, KHMER_STROKE_ORDER } from '../scripts/data/khmer-data.js?v=20261116_options_select';
 
 const SCRIPT_CONFIGS = {
   hiragana: {

@@ -1,10 +1,10 @@
-import { autoTranslateUi } from '../i18n.js?v=20261116_options_tiles';
-import { trackEvent } from '../analytics.js?v=20261116_options_tiles';
-import { navigate } from '../app.js?v=20261116_options_tiles';
-import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261116_options_tiles';
-import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261116_options_tiles';
-import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261116_options_tiles';
-import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261116_options_tiles';
+import { autoTranslateUi } from '../i18n.js?v=20261116_options_select';
+import { trackEvent } from '../analytics.js?v=20261116_options_select';
+import { navigate } from '../app.js?v=20261116_options_select';
+import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261116_options_select';
+import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261116_options_select';
+import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261116_options_select';
+import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261116_options_select';
 
 // ============================================================================
 // KHMER CHARACTER METADATA (Consonants + Subscripts + Dependent & Indep Vowels)

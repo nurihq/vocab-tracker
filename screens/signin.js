@@ -1,8 +1,8 @@
-import { CONFIG } from '../config.js?v=20261116_options_tiles';
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_options_tiles';
-import { Auth, Api } from '../api.js?v=20261116_options_tiles';
-import { trackEvent } from '../analytics.js?v=20261116_options_tiles';
-import { navigate } from '../app.js?v=20261116_options_tiles';
+import { CONFIG } from '../config.js?v=20261116_options_select';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_options_select';
+import { Auth, Api } from '../api.js?v=20261116_options_select';
+import { trackEvent } from '../analytics.js?v=20261116_options_select';
+import { navigate } from '../app.js?v=20261116_options_select';
 
 export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();

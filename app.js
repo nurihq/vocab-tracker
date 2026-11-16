@@ -1,21 +1,21 @@
-import { Navbar } from './components/navbar.js?v=20261116_options_tiles';
-import { Modal } from './components/modal.js?v=20261116_options_tiles';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_options_tiles';
-import { setI18nBaseLang } from './i18n.js?v=20261116_options_tiles';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_options_tiles';
-import { trackPageView, trackEvent } from './analytics.js?v=20261116_options_tiles';
+import { Navbar } from './components/navbar.js?v=20261116_options_select';
+import { Modal } from './components/modal.js?v=20261116_options_select';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_options_select';
+import { setI18nBaseLang } from './i18n.js?v=20261116_options_select';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_options_select';
+import { trackPageView, trackEvent } from './analytics.js?v=20261116_options_select';
 
-import { renderHomeScreen } from './screens/home.js?v=20261116_options_tiles';
-import { renderSignInScreen } from './screens/signin.js?v=20261116_options_tiles';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_options_tiles';
-import { renderDecksScreen } from './screens/decks.js?v=20261116_options_tiles';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_options_tiles';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_options_tiles';
-import { renderAboutScreen } from './screens/about.js?v=20261116_options_tiles';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261116_options_tiles';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_options_tiles';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_options_tiles';
-import { renderSettingsScreen } from './screens/settings.js?v=20261116_options_tiles';
+import { renderHomeScreen } from './screens/home.js?v=20261116_options_select';
+import { renderSignInScreen } from './screens/signin.js?v=20261116_options_select';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_options_select';
+import { renderDecksScreen } from './screens/decks.js?v=20261116_options_select';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_options_select';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_options_select';
+import { renderAboutScreen } from './screens/about.js?v=20261116_options_select';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261116_options_select';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_options_select';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_options_select';
+import { renderSettingsScreen } from './screens/settings.js?v=20261116_options_select';
 
 const routeHistory = [];
 
