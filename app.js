@@ -1,21 +1,21 @@
-import { Navbar } from './components/navbar.js?v=20261116_khmer_autodefault';
-import { Modal } from './components/modal.js?v=20261116_khmer_autodefault';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_khmer_vowel_series';
-import { setI18nBaseLang } from './i18n.js?v=20261116_khmer_autodefault';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_khmer_autodefault';
-import { trackPageView, trackEvent } from './analytics.js?v=20261116_khmer_autodefault';
+import { Navbar } from './components/navbar.js?v=20261116_settings_v3';
+import { Modal } from './components/modal.js?v=20261116_settings_v3';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_settings_v3';
+import { setI18nBaseLang } from './i18n.js?v=20261116_settings_v3';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_settings_v3';
+import { trackPageView, trackEvent } from './analytics.js?v=20261116_settings_v3';
 
-import { renderHomeScreen } from './screens/home.js?v=20261116_khmer_autodefault';
-import { renderSignInScreen } from './screens/signin.js?v=20261116_khmer_autodefault';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_khmer_autodefault';
-import { renderDecksScreen } from './screens/decks.js?v=20261116_khmer_autodefault';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_khmer_vowel_series';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_khmer_autodefault';
-import { renderAboutScreen } from './screens/about.js?v=20261116_khmer_autodefault';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261116_khmer_autodefault';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_khmer_autodefault';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_khmer_autodefault';
-import { renderSettingsScreen } from './screens/settings.js?v=20261116_khmer_autodefault';
+import { renderHomeScreen } from './screens/home.js?v=20261116_settings_v3';
+import { renderSignInScreen } from './screens/signin.js?v=20261116_settings_v3';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_settings_v3';
+import { renderDecksScreen } from './screens/decks.js?v=20261116_settings_v3';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_settings_v3';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_settings_v3';
+import { renderAboutScreen } from './screens/about.js?v=20261116_settings_v3';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261116_settings_v3';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_settings_v3';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_settings_v3';
+import { renderSettingsScreen } from './screens/settings.js?v=20261116_settings_v3';
 
 const routeHistory = [];
 
