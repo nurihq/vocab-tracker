@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20261116_khmer_zoom5';
-import { getI18nBaseLang } from './i18n.js?v=20261116_khmer_zoom5';
+import { CONFIG } from './config.js?v=20261116_khmer_zoom6';
+import { getI18nBaseLang } from './i18n.js?v=20261116_khmer_zoom6';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;

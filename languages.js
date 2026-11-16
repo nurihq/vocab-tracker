@@ -374,7 +374,7 @@ export function parseKhmerWordTokens(text) {
           if (cmp) {
             tokens.push({
               char: cmp,
-              display: `\u25CC${cmp}`,
+              display: cmp,
               series: null,
               kind: 'vowel',
               romaji: KHMER_KEYSTROKE_VOWEL_ROMAJI[cmp] || ''
@@ -383,10 +383,9 @@ export function parseKhmerWordTokens(text) {
           } else {
             const vCh = vChars[vIdx];
             if (KHMER_VOWEL_POS[vCh] || KHMER_INDEP_AND_SIGNS.has(vCh)) {
-              const needsCircle = isKhmerCombiningMark(vCh);
               tokens.push({
                 char: vCh,
-                display: needsCircle ? `\u25CC${vCh}` : vCh,
+                display: vCh,
                 series: null,
                 kind: 'vowel',
                 romaji: KHMER_KEYSTROKE_VOWEL_ROMAJI[vCh] || ''
