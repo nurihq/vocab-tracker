@@ -1,10 +1,10 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261116_standardize_khmer_font';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261116_move_deck_fix';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
-import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_standardize_khmer_font';
+import { navigate } from '../app.js?v=20261116_move_deck_fix';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_move_deck_fix';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -63,8 +63,17 @@ export function renderDeckWordsScreen(container, params = {}) {
 
       const newDataStr = JSON.stringify(words.map(w => ({ id: w.wordId, order: w.order, study: w.studyWord, base: w.baseWord, deck: w.deckId })));
       if (oldDataStr !== newDataStr) {
-        render();
-        translateWordMeanings();
+        const activeEl = document.activeElement;
+        const isUserInteractingWithDropdown = activeEl && activeEl.closest('.word-move-dropdown');
+        if (isUserInteractingWithDropdown) {
+          activeEl.addEventListener('blur', () => {
+            render();
+            translateWordMeanings();
+          }, { once: true });
+        } else {
+          render();
+          translateWordMeanings();
+        }
       }
     } catch (err) {
       console.warn('Background words refresh:', err);
@@ -221,8 +230,8 @@ export function renderDeckWordsScreen(container, params = {}) {
                   ` : ''}
                 </div>
 
-                <div class="word-actions">
-                  <select class="move-select word-move-dropdown" data-word-id="${w.wordId}" title="${t('moveWord')}">
+                <div class="word-actions" draggable="false" ondragstart="event.preventDefault(); event.stopPropagation();">
+                  <select class="move-select word-move-dropdown" data-word-id="${w.wordId}" title="${t('moveWord')}" draggable="false" onclick="event.stopPropagation();">
                     <option value="" disabled selected>${t('moveWord')}...</option>
                     ${allDecks.filter(d => d.deckId !== 'all' && d.deckId !== w.deckId).map(d => `
                       <option value="${d.deckId}">${getDeckDisplayName(d.deckId)}</option>
@@ -310,14 +319,28 @@ export function renderDeckWordsScreen(container, params = {}) {
     }
 
     container.querySelectorAll('.word-move-dropdown').forEach(select => {
+      select.addEventListener('mousedown', (e) => e.stopPropagation());
+      select.addEventListener('pointerdown', (e) => e.stopPropagation());
+
       select.addEventListener('change', async (e) => {
         const wordId = select.getAttribute('data-word-id');
         const toDeckId = e.target.value;
         if (!toDeckId) return;
 
+        const wordObj = words.find(w => w.wordId === wordId);
+        const fromDeckId = (wordObj && wordObj.deckId && wordObj.deckId.toLowerCase() !== 'all') ? wordObj.deckId : deckId;
+
+        // Instant Optimistic UI Update:
+        if (!isAllDeck) {
+          words = words.filter(w => w.wordId !== wordId);
+        } else if (wordObj) {
+          wordObj.deckId = toDeckId;
+        }
+        render();
+
         try {
-          await Api.moveWord(langCode, wordId, deckId, toDeckId);
-          trackEvent('move_word', { langCode, fromDeckId: deckId, toDeckId });
+          await Api.moveWord(langCode, wordId, fromDeckId, toDeckId);
+          trackEvent('move_word', { langCode, fromDeckId, toDeckId });
           refreshBackground();
         } catch (err) {
           console.error('Failed to move word:', err);

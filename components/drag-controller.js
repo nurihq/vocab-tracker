@@ -142,6 +142,10 @@ export function setupDraggableList({
 
     // ─── Desktop HTML5 Drag & Drop ──────────────────────────────────
     item.addEventListener('dragstart', (e) => {
+      if (e.target.closest('button, select, input, textarea, a, .tile-action-btn, .word-actions, .move-select')) {
+        e.preventDefault();
+        return;
+      }
       draggedItem = item;
       item.classList.add('is-dragging');
       e.dataTransfer.effectAllowed = 'move';

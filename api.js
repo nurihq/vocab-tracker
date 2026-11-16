@@ -24,25 +24,55 @@ async function clientAutoTranslate(text, fromLang, toLang) {
   return text;
 }
 
-// Strict word deduplicator: preserves true cloud IDs over temporary IDs
+// Strict word deduplicator: ensures each unique word belongs to only one deck,
+// preserving the latest updated/moved state and true cloud IDs over temporary IDs
 export function deduplicateWords(words = []) {
-  const seen = new Map();
+  const byId = new Map();
   for (const w of words) {
     if (!w || !w.studyWord) continue;
-    const key = `${w.deckId || 'practicing'}:${w.studyWord.toLowerCase().trim()}`;
-    if (!seen.has(key)) {
-      seen.set(key, w);
-    } else {
-      const existing = seen.get(key);
-      // If existing was temporary and new one has cloud ID, or newer timestamp
-      if (existing.wordId?.startsWith('w_') && !w.wordId?.startsWith('w_')) {
-        seen.set(key, w);
-      } else if (new Date(w.updatedAt || w.createdAt || 0) > new Date(existing.updatedAt || existing.createdAt || 0)) {
-        seen.set(key, w);
+    const wid = w.wordId;
+    if (wid) {
+      if (!byId.has(wid)) {
+        byId.set(wid, w);
+      } else {
+        const existing = byId.get(wid);
+        const wTime = new Date(w.updatedAt || w.createdAt || 0).getTime();
+        const exTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+        if (wTime >= exTime) {
+          byId.set(wid, w);
+        }
       }
     }
   }
-  return Array.from(seen.values());
+
+  const byText = new Map();
+  for (const w of words) {
+    if (!w || !w.studyWord) continue;
+    if (w.wordId && byId.get(w.wordId) !== w) continue;
+
+    const textKey = (w.studyWord || '').toLowerCase().trim();
+    if (!byText.has(textKey)) {
+      byText.set(textKey, w);
+    } else {
+      const existing = byText.get(textKey);
+      const isExistingTemp = existing.wordId?.startsWith('w_');
+      const isNewTemp = w.wordId?.startsWith('w_');
+
+      if (isExistingTemp && !isNewTemp) {
+        byText.set(textKey, w);
+      } else if (!isExistingTemp && isNewTemp) {
+        // Keep existing cloud word
+      } else {
+        const wTime = new Date(w.updatedAt || w.createdAt || 0).getTime();
+        const exTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+        if (wTime >= exTime) {
+          byText.set(textKey, w);
+        }
+      }
+    }
+  }
+
+  return Array.from(byText.values());
 }
 
 export function migrateLegacyDefaultDecks(store) {
@@ -1195,13 +1225,13 @@ export const Api = {
           const cloudWords = res.words;
           const localList = store.words[langCode] || [];
           
-          // Preserve any local words that are not in cloudWords yet
+          // Reconcile: merge local and cloud words with newer updatedAt timestamps prevailing
+          store.words[langCode] = deduplicateWords([...localList, ...cloudWords]);
+          saveLocalStore(store);
+
           const cloudIds = new Set(cloudWords.map(w => w.wordId));
           const cloudTexts = new Set(cloudWords.map(w => (w.studyWord || '').toLowerCase().trim()));
-          const unsyncedLocal = localList.filter(w => w && w.studyWord && !cloudIds.has(w.wordId) && !cloudTexts.has((w.studyWord || '').toLowerCase().trim()));
-          
-          store.words[langCode] = deduplicateWords([...cloudWords, ...unsyncedLocal]);
-          saveLocalStore(store);
+          const unsyncedLocal = localList.filter(w => w && w.studyWord && !cloudIds.has(w.wordId) && !cloudTexts.has((w.studyWord || '').toLowerCase().trim()) && w.wordId?.startsWith('w_'));
 
           if (unsyncedLocal.length > 0) {
             syncLocalToCloud().catch(() => {});
@@ -1366,7 +1396,11 @@ export const Api = {
     const store = getLocalStore();
     const words = store.words[langCode] || [];
     const target = words.find(w => w.wordId === wordId);
+    let realFromDeckId = fromDeckId;
     if (target) {
+      if (target.deckId && target.deckId.toLowerCase() !== 'all') {
+        realFromDeckId = target.deckId;
+      }
       target.deckId = toDeckId;
       target.updatedAt = new Date().toISOString();
       store.words[langCode] = deduplicateWords(words);
@@ -1375,11 +1409,17 @@ export const Api = {
 
     if (shouldUseCloud() && CONFIG.API_ENDPOINTS.words) {
       try {
-        await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
+        const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.words, {
           method: 'POST',
-          body: JSON.stringify({ action: 'move', langCode, wordId, fromDeckId, toDeckId })
+          body: JSON.stringify({ action: 'move', langCode, wordId, fromDeckId: realFromDeckId, toDeckId })
         });
-      } catch (e) {}
+        if (res && res.word && target) {
+          target.updatedAt = res.word.updatedAt || target.updatedAt;
+          saveLocalStore(store);
+        }
+      } catch (e) {
+        console.warn('Word moved locally, will sync when online:', e);
+      }
     }
     return { word: target };
   },

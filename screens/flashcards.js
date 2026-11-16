@@ -1,8 +1,8 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore } from '../api.js?v=20261116_standardize_khmer_font';
+import { Api, getLocalStore } from '../api.js?v=20261116_move_deck_fix';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
-import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
+import { navigate } from '../app.js?v=20261116_move_deck_fix';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -346,29 +346,33 @@ export function renderFlashcardsScreen(container, params = {}) {
     // Move Word Event Listener
     const moveSelect = container.querySelector('#flashcard-move-select');
     if (moveSelect) {
+      moveSelect.addEventListener('mousedown', (e) => e.stopPropagation());
+      moveSelect.addEventListener('pointerdown', (e) => e.stopPropagation());
+
       moveSelect.addEventListener('change', async (e) => {
         const toDeckId = e.target.value;
         if (!toDeckId) return;
 
         const movedWord = currentWord;
-        trackEvent('move_word_flashcard', { langCode, wordId: movedWord.wordId, fromDeckId: movedWord.deckId || deckId, toDeckId });
+        const fromDeckId = movedWord.deckId || deckId;
+        trackEvent('move_word_flashcard', { langCode, wordId: movedWord.wordId, fromDeckId, toDeckId });
+
+        if (deckId.toLowerCase() !== 'all') {
+          // Remove from current study list immediately
+          words.splice(currentIndex, 1);
+          if (words.length === 0) {
+            isFinished = true;
+          } else if (currentIndex >= words.length) {
+            currentIndex = words.length - 1;
+          }
+        } else {
+          movedWord.deckId = toDeckId;
+        }
+        isFlipped = false;
+        render();
 
         try {
-          await Api.moveWord(langCode, movedWord.wordId, movedWord.deckId || deckId, toDeckId);
-          
-          if (deckId.toLowerCase() !== 'all') {
-            // Remove from current study list
-            words.splice(currentIndex, 1);
-            if (words.length === 0) {
-              isFinished = true;
-            } else if (currentIndex >= words.length) {
-              currentIndex = words.length - 1;
-            }
-          } else {
-            movedWord.deckId = toDeckId;
-          }
-          isFlipped = false;
-          render();
+          await Api.moveWord(langCode, movedWord.wordId, fromDeckId, toDeckId);
         } catch (err) {
           console.error('Failed to move word in flashcards:', err);
         }
