@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_settings_v3';
-import { getAppSettings, updateAppSettings, shouldColorKhmer } from '../api.js?v=20261116_settings_v3';
-import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_settings_v3';
-import { trackEvent } from '../analytics.js?v=20261116_settings_v3';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_settings_simple';
+import { getAppSettings, updateAppSettings, shouldColorKhmer } from '../api.js?v=20261116_settings_simple';
+import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_settings_simple';
+import { trackEvent } from '../analytics.js?v=20261116_settings_simple';
 
 function escapeHtml(str) {
   return String(str || '')
@@ -48,25 +48,14 @@ export function renderSettingsScreen(container) {
 
     container.innerHTML = `
       <div class="settings-page">
-        <div class="screen-header">
+        <div class="screen-header" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
           <div class="screen-title-group">
             <h1 class="screen-title">⚙️ <span data-i18n="settings">${t('settings') || 'Settings'}</span></h1>
-            <p class="settings-subtitle">Customize script colour-coding, romanisation, and study preferences.</p>
           </div>
-        </div>
-
-        <!-- Scope Navigation Tabs: All Languages | Khmer | More Languages -->
-        <div class="settings-scope-nav">
-          <button type="button" class="settings-scope-btn ${selectedScope === 'all' ? 'is-active' : ''}" data-scope="all">
-            🌐 All Languages
-          </button>
-          <button type="button" class="settings-scope-btn ${selectedScope === 'km' ? 'is-active' : ''}" data-scope="km">
-            🇰🇭 Khmer
-          </button>
-          <div class="settings-scope-select-wrap">
-            <select id="settings-more-lang-select" class="settings-scope-select ${selectedScope !== 'all' && selectedScope !== 'km' ? 'is-active' : ''}" title="Choose another language">
-              <option value="" disabled ${selectedScope === 'all' || selectedScope === 'km' ? 'selected' : ''}>More Languages ▾</option>
-              ${LANGUAGES.filter(l => l.code !== 'km').map(l => `
+          <div class="settings-lang-picker">
+            <select id="settings-lang-select" class="settings-lang-select" title="Select settings scope">
+              <option value="all" ${selectedScope === 'all' ? 'selected' : ''}>🌐 All Languages</option>
+              ${LANGUAGES.map(l => `
                 <option value="${l.code}" ${l.code === selectedScope ? 'selected' : ''}>
                   ${l.flag || '🌐'} ${l.name}
                 </option>
@@ -76,12 +65,8 @@ export function renderSettingsScreen(container) {
         </div>
 
         ${selectedScope === 'all' ? `
-          <!-- All Languages Settings View (Default) -->
+          <!-- All Settings View (Default) -->
           <section class="settings-card">
-            <div class="settings-scope-header">
-              <h2 class="settings-scope-title">🌐 All Languages</h2>
-            </div>
-
             <div class="settings-rows">
               <div class="settings-row-compact">
                 <div class="settings-row-title-wrap">
@@ -101,31 +86,10 @@ export function renderSettingsScreen(container) {
                 </div>
               </div>
             </div>
-
-            <!-- Shortcut Card to Language-Specific Settings -->
-            <div class="settings-promo-card">
-              <div class="settings-promo-info">
-                <span class="settings-promo-flag">🇰🇭</span>
-                <div>
-                  <h4 class="settings-promo-title">Khmer Language Settings</h4>
-                  <p class="settings-promo-desc">Consonant series colours, romanisation, and quick add translation.</p>
-                </div>
-              </div>
-              <button type="button" class="btn btn-secondary btn-sm" id="btn-goto-khmer">
-                Configure Khmer →
-              </button>
-            </div>
           </section>
         ` : selectedScope === 'km' ? `
           <!-- Khmer Language Settings View -->
           <section class="settings-card">
-            <div class="settings-scope-header">
-              <h2 class="settings-scope-title">🇰🇭 Khmer (ភាសាខ្មែរ)</h2>
-              <button type="button" class="btn btn-ghost btn-sm" id="btn-back-all-settings" style="font-size: 0.8rem; padding: 0.2rem 0.55rem;">
-                ← All Languages
-              </button>
-            </div>
-
             <div class="settings-rows">
               <!-- Khmer Consonant Colours -->
               <div class="settings-row-compact">
@@ -172,7 +136,7 @@ export function renderSettingsScreen(container) {
             <!-- Compact Live Preview for Khmer -->
             <div class="settings-preview-box" style="margin-top: 1.25rem;">
               <div class="settings-preview-header">
-                <span class="settings-preview-badge">Live Preview</span>
+                <span class="settings-preview-badge">Live Preview · 🇰🇭 Khmer</span>
                 <span class="settings-preview-status ${effectiveKhmer ? 'is-active' : ''}">
                   ${effectiveKhmer ? '✓ Colours Active' : 'Colours Off'} · ${khmerAutoRomEnabled ? 'Romanisation On' : 'Romanisation Off'} · ${khmerAutoTranslateEnabled ? 'Quick Add On' : 'Quick Add Off'}
                 </span>
@@ -208,13 +172,6 @@ export function renderSettingsScreen(container) {
         ` : `
           <!-- Other Language Information View -->
           <section class="settings-card">
-            <div class="settings-scope-header">
-              <h2 class="settings-scope-title">${selectedLang.flag || '🌐'} ${selectedLang.name} (${selectedLang.nativeName || selectedLang.name})</h2>
-              <button type="button" class="btn btn-ghost btn-sm" id="btn-back-all-settings" style="font-size: 0.8rem; padding: 0.2rem 0.55rem;">
-                ← All Languages
-              </button>
-            </div>
-
             <div class="settings-lang-empty-box">
               <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">${selectedLang.flag || '🌐'}</div>
               <h4 class="settings-lang-empty-title">${selectedLang.name}</h4>
@@ -239,39 +196,12 @@ export function renderSettingsScreen(container) {
 
     autoTranslateUi(container);
 
-    // Navigation Tab Buttons
-    container.querySelectorAll('.settings-scope-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        selectedScope = e.currentTarget.dataset.scope;
-        trackEvent('setting_tab_change', { scope: selectedScope });
-        render();
-      });
-    });
-
-    // More Languages Dropdown
-    const moreSelect = container.querySelector('#settings-more-lang-select');
-    if (moreSelect) {
-      moreSelect.addEventListener('change', (e) => {
+    // Language Selector Dropdown
+    const langSelect = container.querySelector('#settings-lang-select');
+    if (langSelect) {
+      langSelect.addEventListener('change', (e) => {
         selectedScope = e.target.value;
         trackEvent('setting_tab_change', { scope: selectedScope });
-        render();
-      });
-    }
-
-    // Go to Khmer Shortcut
-    const gotoKhmerBtn = container.querySelector('#btn-goto-khmer');
-    if (gotoKhmerBtn) {
-      gotoKhmerBtn.addEventListener('click', () => {
-        selectedScope = 'km';
-        render();
-      });
-    }
-
-    // Back to All Settings Button
-    const backAllBtn = container.querySelector('#btn-back-all-settings');
-    if (backAllBtn) {
-      backAllBtn.addEventListener('click', () => {
-        selectedScope = 'all';
         render();
       });
     }

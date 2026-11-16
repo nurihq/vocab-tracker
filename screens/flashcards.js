@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_settings_v3';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_settings_v3';
-import { Api, getLocalStore } from '../api.js?v=20261116_settings_v3';
-import { trackEvent } from '../analytics.js?v=20261116_settings_v3';
-import { navigate } from '../app.js?v=20261116_settings_v3';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_settings_simple';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_settings_simple';
+import { Api, getLocalStore } from '../api.js?v=20261116_settings_simple';
+import { trackEvent } from '../analytics.js?v=20261116_settings_simple';
+import { navigate } from '../app.js?v=20261116_settings_simple';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
