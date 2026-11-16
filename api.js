@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20261116_settings_searchable';
-import { getI18nBaseLang } from './i18n.js?v=20261116_settings_searchable';
+import { CONFIG } from './config.js?v=20261116_autotranslate_options';
+import { getI18nBaseLang } from './i18n.js?v=20261116_autotranslate_options';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -265,44 +265,85 @@ export function shouldAutoTranslateKhmerAdd() {
   return s.khmerAutoTranslateAdd !== false;
 }
 
-export async function translateTextToTarget(text, targetLang = 'km', sourceLang = 'auto') {
+export async function getTranslationCandidates(text, targetLang = 'km', sourceLang = 'auto') {
   const trimmed = String(text || '').trim();
-  if (!trimmed) return '';
+  if (!trimmed) return [];
   const cleanTo = (targetLang || 'km').toLowerCase().split('-')[0];
   const cleanFrom = (sourceLang || 'auto').toLowerCase().split('-')[0];
 
-  // 1. Google Translate GTX
+  const candidates = [];
+  const seen = new Set();
+
+  function addCandidate(str) {
+    if (!str) return;
+    let s = String(str).trim();
+    if (cleanTo === 'km') {
+      s = s.replace(/[!?,.:;។៕\s]+$/, '').trim();
+    }
+    if (!s || s.toLowerCase().startsWith('invalid') || seen.has(s)) return;
+    seen.add(s);
+    candidates.push(s);
+  }
+
+  // 1. Google Translate GTX with translation (dt=t), dictionary words (dt=bd), and alternative translations (dt=at)
   try {
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(cleanFrom)}&tl=${encodeURIComponent(cleanTo)}&dt=t&q=${encodeURIComponent(trimmed)}`;
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(cleanFrom)}&tl=${encodeURIComponent(cleanTo)}&dt=t&dt=bd&dt=at&q=${encodeURIComponent(trimmed)}`;
     const res = await fetch(url);
     const data = await res.json();
+
+    // Primary translation
     if (data && data[0]) {
-      let translated = data[0].map(item => item[0]).join('').trim();
-      if (cleanTo === 'km') {
-        translated = translated.replace(/[។៕\s]+$/, '').trim();
+      const prim = data[0].map(item => item && item[0] ? item[0] : '').join('').trim();
+      addCandidate(prim);
+    }
+
+    // Alternative translations (dt=at)
+    if (data && data[5] && Array.isArray(data[5])) {
+      for (const altGroup of data[5]) {
+        if (altGroup && Array.isArray(altGroup[2])) {
+          for (const a of altGroup[2]) {
+            if (a && a[0]) addCandidate(a[0]);
+          }
+        }
       }
-      if (translated) return translated;
+    }
+
+    // Dictionary words / synonyms (dt=bd)
+    if (data && data[1] && Array.isArray(data[1])) {
+      for (const entry of data[1]) {
+        if (entry && Array.isArray(entry[1])) {
+          for (const dWord of entry[1]) {
+            addCandidate(dWord);
+          }
+        }
+      }
     }
   } catch (e) {}
 
-  // 2. MyMemory fallback
+  // 2. MyMemory fallback / additional alternatives
   try {
     const fromPair = cleanFrom === 'auto' ? 'en' : cleanFrom;
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(trimmed)}&langpair=${encodeURIComponent(fromPair)}|${encodeURIComponent(cleanTo)}`;
     const res = await fetch(url);
     const data = await res.json();
     if (data && data.responseData && data.responseData.translatedText) {
-      let trans = String(data.responseData.translatedText || '').trim();
-      if (trans && !trans.toLowerCase().startsWith('invalid')) {
-        if (cleanTo === 'km') {
-          trans = trans.replace(/[។៕\s]+$/, '').trim();
+      addCandidate(data.responseData.translatedText);
+    }
+    if (data && Array.isArray(data.matches)) {
+      for (const m of data.matches) {
+        if (m && m.translation) {
+          addCandidate(m.translation);
         }
-        return trans;
       }
     }
   } catch (e) {}
 
-  return '';
+  return candidates;
+}
+
+export async function translateTextToTarget(text, targetLang = 'km', sourceLang = 'auto') {
+  const candidates = await getTranslationCandidates(text, targetLang, sourceLang);
+  return candidates[0] || '';
 }
 
 const ttsAudioCache = new Map();

@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_settings_searchable';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_settings_searchable';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, shouldColorKhmer } from '../api.js?v=20261116_settings_searchable';
-import { Modal } from '../components/modal.js?v=20261116_settings_searchable';
-import { trackEvent } from '../analytics.js?v=20261116_settings_searchable';
-import { navigate } from '../app.js?v=20261116_settings_searchable';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_settings_searchable';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_autotranslate_options';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_autotranslate_options';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261116_autotranslate_options';
+import { Modal } from '../components/modal.js?v=20261116_autotranslate_options';
+import { trackEvent } from '../analytics.js?v=20261116_autotranslate_options';
+import { navigate } from '../app.js?v=20261116_autotranslate_options';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_autotranslate_options';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -563,6 +563,7 @@ export function renderDeckWordsScreen(container, params = {}) {
 
     let latestTranslatedKhmer = '';
     let lastTranslatedBase = '';
+    let currentCandidates = [];
 
     const contentHtml = autoTranslateKhmer ? `
       <div class="form-group">
@@ -577,6 +578,10 @@ export function renderDeckWordsScreen(container, params = {}) {
             <span id="khmer-translated-text" class="khmer-translated-word"></span>
             <span id="khmer-translated-rom" class="khmer-translated-rom"></span>
             <button type="button" id="khmer-auto-translate-speaker" class="khmer-auto-translate-speaker" title="Listen to pronunciation" style="display: none;">🔊</button>
+          </div>
+          <div id="khmer-auto-translate-options" class="khmer-auto-translate-options-wrap" style="display: none;">
+            <label for="khmer-translation-options-select" class="khmer-auto-translate-options-label">Options:</label>
+            <select id="khmer-translation-options-select" class="khmer-auto-translate-select" title="Choose translation option"></select>
           </div>
         </div>
       </div>
@@ -636,7 +641,8 @@ export function renderDeckWordsScreen(container, params = {}) {
               confirmBtn.textContent = 'Translating...';
             }
             try {
-              studyWord = await translateTextToTarget(baseWord, 'km', currentBase);
+              const candidates = await getTranslationCandidates(baseWord, 'km', currentBase);
+              studyWord = candidates[0] || '';
               latestTranslatedKhmer = studyWord;
               lastTranslatedBase = baseWord;
             } catch (e) {}
@@ -692,16 +698,50 @@ export function renderDeckWordsScreen(container, params = {}) {
       const textEl = overlay.querySelector('#khmer-translated-text');
       const romEl = overlay.querySelector('#khmer-translated-rom');
       const speakerBtn = overlay.querySelector('#khmer-auto-translate-speaker');
+      const optionsWrap = overlay.querySelector('#khmer-auto-translate-options');
+      const optionsSelect = overlay.querySelector('#khmer-translation-options-select');
       const pronInput = overlay.querySelector('#new-pronunciation-input');
       let translateTimer = null;
+
+      function setSelectedCandidate(word, isManualSelection = false) {
+        if (!word) return;
+        latestTranslatedKhmer = word;
+        if (textEl) textEl.innerHTML = formatStudyTextHtml(word, shouldColorKhmer());
+
+        const autoRom = getKhmerWordRomanisation(word);
+        if (romEl) {
+          if (autoRom) {
+            romEl.innerHTML = `(${formatStudyPronunciationHtml(autoRom, word, 'km')})`;
+            romEl.style.display = '';
+          } else {
+            romEl.innerHTML = '';
+            romEl.style.display = 'none';
+          }
+        }
+
+        if (speakerBtn) {
+          speakerBtn.style.display = 'inline-flex';
+          speakerBtn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            speakKhmer(word, speakerBtn);
+          };
+        }
+
+        if (pronInput && (!pronInput.value.trim() || isManualSelection) && autoRom) {
+          pronInput.value = autoRom;
+        }
+      }
 
       async function doAutoTranslate() {
         const val = (baseInput ? baseInput.value : '').trim();
         if (!val) {
           latestTranslatedKhmer = '';
           lastTranslatedBase = '';
+          currentCandidates = [];
           if (previewBox) previewBox.style.display = 'none';
           if (speakerBtn) speakerBtn.style.display = 'none';
+          if (optionsWrap) optionsWrap.style.display = 'none';
           return;
         }
         if (val === lastTranslatedBase && latestTranslatedKhmer) return;
@@ -710,45 +750,47 @@ export function renderDeckWordsScreen(container, params = {}) {
         if (statusEl) statusEl.textContent = 'Translating...';
 
         try {
-          const translated = await translateTextToTarget(val, 'km', currentBase);
+          const candidates = await getTranslationCandidates(val, 'km', currentBase);
           if ((baseInput?.value || '').trim() !== val) return;
-          if (translated) {
-            latestTranslatedKhmer = translated;
+          if (candidates.length > 0) {
+            currentCandidates = candidates;
             lastTranslatedBase = val;
             if (statusEl) statusEl.textContent = '✓';
-            if (textEl) textEl.innerHTML = formatStudyTextHtml(translated, shouldColorKhmer());
 
-            const autoRom = getKhmerWordRomanisation(translated);
-            if (romEl) {
-              if (autoRom && isKhmerAutoRomanisationEnabled()) {
-                romEl.innerHTML = `(${formatStudyPronunciationHtml(autoRom, translated, 'km')})`;
-                romEl.style.display = '';
+            const primaryWord = candidates[0];
+            setSelectedCandidate(primaryWord);
+
+            // Populate multiple candidate dropdown if more than 1 option exists
+            if (optionsWrap && optionsSelect) {
+              if (candidates.length > 1) {
+                optionsSelect.innerHTML = candidates.map(c => {
+                  const cRom = getKhmerWordRomanisation(c);
+                  const label = cRom ? `${c} (${cRom})` : c;
+                  return `<option value="${c.replace(/"/g, '&quot;')}">${label}</option>`;
+                }).join('');
+                optionsSelect.value = primaryWord;
+                optionsWrap.style.display = 'flex';
               } else {
-                romEl.innerHTML = '';
-                romEl.style.display = 'none';
+                optionsWrap.style.display = 'none';
               }
-            }
-
-            if (speakerBtn) {
-              speakerBtn.style.display = 'inline-flex';
-              speakerBtn.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                speakKhmer(translated, speakerBtn);
-              };
-            }
-
-            if (pronInput && !pronInput.value.trim() && autoRom && isKhmerAutoRomanisationEnabled()) {
-              pronInput.value = autoRom;
             }
           } else {
             if (statusEl) statusEl.textContent = 'Translation not found';
             if (speakerBtn) speakerBtn.style.display = 'none';
+            if (optionsWrap) optionsWrap.style.display = 'none';
           }
         } catch (err) {
           if (statusEl) statusEl.textContent = 'Translation failed';
           if (speakerBtn) speakerBtn.style.display = 'none';
+          if (optionsWrap) optionsWrap.style.display = 'none';
         }
+      }
+
+      if (optionsSelect) {
+        optionsSelect.addEventListener('change', (e) => {
+          const chosen = e.target.value;
+          setSelectedCandidate(chosen, true);
+        });
       }
 
       if (baseInput) {

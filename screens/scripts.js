@@ -1,6 +1,6 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_settings_searchable';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_settings_searchable';
-import { trackEvent } from '../analytics.js?v=20261116_settings_searchable';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_autotranslate_options';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_autotranslate_options';
+import { trackEvent } from '../analytics.js?v=20261116_autotranslate_options';
 
 const SCRIPT_LANGUAGES = [
   { code: 'ja', href: '/scripts/japanese', defaultName: 'Japanese', defaultNative: '日本語', defaultFlag: '🇯🇵' },

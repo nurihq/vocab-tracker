@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_settings_searchable';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_settings_searchable';
-import { Api, getLocalStore } from '../api.js?v=20261116_settings_searchable';
-import { Modal } from '../components/modal.js?v=20261116_settings_searchable';
-import { trackEvent } from '../analytics.js?v=20261116_settings_searchable';
-import { navigate } from '../app.js?v=20261116_settings_searchable';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_settings_searchable';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_autotranslate_options';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_autotranslate_options';
+import { Api, getLocalStore } from '../api.js?v=20261116_autotranslate_options';
+import { Modal } from '../components/modal.js?v=20261116_autotranslate_options';
+import { trackEvent } from '../analytics.js?v=20261116_autotranslate_options';
+import { navigate } from '../app.js?v=20261116_autotranslate_options';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_autotranslate_options';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
