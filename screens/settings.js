@@ -1,14 +1,14 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts2';
-import { getAppSettings, updateAppSettings } from '../api.js?v=20261116_khmer_tts2';
-import { formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_tts2';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_tts2';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_defoff';
+import { getAppSettings, updateAppSettings } from '../api.js?v=20261116_khmer_defoff';
+import { formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_defoff';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_defoff';
 
 export function renderSettingsScreen(container) {
   function render() {
     const settings = getAppSettings();
     const allEnabled = settings.allLanguagesColors !== false;
     const khmerEnabled = settings.khmerConsonantColors !== false;
-    const khmerAutoRomEnabled = settings.khmerAutoRomanisation !== false;
+    const khmerAutoRomEnabled = Boolean(settings.khmerAutoRomanisation);
     const effectiveKhmer = Boolean(allEnabled && khmerEnabled);
 
     container.innerHTML = `

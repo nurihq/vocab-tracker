@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20261116_khmer_tts2';
-import { getI18nBaseLang } from './i18n.js?v=20261116_khmer_tts2';
+import { CONFIG } from './config.js?v=20261116_khmer_defoff';
+import { getI18nBaseLang } from './i18n.js?v=20261116_khmer_defoff';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -205,7 +205,7 @@ const SETTINGS_KEY = `${STORAGE_PREFIX}settings`;
 const DEFAULT_SETTINGS = {
   khmerConsonantColors: true,
   allLanguagesColors: true,
-  khmerAutoRomanisation: true
+  khmerAutoRomanisation: false
 };
 
 export function getAppSettings() {
@@ -244,7 +244,7 @@ export function shouldColorKhmer() {
 
 export function shouldAutoRomaniseKhmer() {
   const s = getAppSettings();
-  return s.khmerAutoRomanisation !== false;
+  return Boolean(s.khmerAutoRomanisation);
 }
 
 const ttsAudioCache = new Map();

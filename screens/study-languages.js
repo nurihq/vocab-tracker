@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts2';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_khmer_tts2';
-import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261116_khmer_tts2';
-import { Modal } from '../components/modal.js?v=20261116_khmer_tts2';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_tts2';
-import { navigate } from '../app.js?v=20261116_khmer_tts2';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_tts2';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_defoff';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_khmer_defoff';
+import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261116_khmer_defoff';
+import { Modal } from '../components/modal.js?v=20261116_khmer_defoff';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_defoff';
+import { navigate } from '../app.js?v=20261116_khmer_defoff';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_defoff';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;

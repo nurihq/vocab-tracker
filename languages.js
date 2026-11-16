@@ -550,10 +550,10 @@ export function isKhmerAutoRomanisationEnabled() {
     const raw = localStorage.getItem('vocab_tracker_settings');
     if (raw) {
       const parsed = JSON.parse(raw);
-      return parsed.khmerAutoRomanisation !== false;
+      return Boolean(parsed.khmerAutoRomanisation);
     }
   } catch (e) {}
-  return true; // Enabled by default
+  return false; // Disabled by default
 }
 
 export const KHMER_CONSONANT_ROMAJI = {
