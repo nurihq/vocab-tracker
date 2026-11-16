@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20261116_khmer_autotrans';
-import { getI18nBaseLang } from './i18n.js?v=20261116_khmer_autotrans';
+import { CONFIG } from './config.js?v=20261116_settings_override';
+import { getI18nBaseLang } from './i18n.js?v=20261116_settings_override';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -203,6 +203,7 @@ export function getRecentStudyLanguages(limit = 3) {
 const SETTINGS_KEY = `${STORAGE_PREFIX}settings`;
 
 const DEFAULT_SETTINGS = {
+  globalColorsOverride: 'inherit',
   khmerConsonantColors: true,
   allLanguagesColors: true,
   khmerAutoRomanisation: false,
@@ -227,9 +228,11 @@ export function updateAppSettings(partial = {}) {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
   } catch (e) {}
   if (typeof document !== 'undefined') {
+    const isKhmerColor = (next.globalColorsOverride === 'force_on')
+      || (next.globalColorsOverride !== 'force_off' && next.allLanguagesColors !== false && next.khmerConsonantColors !== false);
     document.documentElement.setAttribute(
       'data-khmer-colors',
-      next.allLanguagesColors && next.khmerConsonantColors ? 'on' : 'off'
+      isKhmerColor ? 'on' : 'off'
     );
   }
   if (typeof window !== 'undefined') {
@@ -240,7 +243,10 @@ export function updateAppSettings(partial = {}) {
 
 export function shouldColorKhmer() {
   const s = getAppSettings();
-  return Boolean(s.allLanguagesColors && s.khmerConsonantColors);
+  if (s.globalColorsOverride === 'force_on') return true;
+  if (s.globalColorsOverride === 'force_off') return false;
+  if (s.allLanguagesColors === false) return false;
+  return s.khmerConsonantColors !== false;
 }
 
 export function shouldAutoRomaniseKhmer() {

@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_autotrans';
-import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting, formatStudyTextHtml } from '../languages.js?v=20261116_khmer_autotrans';
-import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261116_khmer_autotrans';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_autotrans';
-import { navigate } from '../app.js?v=20261116_khmer_autotrans';
+import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261116_settings_override';
+import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting, formatStudyTextHtml } from '../languages.js?v=20261116_settings_override';
+import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261116_settings_override';
+import { trackEvent } from '../analytics.js?v=20261116_settings_override';
+import { navigate } from '../app.js?v=20261116_settings_override';
 
 export function renderHomeScreen(container) {
   const currentBase = getI18nBaseLang();

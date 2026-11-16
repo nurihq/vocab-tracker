@@ -267,9 +267,10 @@ export function isKhmerColorSettingEnabled() {
     const raw = localStorage.getItem('vocab_tracker_settings');
     if (raw) {
       const parsed = JSON.parse(raw);
-      const allOn = parsed.allLanguagesColors !== false;
-      const khmerOn = parsed.khmerConsonantColors !== false;
-      return Boolean(allOn && khmerOn);
+      if (parsed.globalColorsOverride === 'force_on') return true;
+      if (parsed.globalColorsOverride === 'force_off') return false;
+      if (parsed.allLanguagesColors === false) return false;
+      return parsed.khmerConsonantColors !== false;
     }
   } catch (e) {}
   return true; // Enabled by default
