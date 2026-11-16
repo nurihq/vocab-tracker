@@ -418,17 +418,20 @@ export function parseKhmerWordTokens(text) {
       });
       let j = i + 1;
       let vowelsAndSigns = '';
+      const subConsonants = [];
 
       while (j < chars.length && isKhmerCombiningMark(chars[j])) {
         if (chars[j] === '\u17D2' && j + 1 < chars.length && getKhmerConsonantSeries(chars[j + 1])) {
           const subCons = chars[j + 1];
+          subConsonants.push(subCons);
           const subToken = '\u17D2' + subCons;
           tokens.push({
             char: subToken,
             display: `\u200d${subToken}`,
             series: getKhmerConsonantSeries(subCons),
             kind: 'subscript',
-            romaji: KHMER_CONSONANT_ROMAJI[subCons]?.romaji || ''
+            romaji: KHMER_CONSONANT_ROMAJI[subCons]?.romaji || '',
+            speakText: subCons
           });
           j += 2;
         } else {
@@ -437,6 +440,8 @@ export function parseKhmerWordTokens(text) {
         }
       }
 
+      const effectiveSeries = resolveKhmerClusterSeries(ch, subConsonants, vowelsAndSigns);
+
       if (vowelsAndSigns) {
         let vIdx = 0;
         const vChars = Array.from(vowelsAndSigns);
@@ -444,23 +449,42 @@ export function parseKhmerWordTokens(text) {
           const remaining = vChars.slice(vIdx).join('');
           const cmp = KHMER_COMPOUND_VOWELS.find(c => remaining.startsWith(c));
           if (cmp) {
+            const vRom = getKhmerVowelRomaji(cmp, effectiveSeries);
+            const vCarrier = (effectiveSeries === 'o') ? '\u17A2\u17CA' : '\u17A2';
             tokens.push({
               char: cmp,
               display: cmp,
               series: null,
+              vowelSeries: effectiveSeries,
               kind: 'vowel',
-              romaji: KHMER_KEYSTROKE_VOWEL_ROMAJI[cmp] || ''
+              anchorChar: ch,
+              romaji: vRom,
+              speakText: `${vCarrier}${cmp}`
             });
             vIdx += Array.from(cmp).length;
           } else {
             const vCh = vChars[vIdx];
-            if (KHMER_VOWEL_POS[vCh] || KHMER_INDEP_AND_SIGNS.has(vCh)) {
+            if (KHMER_DEPENDENT_VOWELS[vCh]) {
+              const vRom = getKhmerVowelRomaji(vCh, effectiveSeries);
+              const vCarrier = (effectiveSeries === 'o') ? '\u17A2\u17CA' : '\u17A2';
               tokens.push({
                 char: vCh,
                 display: vCh,
                 series: null,
+                vowelSeries: effectiveSeries,
                 kind: 'vowel',
-                romaji: KHMER_KEYSTROKE_VOWEL_ROMAJI[vCh] || ''
+                anchorChar: ch,
+                romaji: vRom,
+                speakText: `${vCarrier}${vCh}`
+              });
+            } else if (KHMER_VOWEL_POS[vCh] || KHMER_INDEP_AND_SIGNS.has(vCh)) {
+              tokens.push({
+                char: vCh,
+                display: vCh,
+                series: null,
+                kind: 'sign',
+                romaji: KHMER_KEYSTROKE_VOWEL_ROMAJI[vCh] || '',
+                speakText: vCh
               });
             }
             vIdx++;
@@ -478,7 +502,8 @@ export function parseKhmerWordTokens(text) {
         display: ch,
         series: null,
         kind: 'indep',
-        romaji: KHMER_KEYSTROKE_VOWEL_ROMAJI[ch] || ''
+        romaji: KHMER_KEYSTROKE_VOWEL_ROMAJI[ch] || '',
+        speakText: ch
       });
     }
     i++;
@@ -719,6 +744,7 @@ export function tokenizeKhmerRomanisation(text) {
   if (!text) return [];
   const chars = Array.from(String(text));
   const tokens = [];
+  let currentSeries = 'a';
 
   for (let i = 0; i < chars.length; i++) {
     const ch = chars[i];
@@ -751,16 +777,33 @@ export function tokenizeKhmerRomanisation(text) {
         type: 'consonant',
         khmerChar: ch
       });
+
+      // Lookahead in this cluster to determine cluster series for any subsequent vowels
+      let lookahead = i + 1;
+      const subCons = [];
+      let diacritics = '';
+      while (lookahead < chars.length && isKhmerCombiningMark(chars[lookahead])) {
+        if (chars[lookahead] === '\u17D2' && lookahead + 1 < chars.length && getKhmerConsonantSeries(chars[lookahead + 1])) {
+          subCons.push(chars[lookahead + 1]);
+          lookahead += 2;
+        } else {
+          diacritics += chars[lookahead];
+          lookahead++;
+        }
+      }
+      currentSeries = resolveKhmerClusterSeries(ch, subCons, diacritics);
       continue;
     }
 
     // 3. Compound dependent vowel (2 codepoints: ុំ, ុះ, ាំ, េះ, ោះ)
     if (i + 1 < chars.length) {
       const twoChar = ch + chars[i + 1];
-      if (KHMER_KEYSTROKE_VOWEL_ROMAJI[twoChar]) {
+      if (KHMER_DEPENDENT_VOWELS[twoChar] || KHMER_KEYSTROKE_VOWEL_ROMAJI[twoChar]) {
+        const vText = getKhmerVowelRomaji(twoChar, currentSeries);
         tokens.push({
-          text: KHMER_KEYSTROKE_VOWEL_ROMAJI[twoChar],
+          text: vText,
           series: null,
+          vowelSeries: currentSeries,
           type: 'vowel',
           khmerChar: twoChar
         });
@@ -770,6 +813,18 @@ export function tokenizeKhmerRomanisation(text) {
     }
 
     // 4. Single-codepoint dependent vowel, independent vowel, or digit
+    if (KHMER_DEPENDENT_VOWELS[ch]) {
+      const vText = getKhmerVowelRomaji(ch, currentSeries);
+      tokens.push({
+        text: vText,
+        series: null,
+        vowelSeries: currentSeries,
+        type: 'vowel',
+        khmerChar: ch
+      });
+      continue;
+    }
+
     if (KHMER_KEYSTROKE_VOWEL_ROMAJI[ch]) {
       tokens.push({
         text: KHMER_KEYSTROKE_VOWEL_ROMAJI[ch],
