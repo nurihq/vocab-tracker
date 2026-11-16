@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_options_select';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_options_select';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261116_options_select';
-import { Modal } from '../components/modal.js?v=20261116_options_select';
-import { trackEvent } from '../analytics.js?v=20261116_options_select';
-import { navigate } from '../app.js?v=20261116_options_select';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_options_select';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_fix_rom_keyboard_nav';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_fix_rom_keyboard_nav';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261116_fix_rom_keyboard_nav';
+import { Modal } from '../components/modal.js?v=20261116_fix_rom_keyboard_nav';
+import { trackEvent } from '../analytics.js?v=20261116_fix_rom_keyboard_nav';
+import { navigate } from '../app.js?v=20261116_fix_rom_keyboard_nav';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_fix_rom_keyboard_nav';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -832,6 +832,7 @@ export function renderDeckWordsScreen(container, params = {}) {
 
       if (toggleBtn) {
         toggleBtn.addEventListener('click', (e) => {
+          if (e.target && e.target.closest('#khmer-auto-translate-speaker')) return;
           e.preventDefault();
           setOptionsOpen(optionsWrap.style.display === 'none');
         });

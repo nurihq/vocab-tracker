@@ -1,21 +1,21 @@
-import { Navbar } from './components/navbar.js?v=20261116_options_select';
-import { Modal } from './components/modal.js?v=20261116_options_select';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_options_select';
-import { setI18nBaseLang } from './i18n.js?v=20261116_options_select';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_options_select';
-import { trackPageView, trackEvent } from './analytics.js?v=20261116_options_select';
+import { Navbar } from './components/navbar.js?v=20261116_fix_rom_keyboard_nav';
+import { Modal } from './components/modal.js?v=20261116_fix_rom_keyboard_nav';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_fix_rom_keyboard_nav';
+import { setI18nBaseLang } from './i18n.js?v=20261116_fix_rom_keyboard_nav';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_fix_rom_keyboard_nav';
+import { trackPageView, trackEvent } from './analytics.js?v=20261116_fix_rom_keyboard_nav';
 
-import { renderHomeScreen } from './screens/home.js?v=20261116_options_select';
-import { renderSignInScreen } from './screens/signin.js?v=20261116_options_select';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_options_select';
-import { renderDecksScreen } from './screens/decks.js?v=20261116_options_select';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_options_select';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_options_select';
-import { renderAboutScreen } from './screens/about.js?v=20261116_options_select';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261116_options_select';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_options_select';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_options_select';
-import { renderSettingsScreen } from './screens/settings.js?v=20261116_options_select';
+import { renderHomeScreen } from './screens/home.js?v=20261116_fix_rom_keyboard_nav';
+import { renderSignInScreen } from './screens/signin.js?v=20261116_fix_rom_keyboard_nav';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_fix_rom_keyboard_nav';
+import { renderDecksScreen } from './screens/decks.js?v=20261116_fix_rom_keyboard_nav';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_fix_rom_keyboard_nav';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_fix_rom_keyboard_nav';
+import { renderAboutScreen } from './screens/about.js?v=20261116_fix_rom_keyboard_nav';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261116_fix_rom_keyboard_nav';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_fix_rom_keyboard_nav';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_fix_rom_keyboard_nav';
+import { renderSettingsScreen } from './screens/settings.js?v=20261116_fix_rom_keyboard_nav';
 
 const routeHistory = [];
 
@@ -127,7 +127,9 @@ class App {
         khmerCharEl.closest('.khmer-kb-key') ||
         khmerCharEl.closest('.home-card-stage') ||
         khmerCharEl.closest('.word-row') ||
-        khmerCharEl.closest('.khmer-zoom-word')
+        khmerCharEl.closest('.khmer-zoom-word') ||
+        khmerCharEl.closest('.khmer-select') ||
+        khmerCharEl.closest('.khmer-auto-translate-box')
       ) {
         return;
       }

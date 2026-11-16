@@ -1,9 +1,9 @@
-import { autoTranslateUi } from '../i18n.js?v=20261116_options_select';
-import { trackEvent } from '../analytics.js?v=20261116_options_select';
-import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261116_options_select';
-import { HIRAGANA_SECTIONS, HIRAGANA_STROKE_ORDER } from '../scripts/data/hiragana-data.js?v=20261116_options_select';
-import { KATAKANA_SECTIONS, KATAKANA_STROKE_ORDER } from '../scripts/data/katakana-data.js?v=20261116_options_select';
-import { KHMER_SECTIONS, KHMER_STROKE_ORDER } from '../scripts/data/khmer-data.js?v=20261116_options_select';
+import { autoTranslateUi } from '../i18n.js?v=20261116_fix_rom_keyboard_nav';
+import { trackEvent } from '../analytics.js?v=20261116_fix_rom_keyboard_nav';
+import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261116_fix_rom_keyboard_nav';
+import { HIRAGANA_SECTIONS, HIRAGANA_STROKE_ORDER } from '../scripts/data/hiragana-data.js?v=20261116_fix_rom_keyboard_nav';
+import { KATAKANA_SECTIONS, KATAKANA_STROKE_ORDER } from '../scripts/data/katakana-data.js?v=20261116_fix_rom_keyboard_nav';
+import { KHMER_SECTIONS, KHMER_STROKE_ORDER } from '../scripts/data/khmer-data.js?v=20261116_fix_rom_keyboard_nav';
 
 const SCRIPT_CONFIGS = {
   hiragana: {

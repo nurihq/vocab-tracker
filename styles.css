@@ -5349,6 +5349,11 @@ body.is-script-practice-route .main-content {
   overflow-y: auto;
 }
 
+.khmer-select-trigger .khmer-cons-char,
+.khmer-option-tile .khmer-cons-char {
+  cursor: inherit !important;
+}
+
 .khmer-option-tile {
   display: flex;
   align-items: center;

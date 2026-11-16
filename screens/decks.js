@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_options_select';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_options_select';
-import { Api, getLocalStore } from '../api.js?v=20261116_options_select';
-import { Modal } from '../components/modal.js?v=20261116_options_select';
-import { trackEvent } from '../analytics.js?v=20261116_options_select';
-import { navigate } from '../app.js?v=20261116_options_select';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_options_select';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_fix_rom_keyboard_nav';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_fix_rom_keyboard_nav';
+import { Api, getLocalStore } from '../api.js?v=20261116_fix_rom_keyboard_nav';
+import { Modal } from '../components/modal.js?v=20261116_fix_rom_keyboard_nav';
+import { trackEvent } from '../analytics.js?v=20261116_fix_rom_keyboard_nav';
+import { navigate } from '../app.js?v=20261116_fix_rom_keyboard_nav';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_fix_rom_keyboard_nav';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
