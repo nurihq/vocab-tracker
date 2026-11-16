@@ -4610,20 +4610,33 @@ body.is-script-practice-route .main-content {
 }
 
 .khmer-zoom-token-pill {
-  font-size: 1.35rem;
-  font-weight: 700;
-  min-width: 44px;
-  height: 44px;
-  padding: 0 0.55rem;
+  min-width: 48px;
+  min-height: 54px;
+  padding: 0.35rem 0.6rem;
   border-radius: 10px;
   border: 1px solid var(--border-color);
   background: var(--bg-subtle);
   color: var(--text-primary);
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.12rem;
   cursor: pointer;
   transition: transform 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.khmer-zoom-token-glyph {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.khmer-zoom-token-romaji {
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--text-secondary);
 }
 
 .khmer-zoom-token-pill:hover {

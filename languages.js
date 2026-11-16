@@ -337,7 +337,13 @@ export function parseKhmerWordTokens(text) {
     const baseSeries = getKhmerConsonantSeries(ch);
 
     if (baseSeries) {
-      tokens.push({ char: ch, display: ch, series: baseSeries, kind: 'consonant' });
+      tokens.push({
+        char: ch,
+        display: ch,
+        series: baseSeries,
+        kind: 'consonant',
+        romaji: KHMER_CONSONANT_ROMAJI[ch]?.romaji || ''
+      });
       let j = i + 1;
       let vowelsAndSigns = '';
 
@@ -349,7 +355,8 @@ export function parseKhmerWordTokens(text) {
             char: subToken,
             display: `\u200d${subToken}`,
             series: getKhmerConsonantSeries(subCons),
-            kind: 'subscript'
+            kind: 'subscript',
+            romaji: KHMER_CONSONANT_ROMAJI[subCons]?.romaji || ''
           });
           j += 2;
         } else {
@@ -365,7 +372,13 @@ export function parseKhmerWordTokens(text) {
           const remaining = vChars.slice(vIdx).join('');
           const cmp = KHMER_COMPOUND_VOWELS.find(c => remaining.startsWith(c));
           if (cmp) {
-            tokens.push({ char: cmp, display: `\u25CC${cmp}`, series: null, kind: 'vowel' });
+            tokens.push({
+              char: cmp,
+              display: `\u25CC${cmp}`,
+              series: null,
+              kind: 'vowel',
+              romaji: KHMER_KEYSTROKE_VOWEL_ROMAJI[cmp] || ''
+            });
             vIdx += Array.from(cmp).length;
           } else {
             const vCh = vChars[vIdx];
@@ -375,7 +388,8 @@ export function parseKhmerWordTokens(text) {
                 char: vCh,
                 display: needsCircle ? `\u25CC${vCh}` : vCh,
                 series: null,
-                kind: 'vowel'
+                kind: 'vowel',
+                romaji: KHMER_KEYSTROKE_VOWEL_ROMAJI[vCh] || ''
               });
             }
             vIdx++;
@@ -388,7 +402,13 @@ export function parseKhmerWordTokens(text) {
     }
 
     if (KHMER_INDEP_AND_SIGNS.has(ch)) {
-      tokens.push({ char: ch, display: ch, series: null, kind: 'indep' });
+      tokens.push({
+        char: ch,
+        display: ch,
+        series: null,
+        kind: 'indep',
+        romaji: KHMER_KEYSTROKE_VOWEL_ROMAJI[ch] || ''
+      });
     }
     i++;
   }

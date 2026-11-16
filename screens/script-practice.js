@@ -1,9 +1,9 @@
-import { autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom4';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom4';
-import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261116_khmer_zoom4';
-import { HIRAGANA_SECTIONS, HIRAGANA_STROKE_ORDER } from '../scripts/data/hiragana-data.js?v=20261116_khmer_zoom4';
-import { KATAKANA_SECTIONS, KATAKANA_STROKE_ORDER } from '../scripts/data/katakana-data.js?v=20261116_khmer_zoom4';
-import { KHMER_SECTIONS, KHMER_STROKE_ORDER } from '../scripts/data/khmer-data.js?v=20261116_khmer_zoom4';
+import { autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom5';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom5';
+import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261116_khmer_zoom5';
+import { HIRAGANA_SECTIONS, HIRAGANA_STROKE_ORDER } from '../scripts/data/hiragana-data.js?v=20261116_khmer_zoom5';
+import { KATAKANA_SECTIONS, KATAKANA_STROKE_ORDER } from '../scripts/data/katakana-data.js?v=20261116_khmer_zoom5';
+import { KHMER_SECTIONS, KHMER_STROKE_ORDER } from '../scripts/data/khmer-data.js?v=20261116_khmer_zoom5';
 
 const SCRIPT_CONFIGS = {
   hiragana: {
