@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261116_fix_pron_auto_rom';
-import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting, formatStudyTextHtml } from '../languages.js?v=20261116_fix_pron_auto_rom';
-import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261116_fix_pron_auto_rom';
-import { trackEvent } from '../analytics.js?v=20261116_fix_pron_auto_rom';
-import { navigate } from '../app.js?v=20261116_fix_pron_auto_rom';
+import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
+import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting, formatStudyTextHtml } from '../languages.js?v=20261116_standardize_khmer_font';
+import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261116_standardize_khmer_font';
+import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
+import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
 
 export function renderHomeScreen(container) {
   const currentBase = getI18nBaseLang();

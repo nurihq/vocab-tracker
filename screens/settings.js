@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_fix_pron_auto_rom';
-import { getAppSettings, updateAppSettings, shouldColorKhmer, shouldAutoRomaniseKhmer, shouldAutoTranslateKhmerAdd } from '../api.js?v=20261116_fix_pron_auto_rom';
-import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_fix_pron_auto_rom';
-import { trackEvent } from '../analytics.js?v=20261116_fix_pron_auto_rom';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
+import { getAppSettings, updateAppSettings, shouldColorKhmer, shouldAutoRomaniseKhmer, shouldAutoTranslateKhmerAdd } from '../api.js?v=20261116_standardize_khmer_font';
+import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_standardize_khmer_font';
+import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
 
 function escapeHtml(str) {
   return String(str || '')

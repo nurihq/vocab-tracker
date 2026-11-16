@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20261116_fix_pron_auto_rom';
+import { t } from '../i18n.js?v=20261116_standardize_khmer_font';
 
 export const Modal = {
   activeOverlay: null,

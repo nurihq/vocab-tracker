@@ -1,8 +1,8 @@
-import { CONFIG } from '../config.js?v=20261116_fix_pron_auto_rom';
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_fix_pron_auto_rom';
-import { Auth, Api } from '../api.js?v=20261116_fix_pron_auto_rom';
-import { trackEvent } from '../analytics.js?v=20261116_fix_pron_auto_rom';
-import { navigate } from '../app.js?v=20261116_fix_pron_auto_rom';
+import { CONFIG } from '../config.js?v=20261116_standardize_khmer_font';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
+import { Auth, Api } from '../api.js?v=20261116_standardize_khmer_font';
+import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
+import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
 
 export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();

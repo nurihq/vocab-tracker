@@ -1,8 +1,8 @@
-import { LANGUAGES } from '../languages.js?v=20261116_fix_pron_auto_rom';
-import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_fix_pron_auto_rom';
-import { Auth, Api } from '../api.js?v=20261116_fix_pron_auto_rom';
-import { trackEvent } from '../analytics.js?v=20261116_fix_pron_auto_rom';
-import { navigate, navigateBack } from '../app.js?v=20261116_fix_pron_auto_rom';
+import { LANGUAGES } from '../languages.js?v=20261116_standardize_khmer_font';
+import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
+import { Auth, Api } from '../api.js?v=20261116_standardize_khmer_font';
+import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
+import { navigate, navigateBack } from '../app.js?v=20261116_standardize_khmer_font';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {

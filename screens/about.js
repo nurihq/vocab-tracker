@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_fix_pron_auto_rom';
-import { Auth } from '../api.js?v=20261116_fix_pron_auto_rom';
-import { trackEvent } from '../analytics.js?v=20261116_fix_pron_auto_rom';
-import { navigate } from '../app.js?v=20261116_fix_pron_auto_rom';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
+import { Auth } from '../api.js?v=20261116_standardize_khmer_font';
+import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
+import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
 
 export function renderAboutScreen(container) {
   const isAuthed = Auth.isAuthenticated();
