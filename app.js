@@ -1,20 +1,23 @@
-import { Navbar } from './components/navbar.js?v=20261116_khmer_colors1';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_khmer_colors1';
-import { setI18nBaseLang } from './i18n.js?v=20261116_khmer_colors1';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_khmer_colors1';
-import { trackPageView, trackEvent } from './analytics.js?v=20261116_khmer_colors1';
+import { Navbar } from './components/navbar.js?v=20261116_back_nav1';
+import { Modal } from './components/modal.js?v=20261116_back_nav1';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_back_nav1';
+import { setI18nBaseLang } from './i18n.js?v=20261116_back_nav1';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_back_nav1';
+import { trackPageView, trackEvent } from './analytics.js?v=20261116_back_nav1';
 
-import { renderHomeScreen } from './screens/home.js?v=20261116_khmer_colors1';
-import { renderSignInScreen } from './screens/signin.js?v=20261116_khmer_colors1';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_khmer_colors1';
-import { renderDecksScreen } from './screens/decks.js?v=20261116_khmer_colors1';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_khmer_colors1';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_khmer_colors1';
-import { renderAboutScreen } from './screens/about.js?v=20261116_khmer_colors1';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261116_khmer_colors1';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_khmer_colors1';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_khmer_colors1';
-import { renderSettingsScreen } from './screens/settings.js?v=20261116_khmer_colors1';
+import { renderHomeScreen } from './screens/home.js?v=20261116_back_nav1';
+import { renderSignInScreen } from './screens/signin.js?v=20261116_back_nav1';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_back_nav1';
+import { renderDecksScreen } from './screens/decks.js?v=20261116_back_nav1';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_back_nav1';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_back_nav1';
+import { renderAboutScreen } from './screens/about.js?v=20261116_back_nav1';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261116_back_nav1';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_back_nav1';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_back_nav1';
+import { renderSettingsScreen } from './screens/settings.js?v=20261116_back_nav1';
+
+const routeHistory = [];
 
 function normalizeScriptAlias(rawPath) {
   let p = rawPath.replace(/^\/scripts\/japananese(\/|$)/, '/scripts/japanese$1');
@@ -23,6 +26,13 @@ function normalizeScriptAlias(rawPath) {
   if (p === '/scripts/katakana') return '/scripts/japanese/katakana';
   if (p === '/scripts/katakana/practice') return '/scripts/japanese/katakana/practice';
   return p;
+}
+
+function normalizeTargetToPath(target) {
+  const raw = (target || '/').trim();
+  const stripped = raw.replace(/^#/, '').replace(/\/+$/, '') || '/';
+  const withSlash = stripped.startsWith('/') ? stripped : '/' + stripped;
+  return normalizeScriptAlias(withSlash);
 }
 
 function getActiveRoutePath() {
@@ -71,6 +81,19 @@ export function navigate(to) {
   } else {
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   }
+}
+
+export function navigateBack(target) {
+  if (target) {
+    const targetPath = normalizeTargetToPath(target);
+    if (routeHistory.length >= 2 && routeHistory[routeHistory.length - 2] === targetPath) {
+      window.history.back();
+      return;
+    }
+    navigate(target);
+    return;
+  }
+  window.history.back();
 }
 
 class App {
@@ -229,13 +252,65 @@ class App {
   }
 
   handleRoute() {
+    const prevPath = this.currentPath || null;
     const path = getActiveRoutePath();
     const routeToken = path === '/' ? '#/' : `#${path}`;
+
+    if (routeHistory.length >= 2 && routeHistory[routeHistory.length - 2] === path) {
+      routeHistory.pop();
+    } else if (routeHistory[routeHistory.length - 1] !== path) {
+      routeHistory.push(path);
+    }
 
     const practiceMatch = path.match(/^\/scripts\/(?:japanese\/(hiragana|katakana)|(khmer))\/practice$/);
     const infoMatch = path.match(/^\/scripts\/(?:japanese\/(hiragana|katakana)|(khmer))$/);
     const isJapaneseLanding = path === '/scripts/japanese';
     const isScriptsRoute = path === '/scripts' || path.startsWith('/scripts/');
+
+    // Track whether the user entered a language's decks from Home vs Languages
+    if (path === '/languages') {
+      sessionStorage.setItem('vocab_decks_back_source', 'languages');
+    } else if (/^\/languages\/[^/]+\/decks$/.test(path)) {
+      if (prevPath === '/' || prevPath === '') {
+        sessionStorage.setItem('vocab_decks_back_source', 'home');
+      } else if (prevPath === '/languages') {
+        sessionStorage.setItem('vocab_decks_back_source', 'languages');
+      }
+    }
+
+    // Track return route when navigating to script keyboard pages from decks/modals or scripts hub
+    if (path === '/scripts/khmer') {
+      if (prevPath && prevPath !== '/scripts/khmer' && prevPath !== '/scripts/khmer/practice') {
+        const returnToken = prevPath === '/' ? '#/' : (prevPath.startsWith('/scripts') ? prevPath : `#${prevPath}`);
+        sessionStorage.setItem('khmer_kb_return_route', returnToken);
+      }
+    } else if (path === '/scripts/japanese/hiragana' || path === '/scripts/japanese/katakana') {
+      if (prevPath && !prevPath.startsWith('/scripts')) {
+        const returnToken = prevPath === '/' ? '#/' : `#${prevPath}`;
+        sessionStorage.setItem('japanese_kb_return_route', returnToken);
+      } else if (prevPath === '/scripts/japanese' || prevPath === '/scripts') {
+        sessionStorage.removeItem('japanese_kb_return_route');
+      }
+    }
+
+    // Suspend any open modal when jumping to scripts/keyboards, and restore it when coming back
+    if (isScriptsRoute) {
+      if (Modal.activeOverlay && !Modal.isSuspended && prevPath && !prevPath.startsWith('/scripts')) {
+        Modal.suspend(prevPath);
+      }
+    } else {
+      if (Modal.activeOverlay && Modal.isSuspended) {
+        if (Modal.suspendedRoute === path) {
+          Modal.resume(path);
+        } else {
+          Modal.close();
+        }
+      } else if (Modal.activeOverlay && !Modal.isSuspended && prevPath && prevPath !== path) {
+        Modal.close();
+      }
+    }
+
+    this.currentPath = path;
 
     document.body.classList.toggle('is-script-practice-route', Boolean(practiceMatch));
 
@@ -338,6 +413,8 @@ class App {
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
+  if (window.__monogenesisAppInitialized) return;
+  window.__monogenesisAppInitialized = true;
   const app = new App();
   app.init();
 });

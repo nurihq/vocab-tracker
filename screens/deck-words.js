@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_colors1';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml } from '../languages.js?v=20261116_khmer_colors1';
-import { Api, getLocalStore } from '../api.js?v=20261116_khmer_colors1';
-import { Modal } from '../components/modal.js?v=20261116_khmer_colors1';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_colors1';
-import { navigate } from '../app.js?v=20261116_khmer_colors1';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_colors1';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_back_nav1';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml } from '../languages.js?v=20261116_back_nav1';
+import { Api, getLocalStore } from '../api.js?v=20261116_back_nav1';
+import { Modal } from '../components/modal.js?v=20261116_back_nav1';
+import { trackEvent } from '../analytics.js?v=20261116_back_nav1';
+import { navigate } from '../app.js?v=20261116_back_nav1';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_back_nav1';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -151,10 +151,9 @@ export function renderDeckWordsScreen(container, params = {}) {
         </div>
         <div class="screen-actions">
           ${scriptKeyboardLink ? `
-            <a href="${scriptKeyboardLink.url}" target="_blank" rel="noopener" class="btn btn-secondary" id="open-script-kb-btn" title="Open ${scriptKeyboardLink.label} in a new window" style="text-decoration: none;">
+            <a href="${scriptKeyboardLink.url}" class="btn btn-secondary" id="open-script-kb-btn" title="${scriptKeyboardLink.label}" style="text-decoration: none;">
               <span>${scriptKeyboardLink.icon}</span>
               <span>${scriptKeyboardLink.label}</span>
-              <span aria-hidden="true" style="font-size: 0.85em; opacity: 0.75;">↗</span>
             </a>
           ` : ''}
           ${words.length > 0 ? `
@@ -447,6 +446,22 @@ export function renderDeckWordsScreen(container, params = {}) {
     return 'e.g. Word in script\nTransliteration / romanization';
   }
 
+  function reloadFromLocalAndCloud() {
+    const updatedStore = getLocalStore();
+    let updatedRaw = (updatedStore.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
+    if (currentSort === 'alpha') {
+      words = updatedRaw.sort((a, b) => (a.studyWord || '').localeCompare(b.studyWord || ''));
+    } else if (currentSort === 'custom') {
+      words = updatedRaw.sort((a, b) => ((a.order ?? 0) - (b.order ?? 0)) || (new Date(b.createdAt || 0) - new Date(a.createdAt || 0)));
+    } else {
+      words = updatedRaw.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
+    render();
+    translateWordMeanings();
+    refreshBackground();
+  }
+  container._reloadDeckWords = reloadFromLocalAndCloud;
+
   function openAddWordModal() {
     const baseExample = getBaseExample();
     const studyExample = getStudyExample();
@@ -464,9 +479,9 @@ export function renderDeckWordsScreen(container, params = {}) {
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.35rem;">
           <label class="form-label" style="margin-bottom: 0;">${localizedStudyLangName} Translation</label>
           ${scriptKeyboardLink ? `
-            <a href="${scriptKeyboardLink.url}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="padding: 0.22rem 0.6rem; font-size: 0.76rem; text-decoration: none;" title="Open ${scriptKeyboardLink.label} in a new window">
+            <a href="${scriptKeyboardLink.url}" class="btn btn-secondary btn-sm" style="padding: 0.22rem 0.6rem; font-size: 0.76rem; text-decoration: none;" title="${scriptKeyboardLink.label}">
               <span>${scriptKeyboardLink.icon}</span>
-              <span>${scriptKeyboardLink.label} ↗</span>
+              <span>${scriptKeyboardLink.label}</span>
             </a>
           ` : ''}
         </div>
@@ -497,19 +512,11 @@ export function renderDeckWordsScreen(container, params = {}) {
         try {
           await Api.addWord(langCode, targetDestinationDeck, baseWord, studyWord, pronunciation);
           trackEvent('add_word', { langCode, deckId: targetDestinationDeck, hasPronunciation: !!pronunciation });
-
-          const updatedStore = getLocalStore();
-          let updatedRaw = (updatedStore.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
-          if (currentSort === 'alpha') {
-            words = updatedRaw.sort((a, b) => (a.studyWord || '').localeCompare(b.studyWord || ''));
-          } else if (currentSort === 'custom') {
-            words = updatedRaw.sort((a, b) => ((a.order ?? 0) - (b.order ?? 0)) || (new Date(b.createdAt || 0) - new Date(a.createdAt || 0)));
+          if (container._reloadDeckWords) {
+            container._reloadDeckWords();
           } else {
-            words = updatedRaw.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            reloadFromLocalAndCloud();
           }
-          render();
-          translateWordMeanings();
-          refreshBackground();
           return true;
         } catch (err) {
           console.error(err);
@@ -537,9 +544,9 @@ export function renderDeckWordsScreen(container, params = {}) {
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.35rem;">
           <label class="form-label" style="margin-bottom: 0;">${localizedStudyLangName} Translation</label>
           ${scriptKeyboardLink ? `
-            <a href="${scriptKeyboardLink.url}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="padding: 0.22rem 0.6rem; font-size: 0.76rem; text-decoration: none;" title="Open ${scriptKeyboardLink.label} in a new window">
+            <a href="${scriptKeyboardLink.url}" class="btn btn-secondary btn-sm" style="padding: 0.22rem 0.6rem; font-size: 0.76rem; text-decoration: none;" title="${scriptKeyboardLink.label}">
               <span>${scriptKeyboardLink.icon}</span>
-              <span>${scriptKeyboardLink.label} ↗</span>
+              <span>${scriptKeyboardLink.label}</span>
             </a>
           ` : ''}
         </div>
@@ -570,7 +577,11 @@ export function renderDeckWordsScreen(container, params = {}) {
         try {
           await Api.updateWord(langCode, targetDestinationDeck, word.wordId, baseWord, studyWord, pronunciation);
           trackEvent('edit_word', { langCode, wordId: word.wordId, hasPronunciation: !!pronunciation });
-          refreshBackground();
+          if (container._reloadDeckWords) {
+            container._reloadDeckWords();
+          } else {
+            reloadFromLocalAndCloud();
+          }
           return true;
         } catch (err) {
           console.error(err);

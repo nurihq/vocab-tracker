@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_colors1';
-import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting, formatStudyTextHtml } from '../languages.js?v=20261116_khmer_colors1';
-import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261116_khmer_colors1';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_colors1';
-import { navigate } from '../app.js?v=20261116_khmer_colors1';
+import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261116_back_nav1';
+import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting, formatStudyTextHtml } from '../languages.js?v=20261116_back_nav1';
+import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261116_back_nav1';
+import { trackEvent } from '../analytics.js?v=20261116_back_nav1';
+import { navigate } from '../app.js?v=20261116_back_nav1';
 
 export function renderHomeScreen(container) {
   const currentBase = getI18nBaseLang();
@@ -193,9 +193,11 @@ export function renderHomeScreen(container) {
         if (lang) {
           trackEvent('home_recent_language_click', { langCode: lang });
           recordLanguageUsage(lang);
+          sessionStorage.setItem('vocab_decks_back_source', 'home');
           navigate(`#/languages/${lang}/decks`);
         } else if (stage.classList.contains('is-empty-add-card')) {
           trackEvent('home_add_language_click');
+          sessionStorage.setItem('vocab_decks_back_source', 'languages');
           navigate('#/languages');
         }
       };
@@ -234,6 +236,7 @@ export function renderHomeScreen(container) {
     startBtn.addEventListener('click', () => {
       trackEvent('home_start_click', { authenticated: Auth.isAuthenticated() });
       if (Auth.isAuthenticated()) {
+        sessionStorage.setItem('vocab_decks_back_source', 'languages');
         navigate('/languages');
       } else {
         navigate('/signin');

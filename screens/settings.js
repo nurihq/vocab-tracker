@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_colors1';
-import { getAppSettings, updateAppSettings } from '../api.js?v=20261116_khmer_colors1';
-import { formatStudyTextHtml } from '../languages.js?v=20261116_khmer_colors1';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_colors1';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_back_nav1';
+import { getAppSettings, updateAppSettings } from '../api.js?v=20261116_back_nav1';
+import { formatStudyTextHtml } from '../languages.js?v=20261116_back_nav1';
+import { trackEvent } from '../analytics.js?v=20261116_back_nav1';
 
 export function renderSettingsScreen(container) {
   function render() {

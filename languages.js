@@ -275,9 +275,25 @@ export function isKhmerColorSettingEnabled() {
   return true; // Enabled by default
 }
 
+const KHMER_PRE_VOWELS = new Set([
+  '\u17C1', '\u17C2', '\u17C3', '\u17C4', '\u17C5', '\u17BE', '\u17BF', '\u17C0'
+]);
+
+const KHMER_PRE_LIGATED_VOWELS = new Set([
+  '\u17C4', '\u17C5', '\u17BE'
+]);
+
+function isKhmerCombiningMark(ch) {
+  if (!ch) return false;
+  const code = ch.charCodeAt(0);
+  // Dependent vowels (17B6..17C5), signs & diacritics (17C6..17D3, 17DD)
+  return (code >= 0x17B6 && code <= 0x17D3) || code === 0x17DD;
+}
+
 /**
  * Formats study word text with Khmer consonant series coloring (A-series orange, O-series purple)
- * and interactive click attributes that navigate to /scripts/khmer with that consonant highlighted.
+ * while keeping every syllable cluster intact as a single text run (so mobile iOS Safari never shows
+ * dotted-circle vowel placeholders) and keeping vowels/diacritics in the default text color.
  */
 export function formatStudyTextHtml(text, forceColor = null) {
   if (!text) return '';
@@ -294,36 +310,109 @@ export function formatStudyTextHtml(text, forceColor = null) {
 
   const chars = Array.from(str);
   let out = '';
+  let i = 0;
 
-  for (let i = 0; i < chars.length; i++) {
-    const ch = chars[i];
+  while (i < chars.length) {
+    const baseChar = chars[i];
+    const baseSeries = getKhmerConsonantSeries(baseChar);
 
-    // Check for Coeng (`្` U+17D2) followed by a consonant
-    if (ch === '\u17D2' && i + 1 < chars.length) {
-      const nextCh = chars[i + 1];
-      const subSeries = getKhmerConsonantSeries(nextCh);
-      if (subSeries) {
-        const subToken = `្${nextCh}`;
-        out += `<span class="khmer-cons-char khmer-color-${subSeries}" data-khmer-char="${subToken}" title="Click to locate ${subToken} on Khmer keyboard">${subToken}</span>`;
-        i++;
-        continue;
-      }
-    }
-
-    const series = getKhmerConsonantSeries(ch);
-    if (series) {
-      let subAttr = '';
-      if (chars[i + 1] === '\u17D2' && i + 2 < chars.length && getKhmerConsonantSeries(chars[i + 2])) {
-        subAttr = ` data-khmer-sub="្${chars[i + 2]}"`;
-      }
-      out += `<span class="khmer-cons-char khmer-color-${series}" data-khmer-char="${ch}"${subAttr} title="Click to locate ${ch} on Khmer keyboard">${ch}</span>`;
+    if (!baseSeries) {
+      out += escapeHtml(baseChar);
+      i++;
       continue;
     }
 
-    out += escapeHtml(ch);
+    // Parse complete Khmer orthographic syllable cluster starting at baseChar
+    let j = i + 1;
+    let subscripts = '';
+    let lastSubSeries = null;
+    let lastSubToken = null;
+    let hasCoengRo = false;
+
+    while (j + 1 < chars.length && chars[j] === '\u17D2' && getKhmerConsonantSeries(chars[j + 1])) {
+      const subCons = chars[j + 1];
+      subscripts += '\u17D2' + subCons;
+      lastSubSeries = getKhmerConsonantSeries(subCons);
+      lastSubToken = '\u17D2' + subCons;
+      if (subCons === 'រ') hasCoengRo = true;
+      j += 2;
+    }
+
+    let vowelsAndSigns = '';
+    while (j < chars.length && isKhmerCombiningMark(chars[j])) {
+      if (chars[j] === '\u17D2' && j + 1 < chars.length && getKhmerConsonantSeries(chars[j + 1])) {
+        const subCons = chars[j + 1];
+        subscripts += '\u17D2' + subCons;
+        lastSubSeries = getKhmerConsonantSeries(subCons);
+        lastSubToken = '\u17D2' + subCons;
+        if (subCons === 'រ') hasCoengRo = true;
+        j += 2;
+      } else {
+        vowelsAndSigns += chars[j];
+        j++;
+      }
+    }
+
+    const fullCluster = chars.slice(i, j).join('');
+    const consCluster = baseChar + subscripts;
+    const subAttr = lastSubToken ? ` data-khmer-sub="${lastSubToken}"` : '';
+    const titleAttr = ` title="Click to locate ${baseChar}${lastSubToken ? ' / ' + lastSubToken : ''} on Khmer keyboard"`;
+
+    // Case 1: Pure consonant or consonant+subscript with no dependent vowels/signs
+    if (!vowelsAndSigns) {
+      if (!subscripts || lastSubSeries === baseSeries || hasCoengRo) {
+        out += `<span class="khmer-cons-char khmer-color-${baseSeries}" data-khmer-char="${baseChar}"${subAttr}${titleAttr}>${fullCluster}</span>`;
+      } else {
+        out += `<span class="khmer-cons-char is-khmer-cluster khmer-color-${lastSubSeries}" data-khmer-char="${baseChar}"${subAttr}${titleAttr}>${fullCluster}<span class="khmer-ov-left khmer-color-${baseSeries}" aria-hidden="true">${baseChar}</span></span>`;
+      }
+      i = j;
+      continue;
+    }
+
+    // Case 2: Cluster has dependent vowels or signs.
+    // Base text node is the unbroken fullCluster in default text color (so vowels stay uncolored & no dotted circle on mobile!).
+    const vowelChars = Array.from(vowelsAndSigns);
+    const hasPreVowel = vowelChars.some(v => KHMER_PRE_VOWELS.has(v));
+    const hasPreLigated = vowelChars.some(v => KHMER_PRE_LIGATED_VOWELS.has(v));
+    const hasAa = vowelsAndSigns.includes('\u17B6');
+    let overlayHtml = '';
+
+    if (hasPreVowel) {
+      if (hasPreLigated) {
+        // Pre-base + ligated crown (ោ, ៅ, ើ)
+        const innerBoxes = (!subscripts || lastSubSeries === baseSeries || hasCoengRo)
+          ? `<span class="khmer-ov-right-box"><span class="khmer-ov-spacer">${consCluster}</span><span class="khmer-ov-left khmer-color-${baseSeries}">${consCluster}\u17B6</span></span>`
+          : `<span class="khmer-ov-right-box"><span class="khmer-ov-spacer">${consCluster}</span><span class="khmer-ov-left khmer-color-${lastSubSeries}">${consCluster}\u17B6</span></span><span class="khmer-ov-right-box"><span class="khmer-ov-spacer">${baseChar}</span><span class="khmer-ov-left khmer-color-${baseSeries}">${baseChar}\u17B6</span></span>`;
+        overlayHtml = `<span class="khmer-ov-anchor" aria-hidden="true"><span class="khmer-ov-spacer">${consCluster}\u17C1</span>${innerBoxes}</span>`;
+      } else {
+        // Pre-base non-ligated (េ, ែ, ៃ, ឿ, ៀ)
+        const innerCons = (!subscripts || lastSubSeries === baseSeries || hasCoengRo)
+          ? `<span class="khmer-ov-right khmer-color-${baseSeries}">${consCluster}</span>`
+          : `<span class="khmer-ov-right khmer-color-${lastSubSeries}">${consCluster}</span><span class="khmer-ov-right khmer-color-${baseSeries}">${baseChar}</span>`;
+        overlayHtml = `<span class="khmer-ov-anchor" aria-hidden="true"><span class="khmer-ov-spacer">${consCluster}\u17C1</span>${innerCons}</span>`;
+      }
+    } else if (hasAa) {
+      // Ligated with ា (ា, ាំ, កា, ភា, សា)
+      if (!subscripts || lastSubSeries === baseSeries || hasCoengRo) {
+        overlayHtml = `<span class="khmer-ov-box" aria-hidden="true"><span class="khmer-ov-spacer">${consCluster}</span><span class="khmer-ov-left khmer-color-${baseSeries}">${consCluster}\u17B6</span></span>`;
+      } else {
+        overlayHtml = `<span class="khmer-ov-box" aria-hidden="true"><span class="khmer-ov-spacer">${consCluster}</span><span class="khmer-ov-left khmer-color-${lastSubSeries}">${consCluster}\u17B6</span></span><span class="khmer-ov-box" aria-hidden="true"><span class="khmer-ov-spacer">${baseChar}</span><span class="khmer-ov-left khmer-color-${baseSeries}">${baseChar}\u17B6</span></span>`;
+      }
+    } else {
+      // Below, above, or post marks (ុ, ូ, ួ, ិ, ី, ឹ, ឺ, ំ, ះ, ់, etc.)
+      if (!subscripts || lastSubSeries === baseSeries || hasCoengRo) {
+        overlayHtml = `<span class="khmer-ov-left khmer-color-${baseSeries}" aria-hidden="true">${consCluster}</span>`;
+      } else {
+        overlayHtml = `<span class="khmer-ov-left khmer-color-${lastSubSeries}" aria-hidden="true">${consCluster}</span><span class="khmer-ov-left khmer-color-${baseSeries}" aria-hidden="true">${baseChar}</span>`;
+      }
+    }
+
+    out += `<span class="khmer-cons-char is-khmer-cluster" data-khmer-char="${baseChar}"${subAttr}${titleAttr}>${fullCluster}${overlayHtml}</span>`;
+    i = j;
   }
 
   return out;
 }
+
 
 

@@ -4451,14 +4451,73 @@ body.is-script-practice-route .main-content {
   transition: opacity 0.15s ease, background-color 0.15s ease;
 }
 
+.khmer-cons-char.is-khmer-cluster {
+  position: relative;
+  display: inline-block;
+  color: var(--text-primary);
+  vertical-align: baseline;
+}
+
 .khmer-cons-char:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  background-color: rgba(124, 58, 237, 0.08);
+  background-color: rgba(124, 58, 237, 0.1);
 }
 
 .khmer-cons-char.khmer-color-a:hover {
-  background-color: rgba(217, 119, 6, 0.1);
+  background-color: rgba(217, 119, 6, 0.12);
+}
+
+.khmer-ov-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.khmer-ov-anchor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.khmer-ov-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.khmer-ov-right-box {
+  position: absolute;
+  top: 0;
+  right: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.khmer-ov-spacer {
+  visibility: hidden;
+  display: inline-block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.khmer-ov-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
 }
 
 [data-khmer-colors="off"] .word-study .khmer-cons-char,
@@ -4467,6 +4526,12 @@ body.is-script-practice-route .main-content {
   cursor: inherit;
   text-decoration: none;
   background: transparent;
+}
+
+[data-khmer-colors="off"] .khmer-ov-left,
+[data-khmer-colors="off"] .khmer-ov-anchor,
+[data-khmer-colors="off"] .khmer-ov-box {
+  display: none !important;
 }
 
 @keyframes khmerKeyLocatePulse {
