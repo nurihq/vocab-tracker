@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_defoff';
-import { Auth } from '../api.js?v=20261116_khmer_defoff';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_defoff';
-import { navigate } from '../app.js?v=20261116_khmer_defoff';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_autotrans';
+import { Auth } from '../api.js?v=20261116_khmer_autotrans';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_autotrans';
+import { navigate } from '../app.js?v=20261116_khmer_autotrans';
 
 export function renderAboutScreen(container) {
   const isAuthed = Auth.isAuthenticated();

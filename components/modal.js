@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20261116_khmer_defoff';
+import { t } from '../i18n.js?v=20261116_khmer_autotrans';
 
 export const Modal = {
   activeOverlay: null,

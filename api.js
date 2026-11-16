@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20261116_khmer_defoff';
-import { getI18nBaseLang } from './i18n.js?v=20261116_khmer_defoff';
+import { CONFIG } from './config.js?v=20261116_khmer_autotrans';
+import { getI18nBaseLang } from './i18n.js?v=20261116_khmer_autotrans';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -205,7 +205,8 @@ const SETTINGS_KEY = `${STORAGE_PREFIX}settings`;
 const DEFAULT_SETTINGS = {
   khmerConsonantColors: true,
   allLanguagesColors: true,
-  khmerAutoRomanisation: false
+  khmerAutoRomanisation: false,
+  khmerAutoTranslateAdd: false
 };
 
 export function getAppSettings() {
@@ -245,6 +246,51 @@ export function shouldColorKhmer() {
 export function shouldAutoRomaniseKhmer() {
   const s = getAppSettings();
   return Boolean(s.khmerAutoRomanisation);
+}
+
+export function shouldAutoTranslateKhmerAdd() {
+  const s = getAppSettings();
+  return Boolean(s.khmerAutoTranslateAdd);
+}
+
+export async function translateTextToTarget(text, targetLang = 'km', sourceLang = 'auto') {
+  const trimmed = String(text || '').trim();
+  if (!trimmed) return '';
+  const cleanTo = (targetLang || 'km').toLowerCase().split('-')[0];
+  const cleanFrom = (sourceLang || 'auto').toLowerCase().split('-')[0];
+
+  // 1. Google Translate GTX
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(cleanFrom)}&tl=${encodeURIComponent(cleanTo)}&dt=t&q=${encodeURIComponent(trimmed)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data[0]) {
+      let translated = data[0].map(item => item[0]).join('').trim();
+      if (cleanTo === 'km') {
+        translated = translated.replace(/[។៕\s]+$/, '').trim();
+      }
+      if (translated) return translated;
+    }
+  } catch (e) {}
+
+  // 2. MyMemory fallback
+  try {
+    const fromPair = cleanFrom === 'auto' ? 'en' : cleanFrom;
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(trimmed)}&langpair=${encodeURIComponent(fromPair)}|${encodeURIComponent(cleanTo)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data.responseData && data.responseData.translatedText) {
+      let trans = String(data.responseData.translatedText || '').trim();
+      if (trans && !trans.toLowerCase().startsWith('invalid')) {
+        if (cleanTo === 'km') {
+          trans = trans.replace(/[។៕\s]+$/, '').trim();
+        }
+        return trans;
+      }
+    }
+  } catch (e) {}
+
+  return '';
 }
 
 const ttsAudioCache = new Map();

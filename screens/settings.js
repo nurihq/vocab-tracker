@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_defoff';
-import { getAppSettings, updateAppSettings } from '../api.js?v=20261116_khmer_defoff';
-import { formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_defoff';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_defoff';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_autotrans';
+import { getAppSettings, updateAppSettings } from '../api.js?v=20261116_khmer_autotrans';
+import { formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_autotrans';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_autotrans';
 
 export function renderSettingsScreen(container) {
   function render() {
@@ -9,6 +9,7 @@ export function renderSettingsScreen(container) {
     const allEnabled = settings.allLanguagesColors !== false;
     const khmerEnabled = settings.khmerConsonantColors !== false;
     const khmerAutoRomEnabled = Boolean(settings.khmerAutoRomanisation);
+    const khmerAutoTranslateEnabled = Boolean(settings.khmerAutoTranslateAdd);
     const effectiveKhmer = Boolean(allEnabled && khmerEnabled);
 
     container.innerHTML = `
@@ -82,6 +83,24 @@ export function renderSettingsScreen(container) {
                 </label>
               </div>
             </div>
+
+            <!-- Khmer Auto-Translate on Add Word Toggle -->
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <label class="settings-row-label" for="toggle-khmer-auto-translate">
+                  🇰🇭 Quick Add (Auto-Translate Khmer)
+                </label>
+                <p class="settings-row-sub">
+                  Add words by typing only in your base language (e.g. English) in the Add Word modal without having to type Khmer script. The Khmer translation is looked up and saved automatically.
+                </p>
+              </div>
+              <div class="settings-row-control">
+                <label class="toggle-switch" title="Toggle automatic Khmer translation on add">
+                  <input type="checkbox" id="toggle-khmer-auto-translate" ${khmerAutoTranslateEnabled ? 'checked' : ''} />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
           </div>
 
           <!-- Live Interactive Preview Box -->
@@ -89,7 +108,7 @@ export function renderSettingsScreen(container) {
             <div class="settings-preview-header">
               <span class="settings-preview-badge">Live Preview</span>
               <span class="settings-preview-status ${effectiveKhmer ? 'is-active' : ''}">
-                ${effectiveKhmer ? '✓ Colours Active' : 'Colours Off'} · ${khmerAutoRomEnabled ? 'Auto-Romanisation On' : 'Auto-Romanisation Off'}
+                ${effectiveKhmer ? '✓ Colours Active' : 'Colours Off'} · ${khmerAutoRomEnabled ? 'Auto-Romanisation On' : 'Auto-Romanisation Off'} · ${khmerAutoTranslateEnabled ? 'Quick Add On' : 'Quick Add Off'}
               </span>
             </div>
 
@@ -156,6 +175,16 @@ export function renderSettingsScreen(container) {
         const checked = e.target.checked;
         updateAppSettings({ khmerAutoRomanisation: checked });
         trackEvent('setting_change', { setting: 'khmerAutoRomanisation', value: checked });
+        render();
+      });
+    }
+
+    const khmerAutoTranslateToggle = container.querySelector('#toggle-khmer-auto-translate');
+    if (khmerAutoTranslateToggle) {
+      khmerAutoTranslateToggle.addEventListener('change', (e) => {
+        const checked = e.target.checked;
+        updateAppSettings({ khmerAutoTranslateAdd: checked });
+        trackEvent('setting_change', { setting: 'khmerAutoTranslateAdd', value: checked });
         render();
       });
     }
