@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261116_recent_cards1';
-import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting } from '../languages.js?v=20261116_recent_cards1';
-import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261116_recent_cards1';
-import { trackEvent } from '../analytics.js?v=20261116_recent_cards1';
-import { navigate } from '../app.js?v=20261116_recent_cards1';
+import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_colors1';
+import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting, formatStudyTextHtml } from '../languages.js?v=20261116_khmer_colors1';
+import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261116_khmer_colors1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_colors1';
+import { navigate } from '../app.js?v=20261116_khmer_colors1';
 
 export function renderHomeScreen(container) {
   const currentBase = getI18nBaseLang();
@@ -51,7 +51,7 @@ export function renderHomeScreen(container) {
                   <span>${langInfo.flag || '🌐'}</span>
                   <span>${localizedStudyName}</span>
                 </div>
-                <div class="home-card-word">${greeting.word}</div>
+                <div class="home-card-word">${formatStudyTextHtml(greeting.word)}</div>
                 <div class="home-card-pronunciation">${greeting.pronunciation || langInfo.nativeName || ''}</div>
                 ${wordCount > 0 ? `
                   <div class="home-card-badge-row">

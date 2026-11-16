@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260918_1789711631718';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260918_1789711631718';
-import { Api, getLocalStore } from '../api.js?v=20260918_1789711631718';
-import { Modal } from '../components/modal.js?v=20260918_1789711631718';
-import { trackEvent } from '../analytics.js?v=20260918_1789711631718';
-import { navigate } from '../app.js?v=20260918_1789711631718';
-import { setupDraggableList } from '../components/drag-controller.js?v=20260918_1789711631718';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_colors1';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml } from '../languages.js?v=20261116_khmer_colors1';
+import { Api, getLocalStore } from '../api.js?v=20261116_khmer_colors1';
+import { Modal } from '../components/modal.js?v=20261116_khmer_colors1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_colors1';
+import { navigate } from '../app.js?v=20261116_khmer_colors1';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_colors1';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -211,7 +211,7 @@ export function renderDeckWordsScreen(container, params = {}) {
                 <div class="word-main-row">
                   <div class="word-content edit-word-trigger" data-word-id="${w.wordId}" title="${t('editWord')} (Click to edit)">
                     <div class="word-study-row">
-                      <span class="word-study">${w.studyWord}</span>
+                      <span class="word-study">${formatStudyTextHtml(w.studyWord)}</span>
                       ${w.pronunciation ? `<span class="word-pronunciation">${w.pronunciation}</span>` : ''}
                     </div>
                     <div class="word-base" data-word-base-id="${w.wordId}">${initialMeaning}</div>

@@ -1063,12 +1063,77 @@ function renderKhmerKeyboardChecklistScreen(container) {
   let isShifted = false;
   let isCoeng = false;
   let selectedKhmerChar = null; // Key token currently open in the Letter Action Modal
+  let highlightedKhmerChar = null;
+  let highlightSubChar = null;
+  let highlightTimer = null;
 
   // Independent & Compound Vowels rows (own card beneath the main keyboard card)
   const extraVowelRows = [
     ['ឥ', 'ឦ', 'ឧ', 'ឨ', 'ឩ', 'ឪ', 'ឫ', 'ឬ', 'ឭ', 'ឮ'],
     ['ឯ', 'ឰ', 'ឱ', 'ឳ', 'ុំ', 'ុះ', 'ាំ', 'េះ', 'ោះ']
   ];
+
+  function applyLayerForChar(charToken) {
+    if (!charToken) return;
+    const l1 = KHMER_KEYBOARD_ROWS.layer1.flat();
+    const l2 = KHMER_KEYBOARD_ROWS.layer2.flat();
+    const c1 = KHMER_KEYBOARD_ROWS.coengLayer1.flat();
+    const c2 = KHMER_KEYBOARD_ROWS.coengLayer2.flat();
+
+    if (l1.includes(charToken)) {
+      isShifted = false;
+      isCoeng = false;
+    } else if (l2.includes(charToken)) {
+      isShifted = true;
+      isCoeng = false;
+    } else if (c1.includes(charToken)) {
+      isShifted = false;
+      isCoeng = true;
+    } else if (c2.includes(charToken)) {
+      isShifted = true;
+      isCoeng = true;
+    }
+  }
+
+  function startHighlightExpiryTimer() {
+    if (highlightTimer) clearTimeout(highlightTimer);
+    if (!highlightedKhmerChar) return;
+
+    requestAnimationFrame(() => {
+      const keyEl = container.querySelector('.khmer-kb-key.is-kb-locator-highlight');
+      if (keyEl) {
+        keyEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+
+    highlightTimer = setTimeout(() => {
+      highlightedKhmerChar = null;
+      highlightSubChar = null;
+      highlightTimer = null;
+      container.querySelectorAll('.is-kb-locator-highlight, .is-kb-modifier-hint').forEach(el => {
+        el.classList.remove('is-kb-locator-highlight', 'is-kb-modifier-hint');
+      });
+      const banner = container.querySelector('#khmer-locator-banner');
+      if (banner) {
+        banner.classList.add('is-fading-out');
+        setTimeout(() => banner.remove(), 350);
+      }
+    }, 3800);
+  }
+
+  // Check if navigated here from clicking a Khmer consonant in a word
+  try {
+    const rawHighlight = sessionStorage.getItem('khmer_kb_highlight');
+    if (rawHighlight) {
+      sessionStorage.removeItem('khmer_kb_highlight');
+      const parsed = JSON.parse(rawHighlight);
+      if (parsed && parsed.char && (Date.now() - (parsed.timestamp || 0) < 15000)) {
+        highlightedKhmerChar = parsed.char;
+        highlightSubChar = parsed.subChar && parsed.subChar !== parsed.char ? parsed.subChar : null;
+        applyLayerForChar(highlightedKhmerChar);
+      }
+    }
+  } catch (e) {}
 
   function toggleCharLearned(charStr) {
     if (!charStr) return;
@@ -1115,10 +1180,11 @@ function renderKhmerKeyboardChecklistScreen(container) {
     }
 
     if (keyToken === 'SHIFT_KEY') {
+      const modHint = highlightedKhmerChar && isShifted ? 'is-kb-modifier-hint' : '';
       return `
         <button
           type="button"
-          class="khmer-kb-key is-modifier-key ${isShifted ? 'is-active' : ''}"
+          class="khmer-kb-key is-modifier-key ${isShifted ? 'is-active' : ''} ${modHint}"
           data-kb-action="shift"
           title="Tap to toggle Shift Layer (⇧)"
         >
@@ -1129,10 +1195,11 @@ function renderKhmerKeyboardChecklistScreen(container) {
     }
 
     if (keyToken === 'COENG_KEY') {
+      const modHint = highlightedKhmerChar && isCoeng ? 'is-kb-modifier-hint' : '';
       return `
         <button
           type="button"
-          class="khmer-kb-key is-coeng-key ${isCoeng ? 'is-active' : ''}"
+          class="khmer-kb-key is-coeng-key ${isCoeng ? 'is-active' : ''} ${modHint}"
           data-kb-action="coeng"
           title="Tap to toggle Subscript Consonants (្ Coeng)"
         >
@@ -1147,6 +1214,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
 
     const isRemembered = Boolean(learnedMap[keyToken]);
     const displayGlyph = meta.displayChar || keyToken;
+    const isHighlighted = highlightedKhmerChar === keyToken;
 
     const isConsOrSub = meta.type === 'consonant' || meta.type === 'subscript';
     const glyphColorClass = isConsOrSub ? `khmer-color-${meta.series.toLowerCase()}` : '';
@@ -1162,7 +1230,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
     return `
       <button
         type="button"
-        class="khmer-kb-key is-${meta.type} ${isRemembered ? 'is-learned' : 'needs-practice'} ${dimmed ? 'is-dimmed-key' : ''}"
+        class="khmer-kb-key is-${meta.type} ${isRemembered ? 'is-learned' : 'needs-practice'} ${dimmed ? 'is-dimmed-key' : ''} ${isHighlighted ? 'is-kb-locator-highlight' : ''}"
         data-char="${keyToken}"
         title="${displayGlyph} (${meta.romaji})"
       >
@@ -1300,6 +1368,15 @@ function renderKhmerKeyboardChecklistScreen(container) {
     const activeLayerChars = getActiveLayerTargetChars();
     const activeLayerDone = activeLayerChars.filter(c => learnedMap[c]).length;
 
+    const hlMeta = highlightedKhmerChar ? KHMER_CHAR_LOOKUP[highlightedKhmerChar] : null;
+    const hlDisplay = hlMeta?.displayChar || highlightedKhmerChar || '';
+    const hlColorClass = hlMeta && (hlMeta.type === 'consonant' || hlMeta.type === 'subscript')
+      ? `khmer-color-${hlMeta.series.toLowerCase()}`
+      : '';
+    const hlLayerLabel = isCoeng
+      ? (isShifted ? 'Shift ⇧ + Coeng ្ Layer' : 'Coeng ្ Layer')
+      : (isShifted ? 'Shift ⇧ Layer' : 'Default Layer');
+
     container.innerHTML = `
       <div class="script-info-page">
         <!-- 1. Main Interactive Khmer Phone Keyboard Card -->
@@ -1312,6 +1389,22 @@ function renderKhmerKeyboardChecklistScreen(container) {
               ✍️ Practice →
             </a>
           </div>
+
+          ${highlightedKhmerChar ? `
+            <div class="khmer-locator-banner" id="khmer-locator-banner" role="status">
+              <span class="khmer-locator-pulse-dot"></span>
+              <span class="khmer-locator-text">
+                Located <strong class="${hlColorClass}" style="font-size: 1.15em;">${hlDisplay}</strong>
+                ${hlMeta?.romaji ? `<em>(${hlMeta.romaji})</em>` : ''}
+                on <strong>${hlLayerLabel}</strong>
+              </span>
+              ${highlightSubChar ? `
+                <button type="button" class="khmer-locator-sub-btn" id="khmer-locate-sub-btn" data-sub-char="${highlightSubChar}">
+                  Locate ${highlightSubChar} →
+                </button>
+              ` : ''}
+            </div>
+          ` : ''}
 
           <!-- Live Phone Keyboard Grid (Identical Layout & Height on All Layers) -->
           <div class="khmer-kb-rows-container">
@@ -1365,6 +1458,21 @@ function renderKhmerKeyboardChecklistScreen(container) {
         ${renderKhmerCharActionModal()}
       </div>
     `;
+
+    // Subscript switch button inside locator banner
+    const subLocateBtn = container.querySelector('#khmer-locate-sub-btn');
+    if (subLocateBtn) {
+      subLocateBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const nextChar = subLocateBtn.getAttribute('data-sub-char');
+        const prevChar = highlightedKhmerChar;
+        highlightedKhmerChar = nextChar;
+        highlightSubChar = prevChar;
+        applyLayerForChar(nextChar);
+        renderPage();
+        startHighlightExpiryTimer();
+      });
+    }
 
     // Bind modifier keys on keyboard and top Coeng button (⇧ Shift, ្ Coeng)
     container.querySelectorAll('[data-kb-action]').forEach(btn => {
@@ -1432,4 +1540,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
   }).catch(() => {});
 
   renderPage();
+  if (highlightedKhmerChar) {
+    startHighlightExpiryTimer();
+  }
 }

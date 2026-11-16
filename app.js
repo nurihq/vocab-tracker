@@ -1,19 +1,20 @@
-import { Navbar } from './components/navbar.js?v=20261116_recent_cards1';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_recent_cards1';
-import { setI18nBaseLang } from './i18n.js?v=20261116_recent_cards1';
-import { Auth, syncLocalToCloud, recordLanguageUsage } from './api.js?v=20261116_recent_cards1';
-import { trackPageView } from './analytics.js?v=20261116_recent_cards1';
+import { Navbar } from './components/navbar.js?v=20261116_khmer_colors1';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_khmer_colors1';
+import { setI18nBaseLang } from './i18n.js?v=20261116_khmer_colors1';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_khmer_colors1';
+import { trackPageView, trackEvent } from './analytics.js?v=20261116_khmer_colors1';
 
-import { renderHomeScreen } from './screens/home.js?v=20261116_recent_cards1';
-import { renderSignInScreen } from './screens/signin.js?v=20261116_recent_cards1';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_recent_cards1';
-import { renderDecksScreen } from './screens/decks.js?v=20261116_recent_cards1';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_recent_cards1';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_recent_cards1';
-import { renderAboutScreen } from './screens/about.js?v=20261116_recent_cards1';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261116_recent_cards1';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_recent_cards1';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_recent_cards1';
+import { renderHomeScreen } from './screens/home.js?v=20261116_khmer_colors1';
+import { renderSignInScreen } from './screens/signin.js?v=20261116_khmer_colors1';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_khmer_colors1';
+import { renderDecksScreen } from './screens/decks.js?v=20261116_khmer_colors1';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_khmer_colors1';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_khmer_colors1';
+import { renderAboutScreen } from './screens/about.js?v=20261116_khmer_colors1';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261116_khmer_colors1';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_khmer_colors1';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_khmer_colors1';
+import { renderSettingsScreen } from './screens/settings.js?v=20261116_khmer_colors1';
 
 function normalizeScriptAlias(rawPath) {
   let p = rawPath.replace(/^\/scripts\/japananese(\/|$)/, '/scripts/japanese$1');
@@ -83,11 +84,51 @@ class App {
     const initialBaseLang = savedBaseLang || detectedLang || 'en';
     setI18nBaseLang(initialBaseLang);
 
+    // Initialize Khmer consonant color setting attribute
+    document.documentElement.setAttribute('data-khmer-colors', shouldColorKhmer() ? 'on' : 'off');
+
     this.navbar = new Navbar(
       (newBaseLang) => this.handleBaseLangChange(newBaseLang),
       (newTheme) => this.handleThemeChange(newTheme),
       () => this.handleSignOut()
     );
+
+    // Global capture-phase click handler for colored Khmer consonants:
+    // Clicking any colored consonant in a saved word navigates to the Khmer keyboard with that letter temporarily highlighted.
+    document.addEventListener('click', (e) => {
+      if (!e.target || !e.target.closest) return;
+      const khmerCharEl = e.target.closest('.khmer-cons-char[data-khmer-char]');
+      if (!khmerCharEl) return;
+      if (khmerCharEl.closest('.khmer-kb-key') || khmerCharEl.closest('.home-card-stage')) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      let targetChar = khmerCharEl.getAttribute('data-khmer-char');
+      const subChar = khmerCharEl.getAttribute('data-khmer-sub');
+
+      // If this cluster has a subscript and user clicked the lower portion of the glyph, highlight the subscript first
+      if (subChar) {
+        const rect = khmerCharEl.getBoundingClientRect();
+        if (rect.height > 0 && (e.clientY - rect.top) > rect.height * 0.62) {
+          targetChar = subChar;
+        }
+      }
+
+      // Save return route so the navbar Back button returns the user straight back to their deck/card
+      const curPath = getActiveRoutePath();
+      const returnToken = curPath === '/' ? '#/' : (curPath.startsWith('/scripts') ? curPath : `#${curPath}`);
+      sessionStorage.setItem('khmer_kb_return_route', returnToken);
+
+      sessionStorage.setItem('khmer_kb_highlight', JSON.stringify({
+        char: targetChar,
+        subChar: subChar || null,
+        timestamp: Date.now()
+      }));
+
+      trackEvent('khmer_consonant_locate', { char: targetChar });
+      navigate('/scripts/khmer');
+    }, true);
 
     // Global safeguard: prevent auto-capitalization and auto-correction on mobile inputs
     document.addEventListener('focusin', (e) => {
@@ -251,6 +292,10 @@ class App {
       document.title = 'Study Languages | monogenesis';
       trackPageView('/languages', document.title);
       renderStudyLanguagesScreen(this.mainContainer);
+    } else if (path === '/settings') {
+      document.title = 'Settings | monogenesis';
+      trackPageView('/settings', document.title);
+      renderSettingsScreen(this.mainContainer);
     } else {
       // Regex routes
       const studyMatch = path.match(/^\/languages\/([^/]+)\/decks\/([^/]+)\/study$/);

@@ -237,3 +237,93 @@ export function getLanguageGreeting(code) {
   };
 }
 
+// Khmer 15 A-Series Consonants (Orange) & 18 O-Series Consonants (Purple)
+export const KHMER_A_SERIES = new Set([
+  'ក', 'ខ', 'ច', 'ឆ', 'ដ', 'ឋ', 'ណ', 'ត', 'ថ', 'ប', 'ផ', 'ស', 'ហ', 'ឡ', 'អ'
+]);
+
+export const KHMER_O_SERIES = new Set([
+  'គ', 'ឃ', 'ង', 'ជ', 'ឈ', 'ញ', 'ឌ', 'ឍ', 'ទ', 'ធ', 'ន', 'ព', 'ភ', 'ម', 'យ', 'រ', 'ល', 'វ'
+]);
+
+export function getKhmerConsonantSeries(ch) {
+  if (!ch) return null;
+  if (KHMER_A_SERIES.has(ch)) return 'a';
+  if (KHMER_O_SERIES.has(ch)) return 'o';
+  return null;
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+export function isKhmerColorSettingEnabled() {
+  try {
+    const raw = localStorage.getItem('vocab_tracker_settings');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const allOn = parsed.allLanguagesColors !== false;
+      const khmerOn = parsed.khmerConsonantColors !== false;
+      return Boolean(allOn && khmerOn);
+    }
+  } catch (e) {}
+  return true; // Enabled by default
+}
+
+/**
+ * Formats study word text with Khmer consonant series coloring (A-series orange, O-series purple)
+ * and interactive click attributes that navigate to /scripts/khmer with that consonant highlighted.
+ */
+export function formatStudyTextHtml(text, forceColor = null) {
+  if (!text) return '';
+  const str = String(text);
+  // Quick check if string contains any Khmer characters (U+1780..U+17FF)
+  if (!/[\u1780-\u17FF]/.test(str)) {
+    return escapeHtml(str);
+  }
+
+  const enabled = forceColor !== null ? Boolean(forceColor) : isKhmerColorSettingEnabled();
+  if (!enabled) {
+    return escapeHtml(str);
+  }
+
+  const chars = Array.from(str);
+  let out = '';
+
+  for (let i = 0; i < chars.length; i++) {
+    const ch = chars[i];
+
+    // Check for Coeng (`្` U+17D2) followed by a consonant
+    if (ch === '\u17D2' && i + 1 < chars.length) {
+      const nextCh = chars[i + 1];
+      const subSeries = getKhmerConsonantSeries(nextCh);
+      if (subSeries) {
+        const subToken = `្${nextCh}`;
+        out += `<span class="khmer-cons-char khmer-color-${subSeries}" data-khmer-char="${subToken}" title="Click to locate ${subToken} on Khmer keyboard">${subToken}</span>`;
+        i++;
+        continue;
+      }
+    }
+
+    const series = getKhmerConsonantSeries(ch);
+    if (series) {
+      let subAttr = '';
+      if (chars[i + 1] === '\u17D2' && i + 2 < chars.length && getKhmerConsonantSeries(chars[i + 2])) {
+        subAttr = ` data-khmer-sub="្${chars[i + 2]}"`;
+      }
+      out += `<span class="khmer-cons-char khmer-color-${series}" data-khmer-char="${ch}"${subAttr} title="Click to locate ${ch} on Khmer keyboard">${ch}</span>`;
+      continue;
+    }
+
+    out += escapeHtml(ch);
+  }
+
+  return out;
+}
+
+

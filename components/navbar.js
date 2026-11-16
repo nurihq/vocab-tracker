@@ -96,10 +96,32 @@ export class Navbar {
       };
     }
 
-    if (cleanRoute === '/scripts/japanese' || cleanRoute === '/scripts/khmer') {
+    if (cleanRoute === '/scripts/khmer') {
+      const returnRoute = sessionStorage.getItem('khmer_kb_return_route');
+      if (returnRoute) {
+        return {
+          label: t('back') || 'Back',
+          target: returnRoute
+        };
+      }
       return {
         label: t('scripts') || 'Scripts',
         target: '/scripts'
+      };
+    }
+
+    if (cleanRoute === '/scripts/japanese') {
+      return {
+        label: t('scripts') || 'Scripts',
+        target: '/scripts'
+      };
+    }
+
+    if (cleanRoute === '/settings') {
+      const prevRoute = sessionStorage.getItem('vocab_settings_return_route');
+      return {
+        label: prevRoute && prevRoute !== '#/settings' ? (t('back') || 'Back') : t('home'),
+        target: prevRoute && prevRoute !== '#/settings' ? prevRoute : '#/'
       };
     }
 
@@ -116,12 +138,21 @@ export class Navbar {
 
   render(container, currentRoute) {
     const isAuthed = Auth.isAuthenticated();
+    const user = isAuthed ? Auth.getUser() : null;
     const currentBase = getI18nBaseLang();
     const backInfo = this.getNavBackInfo(currentRoute);
     const cleanPath = (currentRoute || '').replace(/^#/, '') || '/';
     const isHomeScreen = cleanPath === '/' || cleanPath === '';
     const isSignInScreen = cleanPath === '/signin';
-    const showUnauthBanner = !isAuthed && !isHomeScreen && !isSignInScreen;
+    const isSettingsScreen = cleanPath === '/settings';
+    const showUnauthBanner = !isAuthed && !isHomeScreen && !isSignInScreen && !isSettingsScreen;
+
+    // Remember last non-settings route so Back button from Settings returns smoothly
+    if (!isSettingsScreen) {
+      sessionStorage.setItem('vocab_settings_return_route', currentRoute || '#/');
+    }
+
+    const userInitial = (user?.name || user?.email || 'U').trim().charAt(0).toUpperCase();
 
     container.innerHTML = `
       <header class="navbar">
@@ -177,15 +208,81 @@ export class Navbar {
             ${this.theme === 'dark' ? '☀️' : '🌙'}
           </button>
 
-          ${isAuthed ? `
-            <button class="btn-signout" id="nav-signout-btn" data-i18n="signOut">
-              ${t('signOut')}
+          <!-- Profile Dropdown Menu -->
+          <div class="profile-menu-wrapper" id="profile-menu-wrapper">
+            <button type="button" class="profile-avatar-btn" id="profile-menu-btn" title="Account &amp; Settings" aria-haspopup="true" aria-expanded="false">
+              ${user?.picture ? `
+                <img src="${user.picture}" alt="${user.name || 'Profile'}" class="profile-avatar-img" referrerpolicy="no-referrer" />
+              ` : isAuthed ? `
+                <span class="profile-avatar-initial">${userInitial}</span>
+              ` : `
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              `}
+              <svg class="profile-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
             </button>
-          ` : `
-            <a href="#/signin" class="btn btn-secondary btn-sm" style="padding: 0.35rem 0.75rem; font-size: 0.82rem; text-decoration: none;">
-              Sign In
-            </a>
-          `}
+
+            <div class="profile-dropdown-menu" id="profile-dropdown-menu" role="menu">
+              ${isAuthed && user ? `
+                <div class="profile-dropdown-user">
+                  <div class="profile-dropdown-name">${user.name || 'Learner'}</div>
+                  ${user.email ? `<div class="profile-dropdown-email">${user.email}</div>` : ''}
+                </div>
+                <div class="profile-dropdown-divider"></div>
+              ` : ''}
+
+              <a href="#/settings" class="profile-dropdown-item ${isSettingsScreen ? 'is-active' : ''}" role="menuitem" id="dropdown-settings-link">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span data-i18n="settings">${t('settings') || 'Settings'}</span>
+              </a>
+
+              <a href="/scripts" class="profile-dropdown-item" role="menuitem">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                  <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                </svg>
+                <span data-i18n="scripts">${t('scripts') || 'Scripts'}</span>
+              </a>
+
+              <a href="#/about" class="profile-dropdown-item" role="menuitem">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="16" x2="12" y2="12"/>
+                  <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <span data-i18n="about">${t('about')}</span>
+              </a>
+
+              <div class="profile-dropdown-divider"></div>
+
+              ${isAuthed ? `
+                <button type="button" class="profile-dropdown-item is-danger-item" id="nav-signout-btn" role="menuitem">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                  <span data-i18n="signOut">${t('signOut')}</span>
+                </button>
+              ` : `
+                <a href="#/signin" class="profile-dropdown-item" role="menuitem">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                  </svg>
+                  <span>Sign In</span>
+                </a>
+              `}
+            </div>
+          </div>
         </div>
       </header>
       ${showUnauthBanner ? `
@@ -208,6 +305,7 @@ export class Navbar {
     if (backBtn) {
       backBtn.addEventListener('click', () => {
         const target = backBtn.getAttribute('data-target');
+        sessionStorage.removeItem('khmer_kb_return_route');
         trackEvent('nav_back_click', { target: target || 'history' });
         if (target) {
           navigate(target);
@@ -241,6 +339,40 @@ export class Navbar {
         trackEvent('theme_change', { theme: this.theme });
         if (this.onThemeChange) this.onThemeChange(this.theme);
       });
+    }
+
+    // Profile menu dropdown toggle
+    const profileBtn = container.querySelector('#profile-menu-btn');
+    const profileMenu = container.querySelector('#profile-dropdown-menu');
+    if (profileBtn && profileMenu) {
+      profileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = profileMenu.classList.toggle('is-open');
+        profileBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      // Close dropdown when clicking any link inside
+      profileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          profileMenu.classList.remove('is-open');
+          profileBtn.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // Close dropdown when clicking outside
+      if (!this._outsideClickBound) {
+        this._outsideClickBound = true;
+        document.addEventListener('click', (e) => {
+          const menu = document.getElementById('profile-dropdown-menu');
+          const btn = document.getElementById('profile-menu-btn');
+          if (menu && menu.classList.contains('is-open')) {
+            if (!menu.contains(e.target) && (!btn || !btn.contains(e.target))) {
+              menu.classList.remove('is-open');
+              if (btn) btn.setAttribute('aria-expanded', 'false');
+            }
+          }
+        });
+      }
     }
 
     const signOutBtn = container.querySelector('#nav-signout-btn');

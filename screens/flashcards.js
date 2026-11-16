@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20260918_1789711631718';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260918_1789711631718';
-import { Api, getLocalStore } from '../api.js?v=20260918_1789711631718';
-import { trackEvent } from '../analytics.js?v=20260918_1789711631718';
-import { navigate } from '../app.js?v=20260918_1789711631718';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_colors1';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml } from '../languages.js?v=20261116_khmer_colors1';
+import { Api, getLocalStore } from '../api.js?v=20261116_khmer_colors1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_colors1';
+import { navigate } from '../app.js?v=20261116_khmer_colors1';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -238,11 +238,11 @@ export function renderFlashcardsScreen(container, params = {}) {
     const initialBaseMeaning = getCachedWordMeaning(currentWord.studyWord, currentWord.baseWord, langCode, currentBase);
 
     const isStudyFront = showFirst === 'study';
-    const frontWord = isStudyFront ? currentWord.studyWord : initialBaseMeaning;
+    const frontWord = isStudyFront ? formatStudyTextHtml(currentWord.studyWord) : formatStudyTextHtml(initialBaseMeaning);
     const frontPronunciation = isStudyFront ? currentWord.pronunciation : '';
     const frontTag = isStudyFront ? `${langInfo.flag} ${localizedStudyName}` : localizedBaseName;
 
-    const backWord = isStudyFront ? initialBaseMeaning : currentWord.studyWord;
+    const backWord = isStudyFront ? formatStudyTextHtml(initialBaseMeaning) : formatStudyTextHtml(currentWord.studyWord);
     const backPronunciation = !isStudyFront ? currentWord.pronunciation : '';
     const backTag = !isStudyFront ? `${langInfo.flag} ${localizedStudyName}` : localizedBaseName;
 
@@ -478,6 +478,7 @@ export function renderFlashcardsScreen(container, params = {}) {
 
         // Tap detected: If not a swipe and finger movement was minimal, trigger instant flip
         if (!isHorizontalSwipe && Math.abs(deltaX) < 18 && Math.abs(deltaY) < 18) {
+          if (e.target && e.target.closest && e.target.closest('.khmer-cons-char')) return;
           flipCard();
         }
       });
@@ -494,8 +495,9 @@ export function renderFlashcardsScreen(container, params = {}) {
       });
 
       // Desktop click handler (ignored if handled via touchend)
-      stage.addEventListener('click', () => {
+      stage.addEventListener('click', (e) => {
         if (justHandledTouch) return;
+        if (e.target && e.target.closest && e.target.closest('.khmer-cons-char')) return;
         flipCard();
       });
     }

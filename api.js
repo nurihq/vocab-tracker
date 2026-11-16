@@ -200,6 +200,47 @@ export function getRecentStudyLanguages(limit = 3) {
   return scoredLanguages.slice(0, limit);
 }
 
+const SETTINGS_KEY = `${STORAGE_PREFIX}settings`;
+
+const DEFAULT_SETTINGS = {
+  khmerConsonantColors: true,
+  allLanguagesColors: true
+};
+
+export function getAppSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return { ...DEFAULT_SETTINGS, ...parsed };
+    }
+  } catch (e) {}
+  return { ...DEFAULT_SETTINGS };
+}
+
+export function updateAppSettings(partial = {}) {
+  const current = getAppSettings();
+  const next = { ...current, ...partial };
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+  } catch (e) {}
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute(
+      'data-khmer-colors',
+      next.allLanguagesColors && next.khmerConsonantColors ? 'on' : 'off'
+    );
+  }
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('vocab-settings-changed', { detail: next }));
+  }
+  return next;
+}
+
+export function shouldColorKhmer() {
+  const s = getAppSettings();
+  return Boolean(s.allLanguagesColors && s.khmerConsonantColors);
+}
+
 export const Auth = {
   getToken() {
     return localStorage.getItem(AUTH_TOKEN_KEY);
