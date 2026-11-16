@@ -165,3 +165,75 @@ export function detectBrowserLanguage() {
 
   return 'en';
 }
+
+// Greetings dictionary for world languages (used on home screen preview cards)
+export const LANGUAGE_GREETINGS = {
+  ja: { word: 'こんにちは', pronunciation: 'konnichiwa', baseMeaning: 'Hello' },
+  ka: { word: 'გამარჯობა', pronunciation: 'gamarjoba', baseMeaning: 'Hello' },
+  es: { word: '¡Hola!', pronunciation: 'oh-lah', baseMeaning: 'Hello' },
+  id: { word: 'Terima kasih', pronunciation: 'te-ri-ma ka-sih', baseMeaning: 'Thank you' },
+  fr: { word: 'Bonjour', pronunciation: 'bohn-zhoor', baseMeaning: 'Hello' },
+  de: { word: 'Guten Tag', pronunciation: 'goo-ten tahk', baseMeaning: 'Good day' },
+  it: { word: 'Ciao', pronunciation: 'chow', baseMeaning: 'Hello' },
+  pt: { word: 'Olá', pronunciation: 'oh-lah', baseMeaning: 'Hello' },
+  ru: { word: 'Привет', pronunciation: 'pree-vyet', baseMeaning: 'Hello' },
+  zh: { word: '你好', pronunciation: 'nǐ hǎo', baseMeaning: 'Hello' },
+  'zh-tw': { word: '你好', pronunciation: 'nǐ hǎo', baseMeaning: 'Hello' },
+  ko: { word: '안녕하세요', pronunciation: 'annyeonghaseyo', baseMeaning: 'Hello' },
+  ar: { word: 'مرحبا', pronunciation: 'marhaban', baseMeaning: 'Hello' },
+  hi: { word: 'नमस्ते', pronunciation: 'namaste', baseMeaning: 'Hello' },
+  bn: { word: 'হ্যালো', pronunciation: 'hyālō', baseMeaning: 'Hello' },
+  pa: { word: 'ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ', pronunciation: 'sat sri akaal', baseMeaning: 'Hello' },
+  ms: { word: 'Halo', pronunciation: 'hah-loh', baseMeaning: 'Hello' },
+  vi: { word: 'Xin chào', pronunciation: 'sin chow', baseMeaning: 'Hello' },
+  th: { word: 'สวัสดี', pronunciation: 'sawatdee', baseMeaning: 'Hello' },
+  tr: { word: 'Merhaba', pronunciation: 'mer-ha-ba', baseMeaning: 'Hello' },
+  fa: { word: 'سلام', pronunciation: 'salaam', baseMeaning: 'Hello' },
+  pl: { word: 'Cześć', pronunciation: 'cheshch', baseMeaning: 'Hello' },
+  uk: { word: 'Привіт', pronunciation: 'pry-vit', baseMeaning: 'Hello' },
+  nl: { word: 'Hallo', pronunciation: 'hah-loh', baseMeaning: 'Hello' },
+  el: { word: 'Γειά σας', pronunciation: 'ya sas', baseMeaning: 'Hello' },
+  cs: { word: 'Ahoj', pronunciation: 'ah-hoy', baseMeaning: 'Hello' },
+  sv: { word: 'Hej', pronunciation: 'hey', baseMeaning: 'Hello' },
+  hu: { word: 'Szia', pronunciation: 'see-ah', baseMeaning: 'Hello' },
+  ro: { word: 'Bună', pronunciation: 'boo-nuh', baseMeaning: 'Hello' },
+  da: { word: 'Hej', pronunciation: 'hey', baseMeaning: 'Hello' },
+  fi: { word: 'Hei', pronunciation: 'hey', baseMeaning: 'Hello' },
+  no: { word: 'Hei', pronunciation: 'hey', baseMeaning: 'Hello' },
+  he: { word: 'שלום', pronunciation: 'shalom', baseMeaning: 'Hello' },
+  sk: { word: 'Ahoj', pronunciation: 'ah-hoy', baseMeaning: 'Hello' },
+  bg: { word: 'Здравейте', pronunciation: 'zdraveyte', baseMeaning: 'Hello' },
+  hr: { word: 'Bok', pronunciation: 'bok', baseMeaning: 'Hello' },
+  sr: { word: 'Здраво', pronunciation: 'zdravo', baseMeaning: 'Hello' },
+  lt: { word: 'Labas', pronunciation: 'lah-bas', baseMeaning: 'Hello' },
+  lv: { word: 'Sveiki', pronunciation: 'svay-kee', baseMeaning: 'Hello' },
+  et: { word: 'Tere', pronunciation: 'teh-reh', baseMeaning: 'Hello' },
+  sl: { word: 'Živjo', pronunciation: 'zheev-yo', baseMeaning: 'Hello' },
+  ga: { word: 'Dia dhuit', pronunciation: 'dee-ah gwit', baseMeaning: 'Hello' },
+  cy: { word: 'Helo', pronunciation: 'heh-lo', baseMeaning: 'Hello' },
+  is: { word: 'Halló', pronunciation: 'hahl-loh', baseMeaning: 'Hello' },
+  tl: { word: 'Kamusta', pronunciation: 'kah-moos-tah', baseMeaning: 'Hello' },
+  sw: { word: 'Hujambo', pronunciation: 'hoo-jahm-boh', baseMeaning: 'Hello' },
+  am: { word: 'ሰላም', pronunciation: 'selam', baseMeaning: 'Hello' },
+  hy: { word: 'Բարև', pronunciation: 'barev', baseMeaning: 'Hello' },
+  az: { word: 'Salam', pronunciation: 'sah-lahm', baseMeaning: 'Hello' },
+  eu: { word: 'Kaixo', pronunciation: 'kai-sho', baseMeaning: 'Hello' },
+  km: { word: 'សួស្តី', pronunciation: 'suosdei', baseMeaning: 'Hello' },
+  la: { word: 'Salve', pronunciation: 'sahl-way', baseMeaning: 'Hello' },
+  en: { word: 'Hello', pronunciation: 'heh-loh', baseMeaning: 'Hello' }
+};
+
+export function getLanguageGreeting(code) {
+  if (!code) return { word: 'Hello', pronunciation: '', baseMeaning: 'Hello' };
+  const clean = code.toLowerCase().trim();
+  const shortCode = clean.split('-')[0];
+  if (LANGUAGE_GREETINGS[clean]) return LANGUAGE_GREETINGS[clean];
+  if (LANGUAGE_GREETINGS[shortCode]) return LANGUAGE_GREETINGS[shortCode];
+  const langObj = getLanguageByCode(code);
+  return {
+    word: langObj?.nativeName || langObj?.name || code.toUpperCase(),
+    pronunciation: langObj?.name || '',
+    baseMeaning: 'Hello'
+  };
+}
+

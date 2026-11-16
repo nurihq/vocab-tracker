@@ -104,6 +104,102 @@ export function saveLocalStore(store) {
   localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify(store));
 }
 
+const RECENT_LANGUAGES_KEY = `${STORAGE_PREFIX}recent_languages`;
+
+export function recordLanguageUsage(langCode) {
+  if (!langCode) return;
+  const cleanCode = langCode.toLowerCase().trim();
+  try {
+    const raw = localStorage.getItem(RECENT_LANGUAGES_KEY);
+    let list = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(list)) list = [];
+
+    // Filter out existing entry for this code
+    list = list.filter(item => {
+      const c = typeof item === 'string' ? item : item?.code;
+      return c && c.toLowerCase() !== cleanCode;
+    });
+
+    // Unshift new entry with timestamp
+    list.unshift({ code: cleanCode, lastUsed: Date.now() });
+
+    // Limit to 20
+    list = list.slice(0, 20);
+    localStorage.setItem(RECENT_LANGUAGES_KEY, JSON.stringify(list));
+  } catch (e) {
+    console.warn('Failed to record language usage:', e);
+  }
+}
+
+export function getRecentStudyLanguages(limit = 3) {
+  const store = getLocalStore();
+  const allLanguages = (store.languages || []).filter(l => !l.hidden);
+  if (allLanguages.length === 0) return [];
+
+  // Read recorded recent languages from localStorage
+  let recentList = [];
+  try {
+    const raw = localStorage.getItem(RECENT_LANGUAGES_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        recentList = parsed;
+      }
+    }
+  } catch (e) {}
+
+  const recentMap = new Map();
+  recentList.forEach((item, idx) => {
+    const code = typeof item === 'string' ? item.toLowerCase() : item?.code?.toLowerCase();
+    const ts = typeof item === 'object' && item?.lastUsed ? Number(item.lastUsed) : (Date.now() - (idx * 60000));
+    if (code && !recentMap.has(code)) {
+      recentMap.set(code, ts);
+    }
+  });
+
+  // Calculate recency score for every language
+  const scoredLanguages = allLanguages.map(lang => {
+    const code = lang.code.toLowerCase();
+    let score = 0;
+
+    if (recentMap.has(code)) {
+      score = recentMap.get(code);
+    } else {
+      // Find latest word activity for this language
+      const words = store.words?.[lang.code] || [];
+      let latestWordTime = 0;
+      for (const w of words) {
+        const time = new Date(w.updatedAt || w.createdAt || 0).getTime();
+        if (time > latestWordTime) latestWordTime = time;
+      }
+
+      if (latestWordTime > 0) {
+        score = latestWordTime;
+      } else if (lang.createdAt) {
+        score = new Date(lang.createdAt).getTime();
+      } else {
+        // Fallback to order
+        score = 1000 - (lang.order ?? 0);
+      }
+    }
+
+    const words = store.words?.[lang.code] || [];
+    const decks = store.decks?.[lang.code] || [];
+
+    return {
+      ...lang,
+      wordCount: words.length,
+      deckCount: decks.filter(d => !d.hidden).length,
+      recencyScore: score
+    };
+  });
+
+  // Sort descending by recency score
+  scoredLanguages.sort((a, b) => b.recencyScore - a.recencyScore);
+
+  return scoredLanguages.slice(0, limit);
+}
+
 export const Auth = {
   getToken() {
     return localStorage.getItem(AUTH_TOKEN_KEY);
@@ -565,6 +661,7 @@ export const Api = {
   },
 
   async addLanguage(lang) {
+    if (lang?.code) recordLanguageUsage(lang.code);
     const store = getLocalStore();
     if (!store.languages.find(l => l.code === lang.code)) {
       const newLang = {
@@ -641,6 +738,7 @@ export const Api = {
   },
 
   async getDecks(langCode) {
+    if (langCode) recordLanguageUsage(langCode);
     if (shouldUseCloud() && CONFIG.API_ENDPOINTS.decks) {
       try {
         const res = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}`, { method: 'GET' });
@@ -893,6 +991,7 @@ export const Api = {
   },
 
   async addWord(langCode, deckId, baseWord, studyWord, pronunciation = '') {
+    if (langCode) recordLanguageUsage(langCode);
     const baseLang = getI18nBaseLang();
     
     // Auto-fill if one is empty

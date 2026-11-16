@@ -1,19 +1,19 @@
-import { Navbar } from './components/navbar.js?v=20261104_scripts31';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261104_scripts31';
-import { setI18nBaseLang } from './i18n.js?v=20261104_scripts31';
-import { Auth, syncLocalToCloud } from './api.js?v=20261104_scripts31';
-import { trackPageView } from './analytics.js?v=20261104_scripts31';
+import { Navbar } from './components/navbar.js?v=20261116_recent_cards1';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_recent_cards1';
+import { setI18nBaseLang } from './i18n.js?v=20261116_recent_cards1';
+import { Auth, syncLocalToCloud, recordLanguageUsage } from './api.js?v=20261116_recent_cards1';
+import { trackPageView } from './analytics.js?v=20261116_recent_cards1';
 
-import { renderHomeScreen } from './screens/home.js?v=20261104_scripts31';
-import { renderSignInScreen } from './screens/signin.js?v=20261104_scripts31';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261104_scripts31';
-import { renderDecksScreen } from './screens/decks.js?v=20261104_scripts31';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261104_scripts31';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261104_scripts31';
-import { renderAboutScreen } from './screens/about.js?v=20261104_scripts31';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261104_scripts31';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261104_scripts31';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261104_scripts31';
+import { renderHomeScreen } from './screens/home.js?v=20261116_recent_cards1';
+import { renderSignInScreen } from './screens/signin.js?v=20261116_recent_cards1';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_recent_cards1';
+import { renderDecksScreen } from './screens/decks.js?v=20261116_recent_cards1';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_recent_cards1';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_recent_cards1';
+import { renderAboutScreen } from './screens/about.js?v=20261116_recent_cards1';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261116_recent_cards1';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_recent_cards1';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_recent_cards1';
 
 function normalizeScriptAlias(rawPath) {
   let p = rawPath.replace(/^\/scripts\/japananese(\/|$)/, '/scripts/japanese$1');
@@ -155,6 +155,9 @@ class App {
       const path = getActiveRoutePath();
       const routeToken = path === '/' ? '#/' : `#${path}`;
       this.navbar.render(this.navContainer, routeToken);
+      if (path === '/' || path === '') {
+        renderHomeScreen(this.mainContainer);
+      }
     });
 
     // Periodic live sync every 15 seconds if active & immediate auth expiration detection
@@ -252,6 +255,7 @@ class App {
       // Regex routes
       const studyMatch = path.match(/^\/languages\/([^/]+)\/decks\/([^/]+)\/study$/);
       if (studyMatch) {
+        recordLanguageUsage(studyMatch[1]);
         const lang = getLanguageByCode(studyMatch[1])?.name || studyMatch[1].toUpperCase();
         document.title = `Flashcards (${lang}) | monogenesis`;
         trackPageView(path, document.title);
@@ -261,6 +265,7 @@ class App {
 
       const deckWordsMatch = path.match(/^\/languages\/([^/]+)\/decks\/([^/]+)$/);
       if (deckWordsMatch) {
+        recordLanguageUsage(deckWordsMatch[1]);
         const lang = getLanguageByCode(deckWordsMatch[1])?.name || deckWordsMatch[1].toUpperCase();
         document.title = `Deck Words (${lang}) | monogenesis`;
         trackPageView(path, document.title);
@@ -270,6 +275,7 @@ class App {
 
       const decksMatch = path.match(/^\/languages\/([^/]+)\/decks$/);
       if (decksMatch) {
+        recordLanguageUsage(decksMatch[1]);
         const lang = getLanguageByCode(decksMatch[1])?.name || decksMatch[1].toUpperCase();
         document.title = `Decks (${lang}) | monogenesis`;
         trackPageView(path, document.title);

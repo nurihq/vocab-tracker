@@ -1499,6 +1499,83 @@ body {
   color: var(--text-muted);
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   RECENT LANGUAGE CARDS (LOGGED IN HOME SCREEN)
+   ────────────────────────────────────────────────────────────────────────── */
+.home-card-stage.is-recent-card {
+  perspective: none;
+}
+
+.home-card-stage.is-recent-card:hover .home-card-inner {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.home-card-stage.is-recent-card:active .home-card-inner {
+  transform: translateY(-1px);
+}
+
+.home-card-stage:focus-visible {
+  outline: none;
+}
+
+.home-card-stage:focus-visible .home-card-face {
+  outline: 2px solid var(--accent-zen);
+  outline-offset: 2px;
+}
+
+.home-card-deck-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: var(--accent-zen);
+  transition: color var(--transition-fast);
+}
+
+.home-card-stage.is-recent-card:hover .home-card-deck-hint {
+  color: var(--primary);
+}
+
+.home-card-stage.is-recent-card:hover .home-card-deck-hint .action-arrow {
+  transform: translateX(3px);
+}
+
+.home-card-deck-hint .action-arrow {
+  display: inline-block;
+  transition: transform var(--transition-fast);
+}
+
+.home-card-badge-row {
+  margin-top: 0.25rem;
+  margin-bottom: 0.15rem;
+}
+
+.home-card-count-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+}
+
+.home-card-stage.is-empty-add-card .home-card-face {
+  border-style: dashed;
+}
+
+.home-card-add-icon {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--accent-zen);
+  margin-bottom: 0.25rem;
+  font-weight: 300;
+}
+
+
 .nav-home-icon {
   width: 20px;
   height: 20px;
