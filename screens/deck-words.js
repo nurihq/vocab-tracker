@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_autotranslate_options';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_autotranslate_options';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261116_autotranslate_options';
-import { Modal } from '../components/modal.js?v=20261116_autotranslate_options';
-import { trackEvent } from '../analytics.js?v=20261116_autotranslate_options';
-import { navigate } from '../app.js?v=20261116_autotranslate_options';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_autotranslate_options';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_options_tiles';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_options_tiles';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261116_options_tiles';
+import { Modal } from '../components/modal.js?v=20261116_options_tiles';
+import { trackEvent } from '../analytics.js?v=20261116_options_tiles';
+import { navigate } from '../app.js?v=20261116_options_tiles';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_options_tiles';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -578,11 +578,11 @@ export function renderDeckWordsScreen(container, params = {}) {
             <span id="khmer-translated-text" class="khmer-translated-word"></span>
             <span id="khmer-translated-rom" class="khmer-translated-rom"></span>
             <button type="button" id="khmer-auto-translate-speaker" class="khmer-auto-translate-speaker" title="Listen to pronunciation" style="display: none;">🔊</button>
+            <button type="button" id="khmer-options-toggle" class="khmer-options-toggle" title="More options" aria-expanded="false" style="display: none;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
           </div>
-          <div id="khmer-auto-translate-options" class="khmer-auto-translate-options-wrap" style="display: none;">
-            <label for="khmer-translation-options-select" class="khmer-auto-translate-options-label">Options:</label>
-            <select id="khmer-translation-options-select" class="khmer-auto-translate-select" title="Choose translation option"></select>
-          </div>
+          <div id="khmer-auto-translate-options" class="khmer-auto-translate-options-wrap" style="display: none;"></div>
         </div>
       </div>
 
@@ -699,7 +699,7 @@ export function renderDeckWordsScreen(container, params = {}) {
       const romEl = overlay.querySelector('#khmer-translated-rom');
       const speakerBtn = overlay.querySelector('#khmer-auto-translate-speaker');
       const optionsWrap = overlay.querySelector('#khmer-auto-translate-options');
-      const optionsSelect = overlay.querySelector('#khmer-translation-options-select');
+      const toggleBtn = overlay.querySelector('#khmer-options-toggle');
       const pronInput = overlay.querySelector('#new-pronunciation-input');
       let translateTimer = null;
 
@@ -733,6 +733,52 @@ export function renderDeckWordsScreen(container, params = {}) {
         }
       }
 
+      function setOptionsOpen(open) {
+        if (!optionsWrap || !toggleBtn) return;
+        optionsWrap.style.display = open ? 'flex' : 'none';
+        toggleBtn.classList.toggle('is-open', open);
+        toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+
+      function renderOptionTiles() {
+        if (!optionsWrap) return;
+        optionsWrap.innerHTML = currentCandidates.map((c, idx) => {
+          const cRom = getKhmerWordRomanisation(c);
+          const isSel = c === latestTranslatedKhmer;
+          return `
+            <div class="khmer-option-tile ${isSel ? 'is-selected' : ''}" data-idx="${idx}" role="button" tabindex="0">
+              <span class="khmer-translated-word">${formatStudyTextHtml(c, shouldColorKhmer())}</span>
+              ${cRom ? `<span class="khmer-translated-rom">(${formatStudyPronunciationHtml(cRom, c, 'km')})</span>` : ''}
+              <button type="button" class="khmer-auto-translate-speaker khmer-option-speaker" data-idx="${idx}" title="Listen">🔊</button>
+            </div>
+          `;
+        }).join('');
+
+        optionsWrap.querySelectorAll('.khmer-option-tile').forEach(tile => {
+          const word = currentCandidates[Number(tile.dataset.idx)];
+          const choose = () => {
+            setSelectedCandidate(word, true);
+            renderOptionTiles();
+            setOptionsOpen(false);
+          };
+          tile.addEventListener('click', choose);
+          tile.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              choose();
+            }
+          });
+          const spk = tile.querySelector('.khmer-option-speaker');
+          if (spk) {
+            spk.addEventListener('click', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              speakKhmer(word, spk);
+            });
+          }
+        });
+      }
+
       async function doAutoTranslate() {
         const val = (baseInput ? baseInput.value : '').trim();
         if (!val) {
@@ -741,7 +787,8 @@ export function renderDeckWordsScreen(container, params = {}) {
           currentCandidates = [];
           if (previewBox) previewBox.style.display = 'none';
           if (speakerBtn) speakerBtn.style.display = 'none';
-          if (optionsWrap) optionsWrap.style.display = 'none';
+          if (toggleBtn) toggleBtn.style.display = 'none';
+          setOptionsOpen(false);
           return;
         }
         if (val === lastTranslatedBase && latestTranslatedKhmer) return;
@@ -757,39 +804,29 @@ export function renderDeckWordsScreen(container, params = {}) {
             lastTranslatedBase = val;
             if (statusEl) statusEl.textContent = '✓';
 
-            const primaryWord = candidates[0];
-            setSelectedCandidate(primaryWord);
-
-            // Populate multiple candidate dropdown if more than 1 option exists
-            if (optionsWrap && optionsSelect) {
-              if (candidates.length > 1) {
-                optionsSelect.innerHTML = candidates.map(c => {
-                  const cRom = getKhmerWordRomanisation(c);
-                  const label = cRom ? `${c} (${cRom})` : c;
-                  return `<option value="${c.replace(/"/g, '&quot;')}">${label}</option>`;
-                }).join('');
-                optionsSelect.value = primaryWord;
-                optionsWrap.style.display = 'flex';
-              } else {
-                optionsWrap.style.display = 'none';
-              }
-            }
+            setSelectedCandidate(candidates[0]);
+            renderOptionTiles();
+            setOptionsOpen(false);
+            if (toggleBtn) toggleBtn.style.display = candidates.length > 1 ? 'inline-flex' : 'none';
           } else {
             if (statusEl) statusEl.textContent = 'Translation not found';
             if (speakerBtn) speakerBtn.style.display = 'none';
-            if (optionsWrap) optionsWrap.style.display = 'none';
+            if (toggleBtn) toggleBtn.style.display = 'none';
+            setOptionsOpen(false);
           }
         } catch (err) {
           if (statusEl) statusEl.textContent = 'Translation failed';
           if (speakerBtn) speakerBtn.style.display = 'none';
-          if (optionsWrap) optionsWrap.style.display = 'none';
+          if (toggleBtn) toggleBtn.style.display = 'none';
+          setOptionsOpen(false);
         }
       }
 
-      if (optionsSelect) {
-        optionsSelect.addEventListener('change', (e) => {
-          const chosen = e.target.value;
-          setSelectedCandidate(chosen, true);
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setOptionsOpen(optionsWrap.style.display === 'none');
         });
       }
 

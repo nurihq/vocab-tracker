@@ -5303,49 +5303,69 @@ body.is-script-practice-route .main-content {
   border-color: var(--accent-zen);
 }
 
-/* Multi-candidate options dropdown for auto-translate */
-.khmer-auto-translate-options-wrap {
-  margin-top: 0.35rem;
-  padding-top: 0.45rem;
-  border-top: 1px dashed var(--border-color);
-  display: flex;
+/* Multi-candidate options: chevron toggle + styled option tiles */
+.khmer-options-toggle {
+  margin-left: auto;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.khmer-auto-translate-options-label {
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-
-.khmer-auto-translate-select {
-  flex: 1;
-  min-width: 170px;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   background: var(--bg-surface);
-  color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 0.3rem 1.75rem 0.3rem 0.6rem;
-  font-size: 0.84rem;
-  font-family: inherit;
-  outline: none;
+  color: var(--text-secondary);
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238d879d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.55rem center;
-  transition: border-color var(--transition-fast);
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
-.khmer-auto-translate-select:hover,
-.khmer-auto-translate-select:focus {
+.khmer-options-toggle svg {
+  transition: transform 0.18s ease;
+}
+
+.khmer-options-toggle:hover {
   border-color: var(--accent-zen);
+  color: var(--accent-zen);
+}
+
+.khmer-options-toggle.is-open svg {
+  transform: rotate(180deg);
+}
+
+.khmer-auto-translate-options-wrap {
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.khmer-option-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.khmer-option-tile:hover,
+.khmer-option-tile:focus-visible {
+  border-color: var(--accent-zen);
+  outline: none;
+}
+
+.khmer-option-tile.is-selected {
+  border-color: var(--accent-zen);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.khmer-option-tile .khmer-option-speaker {
+  margin-left: auto;
 }
 
 /* Tooltip for Settings Info Icons */

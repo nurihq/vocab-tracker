@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20261116_autotranslate_options';
+import { t } from '../i18n.js?v=20261116_options_tiles';
 
 export const Modal = {
   activeOverlay: null,

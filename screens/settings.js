@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_autotranslate_options';
-import { getAppSettings, updateAppSettings, shouldColorKhmer, shouldAutoRomaniseKhmer, shouldAutoTranslateKhmerAdd } from '../api.js?v=20261116_autotranslate_options';
-import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_autotranslate_options';
-import { trackEvent } from '../analytics.js?v=20261116_autotranslate_options';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_options_tiles';
+import { getAppSettings, updateAppSettings, shouldColorKhmer, shouldAutoRomaniseKhmer, shouldAutoTranslateKhmerAdd } from '../api.js?v=20261116_options_tiles';
+import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_options_tiles';
+import { trackEvent } from '../analytics.js?v=20261116_options_tiles';
 
 function escapeHtml(str) {
   return String(str || '')
