@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20261116_settings_simple';
-import { getI18nBaseLang } from './i18n.js?v=20261116_settings_simple';
+import { CONFIG } from './config.js?v=20261116_settings_searchable';
+import { getI18nBaseLang } from './i18n.js?v=20261116_settings_searchable';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -204,6 +204,8 @@ const SETTINGS_KEY = `${STORAGE_PREFIX}settings`;
 
 const DEFAULT_SETTINGS = {
   globalColorsOverride: 'inherit',
+  globalAutoRomOverride: 'inherit',
+  globalAutoTranslateOverride: 'inherit',
   khmerConsonantColors: true,
   allLanguagesColors: true,
   khmerAutoRomanisation: false,
@@ -251,11 +253,15 @@ export function shouldColorKhmer() {
 
 export function shouldAutoRomaniseKhmer() {
   const s = getAppSettings();
+  if (s.globalAutoRomOverride === 'force_on') return true;
+  if (s.globalAutoRomOverride === 'force_off') return false;
   return Boolean(s.khmerAutoRomanisation);
 }
 
 export function shouldAutoTranslateKhmerAdd() {
   const s = getAppSettings();
+  if (s.globalAutoTranslateOverride === 'force_on') return true;
+  if (s.globalAutoTranslateOverride === 'force_off') return false;
   return s.khmerAutoTranslateAdd !== false;
 }
 

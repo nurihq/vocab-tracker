@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20261116_settings_simple';
+import { t } from '../i18n.js?v=20261116_settings_searchable';
 
 export const Modal = {
   activeOverlay: null,

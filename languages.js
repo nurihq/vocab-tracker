@@ -647,6 +647,8 @@ export function isKhmerAutoRomanisationEnabled() {
     const raw = localStorage.getItem('vocab_tracker_settings');
     if (raw) {
       const parsed = JSON.parse(raw);
+      if (parsed.globalAutoRomOverride === 'force_on') return true;
+      if (parsed.globalAutoRomOverride === 'force_off') return false;
       return Boolean(parsed.khmerAutoRomanisation);
     }
   } catch (e) {}
