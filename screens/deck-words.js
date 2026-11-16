@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_back_nav1';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml } from '../languages.js?v=20261116_back_nav1';
-import { Api, getLocalStore } from '../api.js?v=20261116_back_nav1';
-import { Modal } from '../components/modal.js?v=20261116_back_nav1';
-import { trackEvent } from '../analytics.js?v=20261116_back_nav1';
-import { navigate } from '../app.js?v=20261116_back_nav1';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_back_nav1';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts1';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled } from '../languages.js?v=20261116_khmer_tts1';
+import { Api, getLocalStore, speakKhmer } from '../api.js?v=20261116_khmer_tts1';
+import { Modal } from '../components/modal.js?v=20261116_khmer_tts1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_tts1';
+import { navigate } from '../app.js?v=20261116_khmer_tts1';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_tts1';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -201,6 +201,7 @@ export function renderDeckWordsScreen(container, params = {}) {
         <div id="words-list">
           ${filteredWords.map((w, index) => {
             const initialMeaning = getCachedWordMeaning(w.studyWord, w.baseWord, langCode, currentBase);
+            const pronHtml = formatStudyPronunciationHtml(w.pronunciation, w.studyWord, langCode);
 
             return `
               <div class="word-row ${canDrag ? 'draggable-row' : ''}" 
@@ -211,7 +212,7 @@ export function renderDeckWordsScreen(container, params = {}) {
                   <div class="word-content edit-word-trigger" data-word-id="${w.wordId}" title="${t('editWord')} (Click to edit)">
                     <div class="word-study-row">
                       <span class="word-study">${formatStudyTextHtml(w.studyWord)}</span>
-                      ${w.pronunciation ? `<span class="word-pronunciation">${w.pronunciation}</span>` : ''}
+                      ${pronHtml ? `<span class="word-pronunciation">${pronHtml}</span>` : ''}
                     </div>
                     <div class="word-base" data-word-base-id="${w.wordId}">${initialMeaning}</div>
                   </div>
@@ -227,6 +228,18 @@ export function renderDeckWordsScreen(container, params = {}) {
                       <option value="${d.deckId}">${getDeckDisplayName(d.deckId)}</option>
                     `).join('')}
                   </select>
+
+                  ${(langCode === 'km' || /[\u1780-\u17FF]/.test(w.studyWord || '')) && (w.studyWord || '').trim() ? `
+                    <button class="tile-action-btn speak-word-btn" 
+                            data-word-id="${w.wordId}" 
+                            title="Listen in Khmer">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                      </svg>
+                    </button>
+                  ` : ''}
 
                   <button class="tile-action-btn edit-word-btn" 
                           data-word-id="${w.wordId}" 
@@ -312,13 +325,33 @@ export function renderDeckWordsScreen(container, params = {}) {
       });
     });
 
-    // Edit Word Handlers
+    container.querySelectorAll('.speak-word-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const wordId = btn.getAttribute('data-word-id');
+        const wordObj = words.find(w => w.wordId === wordId);
+        if (wordObj && wordObj.studyWord) {
+          trackEvent('speak_khmer_word', { langCode, wordId });
+          speakKhmer(wordObj.studyWord, btn);
+        }
+      });
+    });
+
+    // Word Click & Edit Word Handlers
     container.querySelectorAll('.edit-word-btn, .edit-word-trigger').forEach(trigger => {
       trigger.addEventListener('click', (e) => {
         if (e.target.closest('.word-actions') && !e.target.closest('.edit-word-btn')) return;
         const wordId = trigger.getAttribute('data-word-id');
         const wordObj = words.find(w => w.wordId === wordId);
-        if (wordObj) {
+        if (!wordObj) return;
+
+        const isEditButton = Boolean(trigger.classList.contains('edit-word-btn') || e.target.closest('.edit-word-btn'));
+        const hasKhmerScript = /[\u1780-\u17FF]/.test(wordObj.studyWord || '');
+
+        if (!isEditButton && hasKhmerScript) {
+          openKhmerWordZoomModal(wordObj);
+        } else {
           openEditWordModal(wordObj);
         }
       });
@@ -462,6 +495,63 @@ export function renderDeckWordsScreen(container, params = {}) {
   }
   container._reloadDeckWords = reloadFromLocalAndCloud;
 
+  function bindKhmerLiveRomanisation(studyInput, pronInput, previewEl, isEdit = false) {
+    if (!studyInput || !pronInput || !previewEl) return;
+    let lastAutoBreakdown = getKhmerWordRomanisation(studyInput.value || '');
+
+    if (isEdit && !pronInput.value.trim() && lastAutoBreakdown && isKhmerAutoRomanisationEnabled()) {
+      pronInput.value = lastAutoBreakdown;
+    }
+
+    function updatePreview() {
+      const studyVal = studyInput.value || '';
+      const autoBreakdown = getKhmerWordRomanisation(studyVal);
+      const pronVal = pronInput.value.trim();
+
+      if (!isKhmerAutoRomanisationEnabled() || (!autoBreakdown && !(langCode === 'km' && pronVal))) {
+        previewEl.style.display = 'none';
+        previewEl.innerHTML = '';
+        return;
+      }
+
+      const displayTarget = pronVal || autoBreakdown;
+      const html = formatStudyPronunciationHtml(displayTarget, studyVal, langCode);
+      if (html) {
+        previewEl.style.display = 'flex';
+        previewEl.innerHTML = `<span class="khmer-live-rom-badge">Romanisation</span><span class="khmer-live-rom-text">${html}</span>`;
+      } else {
+        previewEl.style.display = 'none';
+        previewEl.innerHTML = '';
+      }
+    }
+
+    studyInput.addEventListener('input', () => {
+      const nextBreakdown = getKhmerWordRomanisation(studyInput.value || '');
+      if (isKhmerAutoRomanisationEnabled()) {
+        const curPron = pronInput.value.trim();
+        if (!curPron || curPron === lastAutoBreakdown) {
+          pronInput.value = nextBreakdown;
+        } else if (lastAutoBreakdown && curPron.endsWith(lastAutoBreakdown)) {
+          const idx = pronInput.value.lastIndexOf(lastAutoBreakdown);
+          const prefix = pronInput.value.slice(0, idx);
+          pronInput.value = nextBreakdown ? (prefix + nextBreakdown) : prefix.replace(/\s*=\s*$/, '');
+        } else if (curPron.endsWith('=') && nextBreakdown) {
+          pronInput.value = `${curPron} ${nextBreakdown}`;
+        } else if (!curPron.includes('=') && !curPron.includes('+') && nextBreakdown) {
+          pronInput.value = `${curPron} = ${nextBreakdown}`;
+        }
+      }
+      lastAutoBreakdown = nextBreakdown;
+      updatePreview();
+    });
+
+    pronInput.addEventListener('input', () => {
+      updatePreview();
+    });
+
+    updatePreview();
+  }
+
   function openAddWordModal() {
     const baseExample = getBaseExample();
     const studyExample = getStudyExample();
@@ -486,6 +576,7 @@ export function renderDeckWordsScreen(container, params = {}) {
           ` : ''}
         </div>
         <textarea class="form-input" id="new-study-word-input" rows="2" placeholder="${studyExample}" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off"></textarea>
+        <div id="new-khmer-rom-preview" class="khmer-live-rom-preview" style="display: none;"></div>
       </div>
 
       <div class="form-group">
@@ -505,7 +596,10 @@ export function renderDeckWordsScreen(container, params = {}) {
 
         const baseWord = baseInput ? baseInput.value.trim() : '';
         const studyWord = studyInput ? studyInput.value.trim() : '';
-        const pronunciation = pronInput ? pronInput.value.trim() : '';
+        let pronunciation = pronInput ? pronInput.value.trim() : '';
+        if (!pronunciation && isKhmerAutoRomanisationEnabled()) {
+          pronunciation = getKhmerWordRomanisation(studyWord);
+        }
 
         if (!baseWord && !studyWord) return false;
 
@@ -524,6 +618,13 @@ export function renderDeckWordsScreen(container, params = {}) {
         }
       }
     });
+
+    bindKhmerLiveRomanisation(
+      overlay.querySelector('#new-study-word-input'),
+      overlay.querySelector('#new-pronunciation-input'),
+      overlay.querySelector('#new-khmer-rom-preview'),
+      false
+    );
 
     const input = overlay.querySelector('#new-base-word-input');
     setTimeout(() => input && input.focus(), 50);
@@ -551,6 +652,7 @@ export function renderDeckWordsScreen(container, params = {}) {
           ` : ''}
         </div>
         <textarea class="form-input" id="edit-study-word-input" rows="2" placeholder="${studyExample}" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off">${word.studyWord || ''}</textarea>
+        <div id="edit-khmer-rom-preview" class="khmer-live-rom-preview" style="display: none;"></div>
       </div>
 
       <div class="form-group">
@@ -570,7 +672,10 @@ export function renderDeckWordsScreen(container, params = {}) {
 
         const baseWord = baseInput ? baseInput.value.trim() : '';
         const studyWord = studyInput ? studyInput.value.trim() : '';
-        const pronunciation = pronInput ? pronInput.value.trim() : '';
+        let pronunciation = pronInput ? pronInput.value.trim() : '';
+        if (!pronunciation && isKhmerAutoRomanisationEnabled()) {
+          pronunciation = getKhmerWordRomanisation(studyWord);
+        }
 
         if (!baseWord && !studyWord) return false;
 
@@ -590,7 +695,49 @@ export function renderDeckWordsScreen(container, params = {}) {
       }
     });
 
+    bindKhmerLiveRomanisation(
+      overlay.querySelector('#edit-study-word-input'),
+      overlay.querySelector('#edit-pronunciation-input'),
+      overlay.querySelector('#edit-khmer-rom-preview'),
+      true
+    );
+
     const input = overlay.querySelector('#edit-base-word-input');
     setTimeout(() => input && input.focus(), 50);
   }
+
+  function openKhmerWordZoomModal(word) {
+    if (!word || !word.studyWord) return;
+    document.querySelectorAll('.khmer-word-zoom-overlay').forEach(el => el.remove());
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay khmer-word-zoom-overlay is-active';
+    overlay.innerHTML = `
+      <div class="modal-box khmer-word-zoom-box" role="dialog" aria-modal="true">
+        <button type="button" class="khmer-zoom-close-btn" id="khmer-zoom-close-btn" aria-label="Close">✕</button>
+        <div class="khmer-zoom-word">
+          ${formatStudyTextHtml(word.studyWord)}
+        </div>
+        <div class="khmer-zoom-hint">Tap any consonant to locate it on the keyboard</div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const closeZoom = () => {
+      window.removeEventListener('keydown', onEsc);
+      overlay.remove();
+    };
+
+    const onEsc = (e) => {
+      if (e.key === 'Escape') closeZoom();
+    };
+    window.addEventListener('keydown', onEsc);
+
+    overlay.querySelector('#khmer-zoom-close-btn')?.addEventListener('click', closeZoom);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeZoom();
+    });
+  }
 }
+

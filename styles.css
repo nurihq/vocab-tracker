@@ -4534,31 +4534,115 @@ body.is-script-practice-route .main-content {
   display: none !important;
 }
 
+/* Khmer Word Zoom Modal (when clicking a Khmer word in the deck list) */
+.khmer-word-zoom-overlay {
+  z-index: 1300;
+}
+
+.khmer-word-zoom-box {
+  position: relative;
+  max-width: 520px;
+  width: 92%;
+  padding: 2.5rem 1.75rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1.2rem;
+}
+
+.khmer-zoom-close-btn {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.khmer-zoom-close-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.khmer-zoom-word {
+  font-family: 'Noto Sans Khmer', sans-serif;
+  font-size: clamp(3.4rem, 11vw, 5.2rem);
+  font-weight: 700;
+  line-height: 1.65;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+  padding: 0.35rem 0.5rem;
+  user-select: none;
+}
+
+.khmer-zoom-word .khmer-cons-char {
+  padding: 0 0.02em;
+  border-radius: 8px;
+}
+
+.khmer-zoom-word .khmer-cons-char:hover {
+  background-color: rgba(245, 158, 11, 0.16);
+}
+
+.khmer-zoom-hint {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Spotlight Keyboard Locator Highlight */
 @keyframes khmerKeyLocatePulse {
   0%, 100% {
-    transform: translateY(-2px) scale(1.04);
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.45), 0 8px 20px -4px rgba(245, 158, 11, 0.4);
+    transform: translateY(-2px) scale(1.1);
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.55), 0 10px 24px -2px rgba(0, 0, 0, 0.32);
   }
   50% {
-    transform: translateY(-4px) scale(1.09);
-    box-shadow: 0 0 0 6px rgba(124, 58, 237, 0.42), 0 12px 24px -4px rgba(124, 58, 237, 0.45);
+    transform: translateY(-5px) scale(1.16);
+    box-shadow: 0 0 0 7px rgba(245, 158, 11, 0.7), 0 14px 30px -2px rgba(0, 0, 0, 0.4);
   }
 }
 
+.script-info-page.has-active-locator .khmer-kb-rows-container {
+  overflow: visible !important;
+}
+
+.script-info-page.has-active-locator .khmer-kb-key:not(.is-kb-locator-highlight):not(.is-kb-modifier-hint) {
+  opacity: 0.22 !important;
+  filter: grayscale(0.85);
+  transition: opacity 0.25s ease, filter 0.25s ease;
+}
+
 .khmer-kb-key.is-kb-locator-highlight {
-  z-index: 15;
-  border-color: #f59e0b !important;
-  background: rgba(245, 158, 11, 0.16) !important;
-  animation: khmerKeyLocatePulse 0.9s ease-in-out infinite;
+  opacity: 1 !important;
+  filter: none !important;
+  z-index: 30;
+  border: 2.5px solid #f59e0b !important;
+  background: #fffbeb !important;
+  animation: khmerKeyLocatePulse 0.85s ease-in-out infinite;
 }
 
 [data-theme="dark"] .khmer-kb-key.is-kb-locator-highlight {
   border-color: #fbbf24 !important;
-  background: rgba(251, 191, 36, 0.22) !important;
+  background: #3b2f13 !important;
 }
 
 .khmer-kb-key.is-kb-modifier-hint {
-  box-shadow: 0 0 0 2px #f59e0b;
+  opacity: 1 !important;
+  filter: none !important;
+  z-index: 25;
+  border: 2px solid #f59e0b !important;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.45) !important;
 }
 
 .khmer-locator-banner {
@@ -4568,9 +4652,9 @@ body.is-script-practice-route .main-content {
   padding: 0.5rem 0.85rem;
   margin-bottom: 0.65rem;
   border-radius: var(--radius-md);
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.38);
-  font-size: 0.84rem;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1.5px solid #f59e0b;
+  font-size: 0.86rem;
   color: var(--text-primary);
   transition: opacity 0.35s ease, transform 0.35s ease;
 }
@@ -4586,7 +4670,7 @@ body.is-script-practice-route .main-content {
   border-radius: 50%;
   background: #f59e0b;
   flex-shrink: 0;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
 }
 
 .khmer-locator-text {
@@ -4984,4 +5068,79 @@ body.is-script-practice-route .main-content {
   padding-top: 0.25rem;
 }
 
+/* Live Khmer Romanisation Preview in Add/Edit Word Modal */
+.khmer-live-rom-preview {
+  margin-top: 0.45rem;
+  padding: 0.45rem 0.75rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
 
+.khmer-live-rom-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.khmer-live-rom-text {
+  font-weight: 500;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+/* Khmer TTS Speaker Buttons (Keyboard Modal Vowel Pills & Word List Items) */
+.khmer-vowel-speak-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.khmer-vowel-speak-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.khmer-vowel-speak-btn:active {
+  transform: translateY(0);
+}
+
+.khmer-vowel-speak-btn .speaker-outline-icon {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.khmer-vowel-speak-btn.is-speaking,
+.speak-word-btn.is-speaking {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.khmer-vowel-speak-btn.is-speaking .speaker-outline-icon,
+.speak-word-btn.is-speaking svg {
+  opacity: 1;
+  animation: speakerPulse 0.9s ease-in-out infinite;
+}
+
+@keyframes speakerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.14); }
+}

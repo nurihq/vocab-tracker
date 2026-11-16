@@ -414,5 +414,283 @@ export function formatStudyTextHtml(text, forceColor = null) {
   return out;
 }
 
+export function isKhmerAutoRomanisationEnabled() {
+  try {
+    const raw = localStorage.getItem('vocab_tracker_settings');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return parsed.khmerAutoRomanisation !== false;
+    }
+  } catch (e) {}
+  return true; // Enabled by default
+}
+
+export const KHMER_CONSONANT_ROMAJI = {
+  // 15 A-Series Consonants (inherent vowel -a)
+  'ក': { romaji: 'ka', series: 'a' },
+  'ខ': { romaji: 'kha', series: 'a' },
+  'ច': { romaji: 'cha', series: 'a' },
+  'ឆ': { romaji: 'chha', series: 'a' },
+  'ដ': { romaji: 'da', series: 'a' },
+  'ឋ': { romaji: 'tha', series: 'a' },
+  'ណ': { romaji: 'na', series: 'a' },
+  'ត': { romaji: 'ta', series: 'a' },
+  'ថ': { romaji: 'tha', series: 'a' },
+  'ប': { romaji: 'ba', series: 'a' },
+  'ផ': { romaji: 'pha', series: 'a' },
+  'ស': { romaji: 'sa', series: 'a' },
+  'ហ': { romaji: 'ha', series: 'a' },
+  'ឡ': { romaji: 'la', series: 'a' },
+  'អ': { romaji: 'a', series: 'a' },
+
+  // 18 O-Series Consonants (inherent vowel -o)
+  'គ': { romaji: 'ko', series: 'o' },
+  'ឃ': { romaji: 'kho', series: 'o' },
+  'ង': { romaji: 'ngo', series: 'o' },
+  'ជ': { romaji: 'cho', series: 'o' },
+  'ឈ': { romaji: 'chho', series: 'o' },
+  'ញ': { romaji: 'nho', series: 'o' },
+  'ឌ': { romaji: 'do', series: 'o' },
+  'ឍ': { romaji: 'tho', series: 'o' },
+  'ទ': { romaji: 'to', series: 'o' },
+  'ធ': { romaji: 'tho', series: 'o' },
+  'ន': { romaji: 'no', series: 'o' },
+  'ព': { romaji: 'po', series: 'o' },
+  'ភ': { romaji: 'pho', series: 'o' },
+  'ម': { romaji: 'mo', series: 'o' },
+  'យ': { romaji: 'yo', series: 'o' },
+  'រ': { romaji: 'ro', series: 'o' },
+  'ល': { romaji: 'lo', series: 'o' },
+  'វ': { romaji: 'vo', series: 'o' }
+};
+
+export const KHMER_KEYSTROKE_VOWEL_ROMAJI = {
+  // Compound dependent vowels (2 codepoints)
+  'ុំ': 'om',
+  'ុះ': 'oh',
+  'ាំ': 'am',
+  'េះ': 'eh',
+  'ោះ': 'aoh',
+
+  // Single-codepoint dependent vowels
+  'ា': 'aa',
+  'ិ': 'e',
+  'ី': 'ei',
+  'ឹ': 'oe',
+  'ឺ': 'eu',
+  'ុ': 'o',
+  'ូ': 'ou',
+  'ួ': 'uo',
+  'ើ': 'aeu',
+  'ឿ': 'oeur',
+  'ៀ': 'ie',
+  'េ': 'ei',
+  'ែ': 'ae',
+  'ៃ': 'ai',
+  'ោ': 'ao',
+  'ៅ': 'au',
+  'ំ': 'am',
+  'ះ': 'ah',
+
+  // Independent vowels & digits
+  'ឥ': 'e', 'ឦ': 'ei', 'ឧ': 'o', 'ឨ': 'ok', 'ឩ': 'ou', 'ឪ': 'ov',
+  'ឫ': 'rue', 'ឬ': 'rueu', 'ឭ': 'lue', 'ឮ': 'lueu',
+  'ឯ': 'ae', 'ឰ': 'ai', 'ឱ': 'ao', 'ឲ': 'aoy', 'ឳ': 'au',
+  '០': '0', '១': '1', '២': '2', '៣': '3', '៤': '4',
+  '៥': '5', '៦': '6', '៧': '7', '៨': '8', '៩': '9'
+};
+
+const KHMER_A_ROMAJI_SET = new Set([
+  'ka', 'kha', 'cha', 'chha', 'da', 'tha', 'na', 'ta', 'ba', 'pha', 'sa', 'ha', 'la'
+]);
+
+const KHMER_O_ROMAJI_SET = new Set([
+  'ko', 'kho', 'ngo', 'cho', 'chho', 'nho', 'do', 'to', 'no', 'po', 'pho', 'mo', 'yo', 'ro', 'lo', 'vo'
+]);
+
+/**
+ * Tokenizes a Khmer word keystroke-by-keystroke into consonants (with inherent vowel) and dependent vowels.
+ * Example: 'ច្រើន' -> [ { text: 'cha', series: 'a' }, { text: 'ro', series: 'o' }, { text: 'aeu', series: null }, { text: 'no', series: 'o' } ]
+ */
+export function tokenizeKhmerRomanisation(text) {
+  if (!text) return [];
+  const chars = Array.from(String(text));
+  const tokens = [];
+
+  for (let i = 0; i < chars.length; i++) {
+    const ch = chars[i];
+
+    // 1. Subscript consonant: Coeng (្) + Consonant
+    if (ch === '\u17D2') {
+      if (i + 1 < chars.length) {
+        const subCh = chars[i + 1];
+        const subMeta = KHMER_CONSONANT_ROMAJI[subCh];
+        if (subMeta) {
+          tokens.push({
+            text: subMeta.romaji,
+            series: subMeta.series,
+            type: 'consonant',
+            khmerChar: `្${subCh}`
+          });
+          i++;
+          continue;
+        }
+      }
+      continue;
+    }
+
+    // 2. Base Consonant
+    const consMeta = KHMER_CONSONANT_ROMAJI[ch];
+    if (consMeta) {
+      tokens.push({
+        text: consMeta.romaji,
+        series: consMeta.series,
+        type: 'consonant',
+        khmerChar: ch
+      });
+      continue;
+    }
+
+    // 3. Compound dependent vowel (2 codepoints: ុំ, ុះ, ាំ, េះ, ោះ)
+    if (i + 1 < chars.length) {
+      const twoChar = ch + chars[i + 1];
+      if (KHMER_KEYSTROKE_VOWEL_ROMAJI[twoChar]) {
+        tokens.push({
+          text: KHMER_KEYSTROKE_VOWEL_ROMAJI[twoChar],
+          series: null,
+          type: 'vowel',
+          khmerChar: twoChar
+        });
+        i++;
+        continue;
+      }
+    }
+
+    // 4. Single-codepoint dependent vowel, independent vowel, or digit
+    if (KHMER_KEYSTROKE_VOWEL_ROMAJI[ch]) {
+      tokens.push({
+        text: KHMER_KEYSTROKE_VOWEL_ROMAJI[ch],
+        series: null,
+        type: 'vowel',
+        khmerChar: ch
+      });
+      continue;
+    }
+  }
+
+  return tokens;
+}
+
+/**
+ * Returns the plain keystroke romanisation breakdown string for a Khmer word (e.g. 'cha + ro + aeu + no').
+ */
+export function getKhmerWordRomanisation(text) {
+  const tokens = tokenizeKhmerRomanisation(text);
+  if (tokens.length === 0) return '';
+  return tokens.map(t => t.text).join(' + ');
+}
+
+function colorizePlusSeparatedRomaji(rhsText, studyTokens, colorEnabled) {
+  const parts = rhsText.split('+');
+  let cursor = 0;
+
+  return parts.map(rawPart => {
+    const leadingSpace = (rawPart.match(/^\s*/) || [''])[0];
+    const trailingSpace = (rawPart.match(/\s*$/) || [''])[0];
+    const trimmed = rawPart.trim();
+    if (!trimmed) return escapeHtml(rawPart);
+
+    const wordMatch = trimmed.match(/^([’']?[a-zA-Z]+)(.*)$/);
+    if (!wordMatch) {
+      return leadingSpace + formatStudyTextHtml(trimmed, colorEnabled) + trailingSpace;
+    }
+
+    const wordPart = wordMatch[1];
+    const restPart = wordMatch[2] || '';
+    const cleanWord = wordPart.toLowerCase().replace(/^[’']/, '');
+
+    let series = null;
+    let khmerChar = null;
+
+    if (cursor < studyTokens.length) {
+      const st = studyTokens[cursor];
+      if (st.text.toLowerCase() === cleanWord) {
+        series = st.series;
+        khmerChar = st.khmerChar;
+        cursor++;
+      } else if (st.type === 'vowel' && cursor + 1 < studyTokens.length && studyTokens[cursor + 1].text.toLowerCase() === cleanWord) {
+        cursor++;
+        const nextSt = studyTokens[cursor];
+        series = nextSt.series;
+        khmerChar = nextSt.khmerChar;
+        cursor++;
+      } else {
+        cursor++;
+      }
+    }
+
+    if (series === null) {
+      if (KHMER_A_ROMAJI_SET.has(cleanWord)) series = 'a';
+      else if (KHMER_O_ROMAJI_SET.has(cleanWord)) series = 'o';
+    }
+
+    const coloredWord = (colorEnabled && series)
+      ? `<span class="khmer-cons-char khmer-color-${series}"${khmerChar ? ` data-khmer-char="${khmerChar}" title="Click to locate ${khmerChar} on Khmer keyboard"` : ''}>${escapeHtml(wordPart)}</span>`
+      : escapeHtml(wordPart);
+
+    const formattedRest = restPart ? formatStudyTextHtml(restPart, colorEnabled) : '';
+    return leadingSpace + coloredWord + formattedRest + trailingSpace;
+  }).join('+');
+}
+
+/**
+ * Formats pronunciation / romanisation notes into HTML with Khmer consonant series colours (Orange / Purple).
+ * If pronunciation is empty and auto-romanisation is enabled, generates the breakdown from studyWord automatically.
+ */
+export function formatStudyPronunciationHtml(pronunciation, studyWord = '', langCode = '', forceColor = null) {
+  const isKhmer = (langCode && langCode.toLowerCase() === 'km') || /[\u1780-\u17FF]/.test(studyWord || '');
+  let rawPron = String(pronunciation || '').trim();
+
+  if (!isKhmer) {
+    return escapeHtml(rawPron);
+  }
+
+  if (!rawPron && isKhmerAutoRomanisationEnabled()) {
+    rawPron = getKhmerWordRomanisation(studyWord);
+  }
+  if (!rawPron) return '';
+
+  const colorEnabled = forceColor !== null ? Boolean(forceColor) : isKhmerColorSettingEnabled();
+  if (!colorEnabled) {
+    return escapeHtml(rawPron);
+  }
+
+  const studyTokens = tokenizeKhmerRomanisation(studyWord);
+  const autoBreakdown = studyTokens.map(t => t.text).join(' + ');
+
+  if (studyTokens.length > 0 && rawPron === autoBreakdown) {
+    return studyTokens.map(t => {
+      if (t.series) {
+        return `<span class="khmer-cons-char khmer-color-${t.series}" data-khmer-char="${t.khmerChar}" title="Click to locate ${t.khmerChar} on Khmer keyboard">${escapeHtml(t.text)}</span>`;
+      }
+      return escapeHtml(t.text);
+    }).join(' + ');
+  }
+
+  if (rawPron.includes('=')) {
+    const eqIdx = rawPron.indexOf('=');
+    const lhs = rawPron.slice(0, eqIdx);
+    const rhs = rawPron.slice(eqIdx + 1);
+    return `${formatStudyTextHtml(lhs, colorEnabled)}=${colorizePlusSeparatedRomaji(rhs, studyTokens, colorEnabled)}`;
+  }
+
+  if (rawPron.includes('+')) {
+    return colorizePlusSeparatedRomaji(rawPron, studyTokens, colorEnabled);
+  }
+
+  return formatStudyTextHtml(rawPron, colorEnabled);
+}
+
+
 
 

@@ -1,8 +1,8 @@
-import { LANGUAGES } from '../languages.js?v=20261104_scripts3';
-import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
-import { Auth, Api } from '../api.js?v=20261104_scripts3';
-import { trackEvent } from '../analytics.js?v=20261104_scripts3';
-import { navigate } from '../app.js?v=20261104_scripts3';
+import { LANGUAGES } from '../languages.js?v=20261116_khmer_tts1';
+import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts1';
+import { Auth, Api } from '../api.js?v=20261116_khmer_tts1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_tts1';
+import { navigate, navigateBack } from '../app.js?v=20261116_khmer_tts1';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {
@@ -34,6 +34,13 @@ export class Navbar {
 
     const decksMatch = cleanRoute.match(/^\/languages\/([^/]+)\/decks$/);
     if (decksMatch) {
+      const fromHome = sessionStorage.getItem('vocab_decks_back_source') === 'home';
+      if (fromHome) {
+        return {
+          label: t('home'),
+          target: '#/'
+        };
+      }
       return {
         label: t('languages'),
         target: '#/languages'
@@ -90,6 +97,13 @@ export class Navbar {
     }
 
     if (cleanRoute === '/scripts/japanese/hiragana' || cleanRoute === '/scripts/japanese/katakana') {
+      const jpReturnRoute = sessionStorage.getItem('japanese_kb_return_route');
+      if (jpReturnRoute) {
+        return {
+          label: t('back') || 'Back',
+          target: jpReturnRoute
+        };
+      }
       return {
         label: 'Japanese',
         target: '/scripts/japanese'
@@ -98,15 +112,9 @@ export class Navbar {
 
     if (cleanRoute === '/scripts/khmer') {
       const returnRoute = sessionStorage.getItem('khmer_kb_return_route');
-      if (returnRoute) {
-        return {
-          label: t('back') || 'Back',
-          target: returnRoute
-        };
-      }
       return {
-        label: t('scripts') || 'Scripts',
-        target: '/scripts'
+        label: t('back') || 'Back',
+        target: returnRoute || '/scripts'
       };
     }
 
@@ -305,10 +313,14 @@ export class Navbar {
     if (backBtn) {
       backBtn.addEventListener('click', () => {
         const target = backBtn.getAttribute('data-target');
-        sessionStorage.removeItem('khmer_kb_return_route');
+        if (cleanPath === '/scripts/khmer') {
+          sessionStorage.removeItem('khmer_kb_return_route');
+        } else if (cleanPath === '/scripts/japanese/hiragana' || cleanPath === '/scripts/japanese/katakana') {
+          sessionStorage.removeItem('japanese_kb_return_route');
+        }
         trackEvent('nav_back_click', { target: target || 'history' });
         if (target) {
-          navigate(target);
+          navigateBack(target);
         } else {
           window.history.back();
         }

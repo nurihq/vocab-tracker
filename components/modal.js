@@ -1,7 +1,10 @@
-import { t } from '../i18n.js?v=20260918_1789711631718';
+import { t } from '../i18n.js?v=20261116_khmer_tts1';
 
 export const Modal = {
   activeOverlay: null,
+  activeEscHandler: null,
+  suspendedRoute: null,
+  isSuspended: false,
 
   open({ title, contentHtml, onConfirm, confirmText, confirmClass = 'btn-primary', onCancel }) {
     this.close();
@@ -26,6 +29,8 @@ export const Modal = {
 
     document.body.appendChild(overlay);
     this.activeOverlay = overlay;
+    this.isSuspended = false;
+    this.suspendedRoute = null;
 
     // Trigger transition
     requestAnimationFrame(() => {
@@ -56,14 +61,34 @@ export const Modal = {
 
     // Keyboard ESC
     const escHandler = (e) => {
+      if (this.isSuspended) return;
       if (e.key === 'Escape') {
         closeHandler();
-        window.removeEventListener('keydown', escHandler);
       }
     };
+    this.activeEscHandler = escHandler;
     window.addEventListener('keydown', escHandler);
 
     return overlay;
+  },
+
+  suspend(routePath) {
+    if (this.activeOverlay && !this.isSuspended) {
+      this.isSuspended = true;
+      this.suspendedRoute = routePath || null;
+      this.activeOverlay.style.display = 'none';
+    }
+  },
+
+  resume(routePath) {
+    if (this.activeOverlay && this.isSuspended) {
+      if (!routePath || this.suspendedRoute === routePath) {
+        this.isSuspended = false;
+        this.activeOverlay.style.display = '';
+        return true;
+      }
+    }
+    return false;
   },
 
   confirmDeleteDeck({ deckName, onConfirm }) {
@@ -134,12 +159,23 @@ export const Modal = {
   },
 
   close() {
+    if (this.activeEscHandler) {
+      window.removeEventListener('keydown', this.activeEscHandler);
+      this.activeEscHandler = null;
+    }
+    const wasSuspended = this.isSuspended;
+    this.isSuspended = false;
+    this.suspendedRoute = null;
     if (this.activeOverlay) {
       this.activeOverlay.classList.remove('is-active');
       const toRemove = this.activeOverlay;
-      setTimeout(() => {
+      if (wasSuspended) {
         if (toRemove.parentNode) toRemove.parentNode.removeChild(toRemove);
-      }, 200);
+      } else {
+        setTimeout(() => {
+          if (toRemove.parentNode) toRemove.parentNode.removeChild(toRemove);
+        }, 200);
+      }
       this.activeOverlay = null;
     }
   }

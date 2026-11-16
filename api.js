@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20260918_1789711631718';
-import { getI18nBaseLang } from './i18n.js?v=20260918_1789711631718';
+import { CONFIG } from './config.js?v=20261116_khmer_tts1';
+import { getI18nBaseLang } from './i18n.js?v=20261116_khmer_tts1';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -204,7 +204,8 @@ const SETTINGS_KEY = `${STORAGE_PREFIX}settings`;
 
 const DEFAULT_SETTINGS = {
   khmerConsonantColors: true,
-  allLanguagesColors: true
+  allLanguagesColors: true,
+  khmerAutoRomanisation: true
 };
 
 export function getAppSettings() {
@@ -239,6 +240,108 @@ export function updateAppSettings(partial = {}) {
 export function shouldColorKhmer() {
   const s = getAppSettings();
   return Boolean(s.allLanguagesColors && s.khmerConsonantColors);
+}
+
+export function shouldAutoRomaniseKhmer() {
+  const s = getAppSettings();
+  return s.khmerAutoRomanisation !== false;
+}
+
+const ttsAudioCache = new Map();
+let activeTtsAudio = null;
+let activeTtsBtn = null;
+
+function clearActiveTtsState() {
+  if (activeTtsBtn) {
+    activeTtsBtn.classList.remove('is-speaking');
+    activeTtsBtn = null;
+  }
+}
+
+export function speakText(text, langCode = 'km', btnEl = null) {
+  const cleanText = String(text || '').trim();
+  if (!cleanText || typeof window === 'undefined') return;
+
+  if (activeTtsAudio) {
+    try {
+      activeTtsAudio.pause();
+      activeTtsAudio.currentTime = 0;
+    } catch (e) {}
+    activeTtsAudio = null;
+  }
+  clearActiveTtsState();
+
+  if (btnEl) {
+    btnEl.classList.add('is-speaking');
+    activeTtsBtn = btnEl;
+  }
+
+  const cacheKey = `${langCode}:${cleanText}`;
+  let audio = ttsAudioCache.get(cacheKey);
+  if (!audio) {
+    const ttsUrl = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${encodeURIComponent(langCode)}&q=${encodeURIComponent(cleanText)}`;
+    audio = new Audio(ttsUrl);
+    audio.preload = 'auto';
+    if (ttsAudioCache.size >= 100) {
+      const oldestKey = ttsAudioCache.keys().next().value;
+      ttsAudioCache.delete(oldestKey);
+    }
+    ttsAudioCache.set(cacheKey, audio);
+  } else {
+    try {
+      audio.currentTime = 0;
+    } catch (e) {}
+  }
+
+  activeTtsAudio = audio;
+
+  const fallbackSpeech = () => {
+    if ('speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(cleanText);
+        utter.lang = langCode === 'km' ? 'km-KH' : langCode;
+        utter.onend = () => clearActiveTtsState();
+        utter.onerror = () => clearActiveTtsState();
+        window.speechSynthesis.speak(utter);
+        return;
+      } catch (e) {}
+    }
+    clearActiveTtsState();
+  };
+
+  audio.onended = () => {
+    if (activeTtsAudio === audio) {
+      activeTtsAudio = null;
+      clearActiveTtsState();
+    }
+  };
+  audio.onerror = () => {
+    ttsAudioCache.delete(cacheKey);
+    if (activeTtsAudio === audio) {
+      activeTtsAudio = null;
+      fallbackSpeech();
+    }
+  };
+
+  try {
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {
+        if (activeTtsAudio === audio) {
+          activeTtsAudio = null;
+          fallbackSpeech();
+        }
+      });
+    }
+  } catch (e) {
+    activeTtsAudio = null;
+    fallbackSpeech();
+  }
+}
+
+export function speakKhmer(text, btnEl = null) {
+  speakText(text, 'km', btnEl);
 }
 
 export const Auth = {

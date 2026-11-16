@@ -1,10 +1,10 @@
-import { autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
-import { trackEvent } from '../analytics.js?v=20261104_scripts3';
-import { navigate } from '../app.js?v=20261104_scripts3';
-import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261104_scripts31';
-import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261104_scripts3';
-import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261104_scripts3';
-import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261104_scripts3';
+import { autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_tts1';
+import { navigate } from '../app.js?v=20261116_khmer_tts1';
+import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261116_khmer_tts1';
+import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261116_khmer_tts1';
+import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261116_khmer_tts1';
+import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261116_khmer_tts1';
 
 // ============================================================================
 // KHMER CHARACTER METADATA (Consonants + Subscripts + Dependent & Indep Vowels)
@@ -1095,6 +1095,26 @@ function renderKhmerKeyboardChecklistScreen(container) {
     }
   }
 
+  function clearActiveHighlight() {
+    if (highlightTimer) {
+      clearTimeout(highlightTimer);
+      highlightTimer = null;
+    }
+    highlightedKhmerChar = null;
+    highlightSubChar = null;
+    window.__activeKhmerHighlight = null;
+    try { sessionStorage.removeItem('khmer_kb_highlight'); } catch (e) {}
+    container.querySelector('.script-info-page')?.classList.remove('has-active-locator');
+    container.querySelectorAll('.is-kb-locator-highlight, .is-kb-modifier-hint').forEach(el => {
+      el.classList.remove('is-kb-locator-highlight', 'is-kb-modifier-hint');
+    });
+    const banner = container.querySelector('#khmer-locator-banner');
+    if (banner) {
+      banner.classList.add('is-fading-out');
+      setTimeout(() => banner.remove(), 350);
+    }
+  }
+
   function startHighlightExpiryTimer() {
     if (highlightTimer) clearTimeout(highlightTimer);
     if (!highlightedKhmerChar) return;
@@ -1107,31 +1127,24 @@ function renderKhmerKeyboardChecklistScreen(container) {
     });
 
     highlightTimer = setTimeout(() => {
-      highlightedKhmerChar = null;
-      highlightSubChar = null;
-      highlightTimer = null;
-      container.querySelectorAll('.is-kb-locator-highlight, .is-kb-modifier-hint').forEach(el => {
-        el.classList.remove('is-kb-locator-highlight', 'is-kb-modifier-hint');
-      });
-      const banner = container.querySelector('#khmer-locator-banner');
-      if (banner) {
-        banner.classList.add('is-fading-out');
-        setTimeout(() => banner.remove(), 350);
-      }
-    }, 3800);
+      clearActiveHighlight();
+    }, 4500);
   }
 
   // Check if navigated here from clicking a Khmer consonant in a word
   try {
-    const rawHighlight = sessionStorage.getItem('khmer_kb_highlight');
-    if (rawHighlight) {
+    let parsed = window.__activeKhmerHighlight || null;
+    if (!parsed) {
+      const rawHighlight = sessionStorage.getItem('khmer_kb_highlight');
+      if (rawHighlight) parsed = JSON.parse(rawHighlight);
+    }
+    if (parsed && parsed.char && (Date.now() - (parsed.timestamp || 0) < 10000)) {
+      highlightedKhmerChar = parsed.char;
+      highlightSubChar = parsed.subChar && parsed.subChar !== parsed.char ? parsed.subChar : null;
+      applyLayerForChar(highlightedKhmerChar);
+    } else {
+      window.__activeKhmerHighlight = null;
       sessionStorage.removeItem('khmer_kb_highlight');
-      const parsed = JSON.parse(rawHighlight);
-      if (parsed && parsed.char && (Date.now() - (parsed.timestamp || 0) < 15000)) {
-        highlightedKhmerChar = parsed.char;
-        highlightSubChar = parsed.subChar && parsed.subChar !== parsed.char ? parsed.subChar : null;
-        applyLayerForChar(highlightedKhmerChar);
-      }
     }
   } catch (e) {}
 
@@ -1264,8 +1277,22 @@ function renderKhmerKeyboardChecklistScreen(container) {
       extraInfoHtml = `
         <div class="char-action-submeta">Dependent Vowel${meta.combo ? ` (${meta.combo})` : ''}</div>
         <div class="char-action-ao-pills">
-          <span class="ao-pill series-a">A: <strong>${meta.aForm}</strong> <em>(${meta.aRom})</em></span>
-          <span class="ao-pill series-o">O: <strong>${meta.oForm}</strong> <em>(${meta.oRom})</em></span>
+          <button type="button" class="ao-pill series-a khmer-vowel-speak-btn" data-speak-text="${meta.aForm}" title="Listen to A-series (${meta.aForm})">
+            <span>A: <strong>${meta.aForm}</strong> <em>(${meta.aRom})</em></span>
+            <svg class="speaker-outline-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+          </button>
+          <button type="button" class="ao-pill series-o khmer-vowel-speak-btn" data-speak-text="${meta.oForm}" title="Listen to O-series (${meta.oForm})">
+            <span>O: <strong>${meta.oForm}</strong> <em>(${meta.oRom})</em></span>
+            <svg class="speaker-outline-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+          </button>
         </div>
       `;
     } else if (meta.type === 'digit') {
@@ -1378,7 +1405,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
       : (isShifted ? 'Shift ⇧ Layer' : 'Default Layer');
 
     container.innerHTML = `
-      <div class="script-info-page">
+      <div class="script-info-page ${highlightedKhmerChar ? 'has-active-locator' : ''}">
         <!-- 1. Main Interactive Khmer Phone Keyboard Card -->
         <section class="script-info-section khmer-kb-section">
           <div class="script-info-section-header jp-kb-top-bar" style="flex-wrap: nowrap;">
@@ -1478,6 +1505,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
     container.querySelectorAll('[data-kb-action]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        clearActiveHighlight();
         const act = btn.getAttribute('data-kb-action');
         if (act === 'shift') {
           isShifted = !isShifted;
@@ -1491,6 +1519,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
     // Clicking any letter key opens the Letter Action Modal
     container.querySelectorAll('.khmer-kb-key[data-char]').forEach(card => {
       card.addEventListener('click', () => {
+        clearActiveHighlight();
         selectedKhmerChar = card.getAttribute('data-char');
         renderPage();
       });
@@ -1521,6 +1550,16 @@ function renderKhmerKeyboardChecklistScreen(container) {
       const ch = selectedKhmerChar;
       selectedKhmerChar = null;
       jumpToPractice(ch);
+    });
+    container.querySelectorAll('.khmer-vowel-speak-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const text = btn.getAttribute('data-speak-text');
+        if (text) {
+          trackEvent('speak_khmer_vowel', { text });
+          speakKhmer(text, btn);
+        }
+      });
     });
 
     autoTranslateUi(container);

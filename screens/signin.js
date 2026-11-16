@@ -1,8 +1,8 @@
-import { CONFIG } from '../config.js?v=20261104_scripts3';
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261104_scripts3';
-import { Auth, Api } from '../api.js?v=20261104_scripts3';
-import { trackEvent } from '../analytics.js?v=20261104_scripts3';
-import { navigate } from '../app.js?v=20261104_scripts3';
+import { CONFIG } from '../config.js?v=20261116_khmer_tts1';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts1';
+import { Auth, Api } from '../api.js?v=20261116_khmer_tts1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_tts1';
+import { navigate } from '../app.js?v=20261116_khmer_tts1';
 
 export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();

@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_back_nav1';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml } from '../languages.js?v=20261116_back_nav1';
-import { Api, getLocalStore } from '../api.js?v=20261116_back_nav1';
-import { trackEvent } from '../analytics.js?v=20261116_back_nav1';
-import { navigate } from '../app.js?v=20261116_back_nav1';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts1';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_tts1';
+import { Api, getLocalStore } from '../api.js?v=20261116_khmer_tts1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_tts1';
+import { navigate } from '../app.js?v=20261116_khmer_tts1';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -238,12 +238,13 @@ export function renderFlashcardsScreen(container, params = {}) {
     const initialBaseMeaning = getCachedWordMeaning(currentWord.studyWord, currentWord.baseWord, langCode, currentBase);
 
     const isStudyFront = showFirst === 'study';
+    const studyPronHtml = formatStudyPronunciationHtml(currentWord.pronunciation, currentWord.studyWord, langCode);
     const frontWord = isStudyFront ? formatStudyTextHtml(currentWord.studyWord) : formatStudyTextHtml(initialBaseMeaning);
-    const frontPronunciation = isStudyFront ? currentWord.pronunciation : '';
+    const frontPronunciation = isStudyFront ? studyPronHtml : '';
     const frontTag = isStudyFront ? `${langInfo.flag} ${localizedStudyName}` : localizedBaseName;
 
     const backWord = isStudyFront ? formatStudyTextHtml(initialBaseMeaning) : formatStudyTextHtml(currentWord.studyWord);
-    const backPronunciation = !isStudyFront ? currentWord.pronunciation : '';
+    const backPronunciation = !isStudyFront ? studyPronHtml : '';
     const backTag = !isStudyFront ? `${langInfo.flag} ${localizedStudyName}` : localizedBaseName;
 
     const targetDecks = allDecks.filter(d => d.deckId !== 'all' && d.deckId !== currentWord.deckId);

@@ -1,21 +1,21 @@
-import { Navbar } from './components/navbar.js?v=20261116_back_nav1';
-import { Modal } from './components/modal.js?v=20261116_back_nav1';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_back_nav1';
-import { setI18nBaseLang } from './i18n.js?v=20261116_back_nav1';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_back_nav1';
-import { trackPageView, trackEvent } from './analytics.js?v=20261116_back_nav1';
+import { Navbar } from './components/navbar.js?v=20261116_khmer_tts1';
+import { Modal } from './components/modal.js?v=20261116_khmer_tts1';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_khmer_tts1';
+import { setI18nBaseLang } from './i18n.js?v=20261116_khmer_tts1';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_khmer_tts1';
+import { trackPageView, trackEvent } from './analytics.js?v=20261116_khmer_tts1';
 
-import { renderHomeScreen } from './screens/home.js?v=20261116_back_nav1';
-import { renderSignInScreen } from './screens/signin.js?v=20261116_back_nav1';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_back_nav1';
-import { renderDecksScreen } from './screens/decks.js?v=20261116_back_nav1';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_back_nav1';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_back_nav1';
-import { renderAboutScreen } from './screens/about.js?v=20261116_back_nav1';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261116_back_nav1';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_back_nav1';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_back_nav1';
-import { renderSettingsScreen } from './screens/settings.js?v=20261116_back_nav1';
+import { renderHomeScreen } from './screens/home.js?v=20261116_khmer_tts1';
+import { renderSignInScreen } from './screens/signin.js?v=20261116_khmer_tts1';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_khmer_tts1';
+import { renderDecksScreen } from './screens/decks.js?v=20261116_khmer_tts1';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_khmer_tts1';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_khmer_tts1';
+import { renderAboutScreen } from './screens/about.js?v=20261116_khmer_tts1';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261116_khmer_tts1';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_khmer_tts1';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_khmer_tts1';
+import { renderSettingsScreen } from './screens/settings.js?v=20261116_khmer_tts1';
 
 const routeHistory = [];
 
@@ -117,15 +117,25 @@ class App {
     );
 
     // Global capture-phase click handler for colored Khmer consonants:
-    // Clicking any colored consonant in a saved word navigates to the Khmer keyboard with that letter temporarily highlighted.
+    // In the word list (.word-row), clicking a Khmer word opens the large Khmer Word Modal first.
+    // Inside the Khmer Word Modal, Flashcards, or Settings preview, clicking a consonant navigates to the Khmer keyboard with that letter highlighted.
     document.addEventListener('click', (e) => {
       if (!e.target || !e.target.closest) return;
       const khmerCharEl = e.target.closest('.khmer-cons-char[data-khmer-char]');
       if (!khmerCharEl) return;
-      if (khmerCharEl.closest('.khmer-kb-key') || khmerCharEl.closest('.home-card-stage')) return;
+      if (
+        khmerCharEl.closest('.khmer-kb-key') ||
+        khmerCharEl.closest('.home-card-stage') ||
+        khmerCharEl.closest('.word-row')
+      ) {
+        return;
+      }
 
       e.preventDefault();
       e.stopPropagation();
+
+      // Close any open modal overlay before navigating to the keyboard
+      document.querySelectorAll('.modal-overlay').forEach(el => el.remove());
 
       let targetChar = khmerCharEl.getAttribute('data-khmer-char');
       const subChar = khmerCharEl.getAttribute('data-khmer-sub');
@@ -133,7 +143,7 @@ class App {
       // If this cluster has a subscript and user clicked the lower portion of the glyph, highlight the subscript first
       if (subChar) {
         const rect = khmerCharEl.getBoundingClientRect();
-        if (rect.height > 0 && (e.clientY - rect.top) > rect.height * 0.62) {
+        if (rect.height > 0 && (e.clientY - rect.top) > rect.height * 0.58) {
           targetChar = subChar;
         }
       }
@@ -143,11 +153,13 @@ class App {
       const returnToken = curPath === '/' ? '#/' : (curPath.startsWith('/scripts') ? curPath : `#${curPath}`);
       sessionStorage.setItem('khmer_kb_return_route', returnToken);
 
-      sessionStorage.setItem('khmer_kb_highlight', JSON.stringify({
+      const hlPayload = {
         char: targetChar,
         subChar: subChar || null,
         timestamp: Date.now()
-      }));
+      };
+      window.__activeKhmerHighlight = hlPayload;
+      sessionStorage.setItem('khmer_kb_highlight', JSON.stringify(hlPayload));
 
       trackEvent('khmer_consonant_locate', { char: targetChar });
       navigate('/scripts/khmer');

@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260918_1789711631718';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260918_1789711631718';
-import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261116_recent_cards1';
-import { Modal } from '../components/modal.js?v=20260918_1789711631718';
-import { trackEvent } from '../analytics.js?v=20260918_1789711631718';
-import { navigate } from '../app.js?v=20260918_1789711631718';
-import { setupDraggableList } from '../components/drag-controller.js?v=20260918_1789711631718';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts1';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_khmer_tts1';
+import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261116_khmer_tts1';
+import { Modal } from '../components/modal.js?v=20261116_khmer_tts1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_tts1';
+import { navigate } from '../app.js?v=20261116_khmer_tts1';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_tts1';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
@@ -215,6 +215,7 @@ export function renderStudyLanguagesScreen(container) {
         if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
         const code = tile.getAttribute('data-code');
         recordLanguageUsage(code);
+        sessionStorage.setItem('vocab_decks_back_source', 'languages');
         trackEvent('select_study_language', { langCode: code });
         navigate(`#/languages/${code}/decks`);
       });
@@ -224,6 +225,7 @@ export function renderStudyLanguagesScreen(container) {
           if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
           const code = tile.getAttribute('data-code');
           recordLanguageUsage(code);
+          sessionStorage.setItem('vocab_decks_back_source', 'languages');
           navigate(`#/languages/${code}/decks`);
         }
       });

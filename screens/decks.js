@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20260918_1789711631718';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20260918_1789711631718';
-import { Api, getLocalStore } from '../api.js?v=20260918_1789711631718';
-import { Modal } from '../components/modal.js?v=20260918_1789711631718';
-import { trackEvent } from '../analytics.js?v=20260918_1789711631718';
-import { navigate } from '../app.js?v=20260918_1789711631718';
-import { setupDraggableList } from '../components/drag-controller.js?v=20260918_1789711631718';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts1';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_khmer_tts1';
+import { Api, getLocalStore } from '../api.js?v=20261116_khmer_tts1';
+import { Modal } from '../components/modal.js?v=20261116_khmer_tts1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_tts1';
+import { navigate } from '../app.js?v=20261116_khmer_tts1';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_tts1';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -151,10 +151,9 @@ export function renderDecksScreen(container, params = {}) {
         </div>
         <div class="screen-actions">
           ${scriptKeyboardLink ? `
-            <a href="${scriptKeyboardLink.url}" target="_blank" rel="noopener" class="btn btn-secondary" id="open-script-kb-btn" title="Open ${scriptKeyboardLink.label} in a new window" style="text-decoration: none;">
+            <a href="${scriptKeyboardLink.url}" class="btn btn-secondary" id="open-script-kb-btn" title="${scriptKeyboardLink.label}" style="text-decoration: none;">
               <span>${scriptKeyboardLink.icon}</span>
               <span>${scriptKeyboardLink.label}</span>
-              <span aria-hidden="true" style="font-size: 0.85em; opacity: 0.75;">↗</span>
             </a>
           ` : ''}
           ${hasHidden ? `
