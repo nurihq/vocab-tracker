@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom4';
-import { getAppSettings, updateAppSettings } from '../api.js?v=20261116_khmer_zoom4';
-import { formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_zoom4';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom4';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_hl1';
+import { getAppSettings, updateAppSettings } from '../api.js?v=20261116_khmer_hl1';
+import { formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_hl1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_hl1';
 
 export function renderSettingsScreen(container) {
   function render() {

@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom4';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_khmer_zoom4';
-import { Api, getLocalStore, speakKhmer } from '../api.js?v=20261116_khmer_zoom4';
-import { Modal } from '../components/modal.js?v=20261116_khmer_zoom4';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom4';
-import { navigate } from '../app.js?v=20261116_khmer_zoom4';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_zoom4';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_hl1';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_khmer_hl1';
+import { Api, getLocalStore, speakKhmer } from '../api.js?v=20261116_khmer_hl1';
+import { Modal } from '../components/modal.js?v=20261116_khmer_hl1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_hl1';
+import { navigate } from '../app.js?v=20261116_khmer_hl1';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_hl1';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';

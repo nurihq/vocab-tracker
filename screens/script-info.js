@@ -1,10 +1,10 @@
-import { autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom4';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom4';
-import { navigate } from '../app.js?v=20261116_khmer_zoom4';
-import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261116_khmer_zoom4';
-import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261116_khmer_zoom4';
-import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261116_khmer_zoom4';
-import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261116_khmer_zoom4';
+import { autoTranslateUi } from '../i18n.js?v=20261116_khmer_hl1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_hl1';
+import { navigate } from '../app.js?v=20261116_khmer_hl1';
+import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261116_khmer_hl1';
+import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261116_khmer_hl1';
+import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261116_khmer_hl1';
+import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261116_khmer_hl1';
 
 // ============================================================================
 // KHMER CHARACTER METADATA (Consonants + Subscripts + Dependent & Indep Vowels)
@@ -1128,7 +1128,7 @@ function renderKhmerKeyboardChecklistScreen(container) {
 
     highlightTimer = setTimeout(() => {
       clearActiveHighlight();
-    }, 4500);
+    }, 1125);
   }
 
   // Check if navigated here from clicking a Khmer consonant in a word

@@ -1,8 +1,8 @@
-import { CONFIG } from '../config.js?v=20261116_khmer_zoom4';
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom4';
-import { Auth, Api } from '../api.js?v=20261116_khmer_zoom4';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom4';
-import { navigate } from '../app.js?v=20261116_khmer_zoom4';
+import { CONFIG } from '../config.js?v=20261116_khmer_hl1';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_hl1';
+import { Auth, Api } from '../api.js?v=20261116_khmer_hl1';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_hl1';
+import { navigate } from '../app.js?v=20261116_khmer_hl1';
 
 export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();
