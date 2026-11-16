@@ -1,6 +1,6 @@
 import { Navbar } from './components/navbar.js?v=20261116_khmer_autodefault';
 import { Modal } from './components/modal.js?v=20261116_khmer_autodefault';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_khmer_autodefault';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_khmer_vowel_series';
 import { setI18nBaseLang } from './i18n.js?v=20261116_khmer_autodefault';
 import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_khmer_autodefault';
 import { trackPageView, trackEvent } from './analytics.js?v=20261116_khmer_autodefault';
@@ -9,7 +9,7 @@ import { renderHomeScreen } from './screens/home.js?v=20261116_khmer_autodefault
 import { renderSignInScreen } from './screens/signin.js?v=20261116_khmer_autodefault';
 import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_khmer_autodefault';
 import { renderDecksScreen } from './screens/decks.js?v=20261116_khmer_autodefault';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_khmer_autodefault';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_khmer_vowel_series';
 import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_khmer_autodefault';
 import { renderAboutScreen } from './screens/about.js?v=20261116_khmer_autodefault';
 import { renderScriptsScreen } from './screens/scripts.js?v=20261116_khmer_autodefault';

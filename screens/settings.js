@@ -1,6 +1,6 @@
 import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_autodefault';
 import { getAppSettings, updateAppSettings, shouldColorKhmer } from '../api.js?v=20261116_khmer_autodefault';
-import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_autodefault';
+import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_vowel_series';
 import { trackEvent } from '../analytics.js?v=20261116_khmer_autodefault';
 
 export function renderSettingsScreen(container) {

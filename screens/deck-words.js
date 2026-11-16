@@ -1,5 +1,5 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_autodefault';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_khmer_autodefault';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_khmer_vowel_series';
 import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, shouldColorKhmer } from '../api.js?v=20261116_khmer_autodefault';
 import { Modal } from '../components/modal.js?v=20261116_khmer_autodefault';
 import { trackEvent } from '../analytics.js?v=20261116_khmer_autodefault';
@@ -854,8 +854,12 @@ export function renderDeckWordsScreen(container, params = {}) {
 
   function getKhmerTokenSpeakText(tok) {
     if (!tok) return '';
+    if (tok.speakText) return tok.speakText;
     if (tok.kind === 'subscript') return tok.char.slice(1);
-    if (tok.kind === 'vowel') return `អ${tok.char}`;
+    if (tok.kind === 'vowel') {
+      const carrier = (tok.vowelSeries === 'o' || tok.series === 'o') ? '\u17A2\u17CA' : '\u17A2';
+      return `${carrier}${tok.char}`;
+    }
     return tok.char;
   }
 
