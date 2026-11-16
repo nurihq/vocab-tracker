@@ -1,8 +1,8 @@
-import { LANGUAGES } from '../languages.js?v=20261116_khmer_tts1';
-import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts1';
-import { Auth, Api } from '../api.js?v=20261116_khmer_tts1';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_tts1';
-import { navigate, navigateBack } from '../app.js?v=20261116_khmer_tts1';
+import { LANGUAGES } from '../languages.js?v=20261116_khmer_zoom4';
+import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom4';
+import { Auth, Api } from '../api.js?v=20261116_khmer_zoom4';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom4';
+import { navigate, navigateBack } from '../app.js?v=20261116_khmer_zoom4';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {

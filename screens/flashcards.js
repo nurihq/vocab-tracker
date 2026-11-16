@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts1';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_tts1';
-import { Api, getLocalStore } from '../api.js?v=20261116_khmer_tts1';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_tts1';
-import { navigate } from '../app.js?v=20261116_khmer_tts1';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom4';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_zoom4';
+import { Api, getLocalStore } from '../api.js?v=20261116_khmer_zoom4';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom4';
+import { navigate } from '../app.js?v=20261116_khmer_zoom4';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';

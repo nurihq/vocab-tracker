@@ -1,10 +1,10 @@
-import { autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts1';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_tts1';
-import { navigate } from '../app.js?v=20261116_khmer_tts1';
-import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261116_khmer_tts1';
-import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261116_khmer_tts1';
-import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261116_khmer_tts1';
-import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261116_khmer_tts1';
+import { autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom4';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom4';
+import { navigate } from '../app.js?v=20261116_khmer_zoom4';
+import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261116_khmer_zoom4';
+import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261116_khmer_zoom4';
+import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261116_khmer_zoom4';
+import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261116_khmer_zoom4';
 
 // ============================================================================
 // KHMER CHARACTER METADATA (Consonants + Subscripts + Dependent & Indep Vowels)
@@ -1400,9 +1400,12 @@ function renderKhmerKeyboardChecklistScreen(container) {
     const hlColorClass = hlMeta && (hlMeta.type === 'consonant' || hlMeta.type === 'subscript')
       ? `khmer-color-${hlMeta.series.toLowerCase()}`
       : '';
-    const hlLayerLabel = isCoeng
-      ? (isShifted ? 'Shift ⇧ + Coeng ្ Layer' : 'Coeng ្ Layer')
-      : (isShifted ? 'Shift ⇧ Layer' : 'Default Layer');
+    const isExtraVowelHighlight = Boolean(highlightedKhmerChar && extraVowelRows.flat().includes(highlightedKhmerChar));
+    const hlLayerLabel = isExtraVowelHighlight
+      ? 'Independent & Compound Vowels'
+      : isCoeng
+        ? (isShifted ? 'Shift ⇧ + Coeng ្ Layer' : 'Coeng ្ Layer')
+        : (isShifted ? 'Shift ⇧ Layer' : 'Default Layer');
 
     container.innerHTML = `
       <div class="script-info-page ${highlightedKhmerChar ? 'has-active-locator' : ''}">

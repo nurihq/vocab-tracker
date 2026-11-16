@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts1';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled } from '../languages.js?v=20261116_khmer_tts1';
-import { Api, getLocalStore, speakKhmer } from '../api.js?v=20261116_khmer_tts1';
-import { Modal } from '../components/modal.js?v=20261116_khmer_tts1';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_tts1';
-import { navigate } from '../app.js?v=20261116_khmer_tts1';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_tts1';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom4';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_khmer_zoom4';
+import { Api, getLocalStore, speakKhmer } from '../api.js?v=20261116_khmer_zoom4';
+import { Modal } from '../components/modal.js?v=20261116_khmer_zoom4';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom4';
+import { navigate } from '../app.js?v=20261116_khmer_zoom4';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_zoom4';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -710,6 +710,8 @@ export function renderDeckWordsScreen(container, params = {}) {
     if (!word || !word.studyWord) return;
     document.querySelectorAll('.khmer-word-zoom-overlay').forEach(el => el.remove());
 
+    const tokens = parseKhmerWordTokens(word.studyWord);
+
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay khmer-word-zoom-overlay is-active';
     overlay.innerHTML = `
@@ -718,7 +720,19 @@ export function renderDeckWordsScreen(container, params = {}) {
         <div class="khmer-zoom-word">
           ${formatStudyTextHtml(word.studyWord)}
         </div>
-        <div class="khmer-zoom-hint">Tap any consonant to locate it on the keyboard</div>
+        ${tokens.length > 0 ? `
+          <div class="khmer-zoom-tokens" aria-label="Tap any character or vowel to locate on keyboard">
+            ${tokens.map(tok => `
+              <button type="button"
+                      class="khmer-cons-char khmer-zoom-token-pill ${tok.series ? `khmer-color-${tok.series}` : 'is-vowel-pill'}"
+                      data-khmer-char="${tok.char}"
+                      title="Locate ${tok.display} on Khmer keyboard">
+                ${tok.display}
+              </button>
+            `).join('')}
+          </div>
+        ` : ''}
+        <div class="khmer-zoom-hint">Tap any consonant or vowel to locate it on the keyboard</div>
       </div>
     `;
 

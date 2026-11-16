@@ -1,21 +1,21 @@
-import { Navbar } from './components/navbar.js?v=20261116_khmer_tts1';
-import { Modal } from './components/modal.js?v=20261116_khmer_tts1';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_khmer_tts1';
-import { setI18nBaseLang } from './i18n.js?v=20261116_khmer_tts1';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_khmer_tts1';
-import { trackPageView, trackEvent } from './analytics.js?v=20261116_khmer_tts1';
+import { Navbar } from './components/navbar.js?v=20261116_khmer_zoom4';
+import { Modal } from './components/modal.js?v=20261116_khmer_zoom4';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_khmer_zoom4';
+import { setI18nBaseLang } from './i18n.js?v=20261116_khmer_zoom4';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_khmer_zoom4';
+import { trackPageView, trackEvent } from './analytics.js?v=20261116_khmer_zoom4';
 
-import { renderHomeScreen } from './screens/home.js?v=20261116_khmer_tts1';
-import { renderSignInScreen } from './screens/signin.js?v=20261116_khmer_tts1';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_khmer_tts1';
-import { renderDecksScreen } from './screens/decks.js?v=20261116_khmer_tts1';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_khmer_tts1';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_khmer_tts1';
-import { renderAboutScreen } from './screens/about.js?v=20261116_khmer_tts1';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261116_khmer_tts1';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_khmer_tts1';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_khmer_tts1';
-import { renderSettingsScreen } from './screens/settings.js?v=20261116_khmer_tts1';
+import { renderHomeScreen } from './screens/home.js?v=20261116_khmer_zoom4';
+import { renderSignInScreen } from './screens/signin.js?v=20261116_khmer_zoom4';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_khmer_zoom4';
+import { renderDecksScreen } from './screens/decks.js?v=20261116_khmer_zoom4';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_khmer_zoom4';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_khmer_zoom4';
+import { renderAboutScreen } from './screens/about.js?v=20261116_khmer_zoom4';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261116_khmer_zoom4';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_khmer_zoom4';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_khmer_zoom4';
+import { renderSettingsScreen } from './screens/settings.js?v=20261116_khmer_zoom4';
 
 const routeHistory = [];
 
@@ -139,13 +139,27 @@ class App {
 
       let targetChar = khmerCharEl.getAttribute('data-khmer-char');
       const subChar = khmerCharEl.getAttribute('data-khmer-sub');
+      const vowelChar = khmerCharEl.getAttribute('data-khmer-vowel');
+      const vowelPos = khmerCharEl.getAttribute('data-khmer-vowel-pos');
 
-      // If this cluster has a subscript and user clicked the lower portion of the glyph, highlight the subscript first
-      if (subChar) {
-        const rect = khmerCharEl.getBoundingClientRect();
-        if (rect.height > 0 && (e.clientY - rect.top) > rect.height * 0.58) {
-          targetChar = subChar;
-        }
+      const rect = khmerCharEl.getBoundingClientRect();
+      const relX = rect.width > 0 ? (e.clientX - rect.left) / rect.width : 0.5;
+      const relY = rect.height > 0 ? (e.clientY - rect.top) / rect.height : 0.5;
+
+      let matchedVowel = false;
+      if (vowelChar && vowelPos) {
+        if (vowelPos === 'left' && relX < 0.36) matchedVowel = true;
+        else if (vowelPos === 'right' && relX > 0.64) matchedVowel = true;
+        else if (vowelPos === 'circumfix' && (relX < 0.30 || relX > 0.72)) matchedVowel = true;
+        else if (vowelPos === 'above' && relY < 0.32) matchedVowel = true;
+        else if (vowelPos === 'below' && !subChar && relY > 0.66) matchedVowel = true;
+        else if (vowelPos === 'below' && subChar && relY > 0.78) matchedVowel = true;
+      }
+
+      if (matchedVowel) {
+        targetChar = vowelChar;
+      } else if (subChar && relY > 0.58) {
+        targetChar = subChar;
       }
 
       // Save return route so the navbar Back button returns the user straight back to their deck/card
@@ -155,7 +169,7 @@ class App {
 
       const hlPayload = {
         char: targetChar,
-        subChar: subChar || null,
+        subChar: subChar || vowelChar || null,
         timestamp: Date.now()
       };
       window.__activeKhmerHighlight = hlPayload;

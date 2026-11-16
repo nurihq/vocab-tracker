@@ -290,6 +290,112 @@ function isKhmerCombiningMark(ch) {
   return (code >= 0x17B6 && code <= 0x17D3) || code === 0x17DD;
 }
 
+const KHMER_COMPOUND_VOWELS = ['ុំ', 'ុះ', 'ាំ', 'េះ', 'ោះ'];
+
+const KHMER_VOWEL_POS = {
+  'េ': 'left', 'ែ': 'left', 'ៃ': 'left',
+  'ា': 'right', 'ាំ': 'right', 'ះ': 'right', 'ុះ': 'right', 'ៈ': 'right',
+  'ោ': 'circumfix', 'ៅ': 'circumfix', 'ើ': 'circumfix', 'ឿ': 'circumfix', 'ៀ': 'circumfix', 'េះ': 'circumfix', 'ោះ': 'circumfix',
+  'ុ': 'below', 'ូ': 'below', 'ួ': 'below', 'ុំ': 'below',
+  'ិ': 'above', 'ី': 'above', 'ឹ': 'above', 'ឺ': 'above', 'ំ': 'above', '័': 'above', '៍': 'above', '់': 'above', '៉': 'above', '៊': 'above', '៏': 'above', '៌': 'above', '៎': 'above'
+};
+
+const KHMER_INDEP_AND_SIGNS = new Set([
+  'ឥ', 'ឦ', 'ឧ', 'ឨ', 'ឩ', 'ឪ', 'ឫ', 'ឬ', 'ឭ', 'ឮ', 'ឯ', 'ឰ', 'ឱ', 'ឳ', 'ឲ',
+  '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩', '០',
+  '់', '៉', '៊', 'ៗ', '។', '៕', '៖', 'ៈ', '៛', '៍', '័', '៏', '៌', '៎', '៑'
+]);
+
+function getKhmerVowelTokenAndPos(vowelsAndSigns) {
+  if (!vowelsAndSigns) return null;
+  for (const cmp of KHMER_COMPOUND_VOWELS) {
+    if (vowelsAndSigns.includes(cmp)) {
+      return { token: cmp, pos: KHMER_VOWEL_POS[cmp] || 'right' };
+    }
+  }
+  const chars = Array.from(vowelsAndSigns);
+  for (const v of chars) {
+    if (KHMER_VOWEL_POS[v]) {
+      return { token: v, pos: KHMER_VOWEL_POS[v] };
+    }
+  }
+  return null;
+}
+
+/**
+ * Parses a Khmer word into an ordered list of clickable keyboard tokens
+ * (consonants, subscripts, dependent/compound vowels, independent vowels, signs).
+ */
+export function parseKhmerWordTokens(text) {
+  if (!text) return [];
+  const chars = Array.from(String(text));
+  const tokens = [];
+  let i = 0;
+
+  while (i < chars.length) {
+    const ch = chars[i];
+    const baseSeries = getKhmerConsonantSeries(ch);
+
+    if (baseSeries) {
+      tokens.push({ char: ch, display: ch, series: baseSeries, kind: 'consonant' });
+      let j = i + 1;
+      let vowelsAndSigns = '';
+
+      while (j < chars.length && isKhmerCombiningMark(chars[j])) {
+        if (chars[j] === '\u17D2' && j + 1 < chars.length && getKhmerConsonantSeries(chars[j + 1])) {
+          const subCons = chars[j + 1];
+          const subToken = '\u17D2' + subCons;
+          tokens.push({
+            char: subToken,
+            display: `\u200d${subToken}`,
+            series: getKhmerConsonantSeries(subCons),
+            kind: 'subscript'
+          });
+          j += 2;
+        } else {
+          vowelsAndSigns += chars[j];
+          j++;
+        }
+      }
+
+      if (vowelsAndSigns) {
+        let vIdx = 0;
+        const vChars = Array.from(vowelsAndSigns);
+        while (vIdx < vChars.length) {
+          const remaining = vChars.slice(vIdx).join('');
+          const cmp = KHMER_COMPOUND_VOWELS.find(c => remaining.startsWith(c));
+          if (cmp) {
+            tokens.push({ char: cmp, display: `\u25CC${cmp}`, series: null, kind: 'vowel' });
+            vIdx += Array.from(cmp).length;
+          } else {
+            const vCh = vChars[vIdx];
+            if (KHMER_VOWEL_POS[vCh] || KHMER_INDEP_AND_SIGNS.has(vCh)) {
+              const needsCircle = isKhmerCombiningMark(vCh);
+              tokens.push({
+                char: vCh,
+                display: needsCircle ? `\u25CC${vCh}` : vCh,
+                series: null,
+                kind: 'vowel'
+              });
+            }
+            vIdx++;
+          }
+        }
+      }
+
+      i = j;
+      continue;
+    }
+
+    if (KHMER_INDEP_AND_SIGNS.has(ch)) {
+      tokens.push({ char: ch, display: ch, series: null, kind: 'indep' });
+    }
+    i++;
+  }
+
+  return tokens;
+}
+
 /**
  * Formats study word text with Khmer consonant series coloring (A-series orange, O-series purple)
  * while keeping every syllable cluster intact as a single text run (so mobile iOS Safari never shows
@@ -317,7 +423,11 @@ export function formatStudyTextHtml(text, forceColor = null) {
     const baseSeries = getKhmerConsonantSeries(baseChar);
 
     if (!baseSeries) {
-      out += escapeHtml(baseChar);
+      if (KHMER_INDEP_AND_SIGNS.has(baseChar)) {
+        out += `<span class="khmer-cons-char khmer-indep-char" data-khmer-char="${baseChar}" title="Click to locate ${baseChar} on Khmer keyboard">${escapeHtml(baseChar)}</span>`;
+      } else {
+        out += escapeHtml(baseChar);
+      }
       i++;
       continue;
     }
@@ -356,7 +466,9 @@ export function formatStudyTextHtml(text, forceColor = null) {
     const fullCluster = chars.slice(i, j).join('');
     const consCluster = baseChar + subscripts;
     const subAttr = lastSubToken ? ` data-khmer-sub="${lastSubToken}"` : '';
-    const titleAttr = ` title="Click to locate ${baseChar}${lastSubToken ? ' / ' + lastSubToken : ''} on Khmer keyboard"`;
+    const vowelInfo = getKhmerVowelTokenAndPos(vowelsAndSigns);
+    const vowelAttr = vowelInfo ? ` data-khmer-vowel="${vowelInfo.token}" data-khmer-vowel-pos="${vowelInfo.pos}"` : '';
+    const titleAttr = ` title="Click to locate ${baseChar}${lastSubToken ? ' / ' + lastSubToken : ''}${vowelInfo ? ' / ' + vowelInfo.token : ''} on Khmer keyboard"`;
 
     // Case 1: Pure consonant or consonant+subscript with no dependent vowels/signs
     if (!vowelsAndSigns) {
@@ -407,7 +519,7 @@ export function formatStudyTextHtml(text, forceColor = null) {
       }
     }
 
-    out += `<span class="khmer-cons-char is-khmer-cluster" data-khmer-char="${baseChar}"${subAttr}${titleAttr}>${fullCluster}${overlayHtml}</span>`;
+    out += `<span class="khmer-cons-char is-khmer-cluster" data-khmer-char="${baseChar}"${subAttr}${vowelAttr}${titleAttr}>${fullCluster}${overlayHtml}</span>`;
     i = j;
   }
 
