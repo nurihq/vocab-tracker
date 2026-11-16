@@ -4645,6 +4645,46 @@ body.is-script-practice-route .main-content {
   background: var(--bg-hover);
 }
 
+.khmer-zoom-word-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  max-width: 100%;
+}
+
+.khmer-zoom-word-speak-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.khmer-zoom-token-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.khmer-zoom-token-speak-btn {
+  width: 28px;
+  height: 26px;
+  border-radius: 8px;
+}
+
+.khmer-zoom-token-speak-btn.is-speaking,
+.khmer-zoom-word-speak-btn.is-speaking {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.khmer-zoom-token-speak-btn.is-speaking svg,
+.khmer-zoom-word-speak-btn.is-speaking svg {
+  animation: speakerPulse 0.9s ease-in-out infinite;
+}
+
 .khmer-zoom-hint {
   font-size: 0.84rem;
   color: var(--text-secondary);

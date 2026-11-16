@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom6';
-import { Auth } from '../api.js?v=20261116_khmer_zoom6';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom6';
-import { navigate } from '../app.js?v=20261116_khmer_zoom6';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts2';
+import { Auth } from '../api.js?v=20261116_khmer_tts2';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_tts2';
+import { navigate } from '../app.js?v=20261116_khmer_tts2';
 
 export function renderAboutScreen(container) {
   const isAuthed = Auth.isAuthenticated();

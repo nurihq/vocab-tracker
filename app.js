@@ -1,21 +1,21 @@
-import { Navbar } from './components/navbar.js?v=20261116_khmer_zoom6';
-import { Modal } from './components/modal.js?v=20261116_khmer_zoom6';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_khmer_zoom6';
-import { setI18nBaseLang } from './i18n.js?v=20261116_khmer_zoom6';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_khmer_zoom6';
-import { trackPageView, trackEvent } from './analytics.js?v=20261116_khmer_zoom6';
+import { Navbar } from './components/navbar.js?v=20261116_khmer_tts2';
+import { Modal } from './components/modal.js?v=20261116_khmer_tts2';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_khmer_tts2';
+import { setI18nBaseLang } from './i18n.js?v=20261116_khmer_tts2';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_khmer_tts2';
+import { trackPageView, trackEvent } from './analytics.js?v=20261116_khmer_tts2';
 
-import { renderHomeScreen } from './screens/home.js?v=20261116_khmer_zoom6';
-import { renderSignInScreen } from './screens/signin.js?v=20261116_khmer_zoom6';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_khmer_zoom6';
-import { renderDecksScreen } from './screens/decks.js?v=20261116_khmer_zoom6';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_khmer_zoom6';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_khmer_zoom6';
-import { renderAboutScreen } from './screens/about.js?v=20261116_khmer_zoom6';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261116_khmer_zoom6';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_khmer_zoom6';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_khmer_zoom6';
-import { renderSettingsScreen } from './screens/settings.js?v=20261116_khmer_zoom6';
+import { renderHomeScreen } from './screens/home.js?v=20261116_khmer_tts2';
+import { renderSignInScreen } from './screens/signin.js?v=20261116_khmer_tts2';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_khmer_tts2';
+import { renderDecksScreen } from './screens/decks.js?v=20261116_khmer_tts2';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_khmer_tts2';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261116_khmer_tts2';
+import { renderAboutScreen } from './screens/about.js?v=20261116_khmer_tts2';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261116_khmer_tts2';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_khmer_tts2';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261116_khmer_tts2';
+import { renderSettingsScreen } from './screens/settings.js?v=20261116_khmer_tts2';
 
 const routeHistory = [];
 
@@ -134,6 +134,19 @@ class App {
 
       e.preventDefault();
       e.stopPropagation();
+
+      // If triggered from inside the Khmer word zoom modal, remember it so navigating back reopens it
+      const curPathForZoom = getActiveRoutePath();
+      const zoomOverlay = khmerCharEl.closest('.khmer-word-zoom-overlay');
+      if (zoomOverlay) {
+        const zoomWordId = zoomOverlay.getAttribute('data-word-id');
+        if (zoomWordId) {
+          sessionStorage.setItem('khmer_zoom_return_state', JSON.stringify({
+            route: curPathForZoom,
+            wordId: zoomWordId
+          }));
+        }
+      }
 
       // Close any open modal overlay before navigating to the keyboard
       document.querySelectorAll('.modal-overlay').forEach(el => el.remove());
@@ -334,6 +347,17 @@ class App {
         }
       } else if (Modal.activeOverlay && !Modal.isSuspended && prevPath && prevPath !== path) {
         Modal.close();
+      }
+      try {
+        const rawZoom = sessionStorage.getItem('khmer_zoom_return_state');
+        if (rawZoom) {
+          const parsedZoom = JSON.parse(rawZoom);
+          if (!parsedZoom || parsedZoom.route !== path) {
+            sessionStorage.removeItem('khmer_zoom_return_state');
+          }
+        }
+      } catch (e) {
+        sessionStorage.removeItem('khmer_zoom_return_state');
       }
     }
 

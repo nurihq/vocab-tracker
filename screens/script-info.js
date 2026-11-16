@@ -1,10 +1,10 @@
-import { autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom6';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom6';
-import { navigate } from '../app.js?v=20261116_khmer_zoom6';
-import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261116_khmer_zoom6';
-import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261116_khmer_zoom6';
-import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261116_khmer_zoom6';
-import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261116_khmer_zoom6';
+import { autoTranslateUi } from '../i18n.js?v=20261116_khmer_tts2';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_tts2';
+import { navigate } from '../app.js?v=20261116_khmer_tts2';
+import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261116_khmer_tts2';
+import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261116_khmer_tts2';
+import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261116_khmer_tts2';
+import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261116_khmer_tts2';
 
 // ============================================================================
 // KHMER CHARACTER METADATA (Consonants + Subscripts + Dependent & Indep Vowels)
@@ -1266,9 +1266,35 @@ function renderKhmerKeyboardChecklistScreen(container) {
     let modalRomajiHtml = meta.romaji;
     let extraInfoHtml = '';
     if (meta.type === 'consonant') {
-      extraInfoHtml = `<div class="char-action-submeta"><span class="khmer-color-${meta.series.toLowerCase()}">${meta.series}-Series</span> Consonant</div>`;
+      const seriesClass = meta.series.toLowerCase();
+      extraInfoHtml = `
+        <div class="char-action-submeta"><span class="khmer-color-${seriesClass}">${meta.series}-Series</span> Consonant</div>
+        <div class="char-action-ao-pills">
+          <button type="button" class="ao-pill series-${seriesClass} khmer-vowel-speak-btn" data-speak-text="${selectedKhmerChar}" title="Listen to ${selectedKhmerChar} (${meta.romaji})">
+            <span><strong>${selectedKhmerChar}</strong> <em>(${meta.romaji})</em></span>
+            <svg class="speaker-outline-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+          </button>
+        </div>
+      `;
     } else if (meta.type === 'subscript') {
-      extraInfoHtml = `<div class="char-action-submeta"><span class="khmer-color-${meta.series.toLowerCase()}">${meta.series}-Series</span> Subscript Consonant (Coeng ${meta.baseChar})</div>`;
+      const seriesClass = meta.series.toLowerCase();
+      extraInfoHtml = `
+        <div class="char-action-submeta"><span class="khmer-color-${seriesClass}">${meta.series}-Series</span> Subscript Consonant (Coeng ${meta.baseChar})</div>
+        <div class="char-action-ao-pills">
+          <button type="button" class="ao-pill series-${seriesClass} khmer-vowel-speak-btn" data-speak-text="${meta.baseChar}" title="Listen to ${meta.baseChar} (${meta.romaji})">
+            <span><strong>${meta.baseChar}</strong> <em>(${meta.romaji})</em></span>
+            <svg class="speaker-outline-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+          </button>
+        </div>
+      `;
     } else if (meta.type === 'vowel') {
       const parts = meta.romaji.split(' / ');
       const aSound = parts[0];
