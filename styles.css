@@ -4450,11 +4450,11 @@ body.is-script-practice-route .main-content {
   transition: opacity 0.15s ease, background-color 0.15s ease;
 }
 
-.word-row .khmer-cons-char {
+.word-row .khmer-cons-char,
+.khmer-zoom-word .khmer-cons-char {
   cursor: inherit;
 }
 
-.khmer-zoom-word .khmer-cons-char,
 .card-text-main .khmer-cons-char,
 .settings-preview-khmer .khmer-cons-char {
   cursor: pointer;
@@ -4467,13 +4467,11 @@ body.is-script-practice-route .main-content {
   vertical-align: baseline;
 }
 
-.khmer-zoom-word .khmer-cons-char:hover,
 .card-text-main .khmer-cons-char:hover,
 .settings-preview-khmer .khmer-cons-char:hover {
   background-color: rgba(124, 58, 237, 0.12);
 }
 
-.khmer-zoom-word .khmer-cons-char.khmer-color-a:hover,
 .card-text-main .khmer-cons-char.khmer-color-a:hover,
 .settings-preview-khmer .khmer-cons-char.khmer-color-a:hover {
   background-color: rgba(217, 119, 6, 0.14);
@@ -4589,7 +4587,6 @@ body.is-script-practice-route .main-content {
 }
 
 .khmer-zoom-word {
-  font-family: 'Noto Sans Khmer', sans-serif;
   font-size: clamp(3.4rem, 11vw, 5.2rem);
   font-weight: 700;
   line-height: 1.65;
@@ -4604,10 +4601,6 @@ body.is-script-practice-route .main-content {
   border-radius: 8px;
 }
 
-.khmer-zoom-word .khmer-cons-char:hover {
-  background-color: rgba(245, 158, 11, 0.16);
-}
-
 .khmer-zoom-tokens {
   display: flex;
   flex-wrap: wrap;
@@ -4617,7 +4610,6 @@ body.is-script-practice-route .main-content {
 }
 
 .khmer-zoom-token-pill {
-  font-family: 'Noto Sans Khmer', sans-serif;
   font-size: 1.35rem;
   font-weight: 700;
   min-width: 44px;

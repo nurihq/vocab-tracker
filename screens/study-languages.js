@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_hl1';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_khmer_hl1';
-import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261116_khmer_hl1';
-import { Modal } from '../components/modal.js?v=20261116_khmer_hl1';
-import { trackEvent } from '../analytics.js?v=20261116_khmer_hl1';
-import { navigate } from '../app.js?v=20261116_khmer_hl1';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_hl1';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_zoom4';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_khmer_zoom4';
+import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261116_khmer_zoom4';
+import { Modal } from '../components/modal.js?v=20261116_khmer_zoom4';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_zoom4';
+import { navigate } from '../app.js?v=20261116_khmer_zoom4';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_zoom4';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
