@@ -2,10 +2,18 @@
    VOCABULARY TRACKER — ZEN PASTEL & MATTE CHARCOAL DESIGN SYSTEM
    ══════════════════════════════════════════════════════════════════════════ */
 
+/* ==========================================================================
+   CRITICAL FONT RULE: KHMER SCRIPT MUST ALWAYS BE SQUIGGLY / TRADITIONAL SERIF
+   DO NOT USE 'Noto Sans Khmer' OR ANY HEADLESS / LOOPLESS KHMER FONT.
+   The Khmer script MUST ALWAYS use traditional looped serif fonts:
+   'Noto Serif Khmer', 'Khmer Sangam MN', 'Khmer MN', 'Leelawadee UI', 'Khmer UI', serif.
+   Headless / flat fonts are strictly prohibited throughout the entire app.
+   ========================================================================== */
+
 :root {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 'Noto Sans Khmer', sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 'Noto Serif Khmer', 'Khmer Sangam MN', 'Khmer MN', sans-serif;
   --font-serif: 'Playfair Display', Georgia, serif;
-  --font-khmer: 'Noto Sans Khmer', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-khmer: 'Noto Serif Khmer', 'Khmer Sangam MN', 'Khmer MN', 'Leelawadee UI', 'Khmer UI', serif;
   
   /* Light Mode: Light grey with a serene purplish / lavender hue */
   --bg-main: #f3f2f7;
@@ -3747,6 +3755,7 @@ body.is-script-practice-route .main-content {
 }
 
 .khmer-key-corner-sub {
+  font-family: var(--font-khmer);
   font-size: clamp(0.45rem, 0.68vw, 0.6rem);
   color: var(--text-muted);
   background: var(--bg-subtle);
@@ -3756,6 +3765,7 @@ body.is-script-practice-route .main-content {
 }
 
 .khmer-key-glyph {
+  font-family: var(--font-khmer);
   font-size: clamp(0.92rem, 1.9vw, 1.5rem);
   font-weight: 700;
   color: var(--text-primary);
@@ -3822,6 +3832,7 @@ body.is-script-practice-route .main-content {
 }
 
 .ao-pill em {
+  font-family: var(--font-khmer);
   font-style: normal;
   font-weight: 700;
 }
@@ -4446,6 +4457,13 @@ body.is-script-practice-route .main-content {
    INTERACTIVE KHMER CONSONANTS IN WORDS & KEYBOARD LOCATOR HIGHLIGHT
    ========================================================================== */
 
+:lang(km),
+[lang="km"],
+[data-lang="km"],
+.khmer-text {
+  font-family: var(--font-khmer);
+}
+
 .khmer-cons-char {
   font-family: var(--font-khmer);
   border-radius: 3px;
@@ -4571,6 +4589,7 @@ body.is-script-practice-route .main-content {
   justify-content: center;
   text-align: center;
   gap: 1.2rem;
+  font-family: var(--font-khmer);
 }
 
 .khmer-zoom-close-btn {
@@ -4597,6 +4616,7 @@ body.is-script-practice-route .main-content {
 }
 
 .khmer-zoom-word {
+  font-family: var(--font-khmer);
   font-size: clamp(3.4rem, 11vw, 5.2rem);
   font-weight: 700;
   line-height: 1.65;
@@ -4607,6 +4627,7 @@ body.is-script-practice-route .main-content {
 }
 
 .khmer-zoom-word .khmer-cons-char {
+  font-family: var(--font-khmer);
   padding: 0 0.02em;
   border-radius: 8px;
 }
@@ -4617,9 +4638,11 @@ body.is-script-practice-route .main-content {
   justify-content: center;
   gap: 0.45rem;
   max-width: 100%;
+  font-family: var(--font-khmer);
 }
 
 .khmer-zoom-token-pill {
+  font-family: var(--font-khmer);
   min-width: 48px;
   min-height: 54px;
   padding: 0.35rem 0.6rem;
@@ -4637,6 +4660,7 @@ body.is-script-practice-route .main-content {
 }
 
 .khmer-zoom-token-glyph {
+  font-family: var(--font-khmer);
   font-size: 1.35rem;
   font-weight: 700;
   line-height: 1.15;
