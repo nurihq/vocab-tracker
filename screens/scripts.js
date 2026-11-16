@@ -1,6 +1,6 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_fix_rom_keyboard_nav';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_fix_rom_keyboard_nav';
-import { trackEvent } from '../analytics.js?v=20261116_fix_rom_keyboard_nav';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_fix_pron_auto_rom';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_fix_pron_auto_rom';
+import { trackEvent } from '../analytics.js?v=20261116_fix_pron_auto_rom';
 
 const SCRIPT_LANGUAGES = [
   { code: 'ja', href: '/scripts/japanese', defaultName: 'Japanese', defaultNative: '日本語', defaultFlag: '🇯🇵' },

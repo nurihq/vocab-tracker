@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_fix_rom_keyboard_nav';
-import { Auth } from '../api.js?v=20261116_fix_rom_keyboard_nav';
-import { trackEvent } from '../analytics.js?v=20261116_fix_rom_keyboard_nav';
-import { navigate } from '../app.js?v=20261116_fix_rom_keyboard_nav';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_fix_pron_auto_rom';
+import { Auth } from '../api.js?v=20261116_fix_pron_auto_rom';
+import { trackEvent } from '../analytics.js?v=20261116_fix_pron_auto_rom';
+import { navigate } from '../app.js?v=20261116_fix_pron_auto_rom';
 
 export function renderAboutScreen(container) {
   const isAuthed = Auth.isAuthenticated();

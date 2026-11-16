@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_fix_rom_keyboard_nav';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_fix_rom_keyboard_nav';
-import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261116_fix_rom_keyboard_nav';
-import { Modal } from '../components/modal.js?v=20261116_fix_rom_keyboard_nav';
-import { trackEvent } from '../analytics.js?v=20261116_fix_rom_keyboard_nav';
-import { navigate } from '../app.js?v=20261116_fix_rom_keyboard_nav';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_fix_rom_keyboard_nav';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_fix_pron_auto_rom';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_fix_pron_auto_rom';
+import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261116_fix_pron_auto_rom';
+import { Modal } from '../components/modal.js?v=20261116_fix_pron_auto_rom';
+import { trackEvent } from '../analytics.js?v=20261116_fix_pron_auto_rom';
+import { navigate } from '../app.js?v=20261116_fix_pron_auto_rom';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_fix_pron_auto_rom';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;

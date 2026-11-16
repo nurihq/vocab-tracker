@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20261116_fix_rom_keyboard_nav';
+import { t } from '../i18n.js?v=20261116_fix_pron_auto_rom';
 
 export const Modal = {
   activeOverlay: null,

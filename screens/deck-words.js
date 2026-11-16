@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_fix_rom_keyboard_nav';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_fix_rom_keyboard_nav';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261116_fix_rom_keyboard_nav';
-import { Modal } from '../components/modal.js?v=20261116_fix_rom_keyboard_nav';
-import { trackEvent } from '../analytics.js?v=20261116_fix_rom_keyboard_nav';
-import { navigate } from '../app.js?v=20261116_fix_rom_keyboard_nav';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_fix_rom_keyboard_nav';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_fix_pron_auto_rom';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_fix_pron_auto_rom';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261116_fix_pron_auto_rom';
+import { Modal } from '../components/modal.js?v=20261116_fix_pron_auto_rom';
+import { trackEvent } from '../analytics.js?v=20261116_fix_pron_auto_rom';
+import { navigate } from '../app.js?v=20261116_fix_pron_auto_rom';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_fix_pron_auto_rom';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -734,7 +734,7 @@ export function renderDeckWordsScreen(container, params = {}) {
           };
         }
 
-        if (pronInput && (!pronInput.value.trim() || isManualSelection) && autoRom) {
+        if (pronInput && (!pronInput.value.trim() || isManualSelection) && autoRom && isKhmerAutoRomanisationEnabled()) {
           pronInput.value = autoRom;
         }
       }
