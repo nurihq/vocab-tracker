@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20261116_settings_override';
-import { getI18nBaseLang } from './i18n.js?v=20261116_settings_override';
+import { CONFIG } from './config.js?v=20261116_khmer_autodefault';
+import { getI18nBaseLang } from './i18n.js?v=20261116_khmer_autodefault';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -207,7 +207,7 @@ const DEFAULT_SETTINGS = {
   khmerConsonantColors: true,
   allLanguagesColors: true,
   khmerAutoRomanisation: false,
-  khmerAutoTranslateAdd: false
+  khmerAutoTranslateAdd: true
 };
 
 export function getAppSettings() {
@@ -256,7 +256,7 @@ export function shouldAutoRomaniseKhmer() {
 
 export function shouldAutoTranslateKhmerAdd() {
   const s = getAppSettings();
-  return Boolean(s.khmerAutoTranslateAdd);
+  return s.khmerAutoTranslateAdd !== false;
 }
 
 export async function translateTextToTarget(text, targetLang = 'km', sourceLang = 'auto') {

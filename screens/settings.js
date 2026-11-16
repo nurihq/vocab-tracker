@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_settings_override';
-import { getAppSettings, updateAppSettings, shouldColorKhmer } from '../api.js?v=20261116_settings_override';
-import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_settings_override';
-import { trackEvent } from '../analytics.js?v=20261116_settings_override';
+import { t, autoTranslateUi } from '../i18n.js?v=20261116_khmer_autodefault';
+import { getAppSettings, updateAppSettings, shouldColorKhmer } from '../api.js?v=20261116_khmer_autodefault';
+import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_khmer_autodefault';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_autodefault';
 
 export function renderSettingsScreen(container) {
   let selectedLangCode = 'km';
@@ -11,7 +11,7 @@ export function renderSettingsScreen(container) {
     const overrideMode = settings.globalColorsOverride || (settings.allLanguagesColors === false ? 'force_off' : 'inherit');
     const khmerEnabled = settings.khmerConsonantColors !== false;
     const khmerAutoRomEnabled = Boolean(settings.khmerAutoRomanisation);
-    const khmerAutoTranslateEnabled = Boolean(settings.khmerAutoTranslateAdd);
+    const khmerAutoTranslateEnabled = settings.khmerAutoTranslateAdd !== false;
     const effectiveKhmer = shouldColorKhmer();
 
     const selectedLang = LANGUAGES.find(l => l.code === selectedLangCode) || {

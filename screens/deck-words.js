@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_settings_override';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_settings_override';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, shouldColorKhmer } from '../api.js?v=20261116_settings_override';
-import { Modal } from '../components/modal.js?v=20261116_settings_override';
-import { trackEvent } from '../analytics.js?v=20261116_settings_override';
-import { navigate } from '../app.js?v=20261116_settings_override';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_settings_override';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_khmer_autodefault';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_khmer_autodefault';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, shouldColorKhmer } from '../api.js?v=20261116_khmer_autodefault';
+import { Modal } from '../components/modal.js?v=20261116_khmer_autodefault';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_autodefault';
+import { navigate } from '../app.js?v=20261116_khmer_autodefault';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_autodefault';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';

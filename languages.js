@@ -253,6 +253,77 @@ export function getKhmerConsonantSeries(ch) {
   return null;
 }
 
+export const KHMER_OBSTRUENTS = new Set([
+  'ក', 'ខ', 'ច', 'ឆ', 'ដ', 'ឋ', 'ត', 'ថ', 'ប', 'ផ', 'ស', 'ហ',
+  'គ', 'ឃ', 'ជ', 'ឈ', 'ឌ', 'ឍ', 'ទ', 'ធ', 'ព', 'ភ'
+]);
+
+export const KHMER_DEPENDENT_VOWELS = {
+  'ា': { a: 'aa', o: 'ea' },
+  'ិ': { a: 'e', o: 'i' },
+  'ី': { a: 'ei', o: 'ii' },
+  'ឹ': { a: 'oe', o: 'ue' },
+  'ឺ': { a: 'eu', o: 'ueu' },
+  'ុ': { a: 'o', o: 'u' },
+  'ូ': { a: 'ou', o: 'uu' },
+  'ួ': { a: 'uo', o: 'uo' },
+  'ើ': { a: 'aeu', o: 'oeu' },
+  'ឿ': { a: 'oeur', o: 'uea' },
+  'ៀ': { a: 'ie', o: 'ie' },
+  'េ': { a: 'ei', o: 'é' },
+  'ែ': { a: 'ae', o: 'ê' },
+  'ៃ': { a: 'ai', o: 'ey' },
+  'ោ': { a: 'ao', o: 'ou' },
+  'ៅ': { a: 'au', o: 'ov' },
+  'ុំ': { a: 'om', o: 'um' },
+  'ំ': { a: 'am', o: 'um' },
+  'ាំ': { a: 'am', o: 'oam' },
+  'ះ': { a: 'ah', o: 'eah' },
+  'ុះ': { a: 'oh', o: 'uh' },
+  'េះ': { a: 'eh', o: 'ih' },
+  'ោះ': { a: 'aoh', o: 'uoh' }
+};
+
+/**
+ * Resolves the effective series ('a' or 'o') for a Khmer consonant cluster,
+ * taking into account consonant class dominance (obstruent vs sonorant) and diacritics.
+ */
+export function resolveKhmerClusterSeries(baseConsonant, subConsonants = [], diacritics = '') {
+  let series = getKhmerConsonantSeries(baseConsonant) || 'a';
+
+  if (diacritics && diacritics.includes('\u17C9')) {
+    series = 'a'; // Muusikatoan (៉) shifts to A-series
+  } else if (diacritics && diacritics.includes('\u17CA')) {
+    series = 'o'; // Triisap (៊) shifts to O-series
+  } else if (subConsonants && subConsonants.length > 0) {
+    const lastSub = subConsonants[subConsonants.length - 1];
+    const baseIsObs = KHMER_OBSTRUENTS.has(baseConsonant);
+    const subIsObs = KHMER_OBSTRUENTS.has(lastSub);
+
+    if (baseIsObs && !subIsObs) {
+      series = getKhmerConsonantSeries(baseConsonant) || series;
+    } else if (!baseIsObs && subIsObs) {
+      series = getKhmerConsonantSeries(lastSub) || series;
+    } else {
+      series = getKhmerConsonantSeries(lastSub) || series;
+    }
+  }
+
+  return series;
+}
+
+/**
+ * Returns the context-dependent vowel romanisation for the given series ('a' or 'o').
+ */
+export function getKhmerVowelRomaji(vowelChar, series = 'a') {
+  const vMeta = KHMER_DEPENDENT_VOWELS[vowelChar];
+  if (vMeta) {
+    return (series === 'o' ? vMeta.o : vMeta.a) || vMeta.a;
+  }
+  return KHMER_KEYSTROKE_VOWEL_ROMAJI[vowelChar] || '';
+}
+
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')

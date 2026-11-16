@@ -1,8 +1,8 @@
-import { CONFIG } from '../config.js?v=20261116_settings_override';
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_settings_override';
-import { Auth, Api } from '../api.js?v=20261116_settings_override';
-import { trackEvent } from '../analytics.js?v=20261116_settings_override';
-import { navigate } from '../app.js?v=20261116_settings_override';
+import { CONFIG } from '../config.js?v=20261116_khmer_autodefault';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_autodefault';
+import { Auth, Api } from '../api.js?v=20261116_khmer_autodefault';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_autodefault';
+import { navigate } from '../app.js?v=20261116_khmer_autodefault';
 
 export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();

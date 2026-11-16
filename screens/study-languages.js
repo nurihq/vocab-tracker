@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_settings_override';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_settings_override';
-import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261116_settings_override';
-import { Modal } from '../components/modal.js?v=20261116_settings_override';
-import { trackEvent } from '../analytics.js?v=20261116_settings_override';
-import { navigate } from '../app.js?v=20261116_settings_override';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_settings_override';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_khmer_autodefault';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_khmer_autodefault';
+import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261116_khmer_autodefault';
+import { Modal } from '../components/modal.js?v=20261116_khmer_autodefault';
+import { trackEvent } from '../analytics.js?v=20261116_khmer_autodefault';
+import { navigate } from '../app.js?v=20261116_khmer_autodefault';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261116_khmer_autodefault';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
