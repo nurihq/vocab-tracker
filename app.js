@@ -2,7 +2,7 @@ import { Navbar } from './components/navbar.js?v=20261116_standardize_khmer_font
 import { Modal } from './components/modal.js?v=20261116_standardize_khmer_font';
 import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_standardize_khmer_font';
 import { setI18nBaseLang } from './i18n.js?v=20261116_standardize_khmer_font';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261116_move_deck_fix';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261117_fix_deck_deletion_tombstones';
 import { trackPageView, trackEvent } from './analytics.js?v=20261116_standardize_khmer_font';
 
 import { renderHomeScreen } from './screens/home.js?v=20261116_standardize_khmer_font';

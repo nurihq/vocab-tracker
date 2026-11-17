@@ -105,6 +105,7 @@ export function getLocalStore() {
     try { 
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.languages)) {
+        if (!parsed.deletedDecks) parsed.deletedDecks = {};
         // Auto-deduplicate words in all languages
         if (parsed.words) {
           for (const code of Object.keys(parsed.words)) {
@@ -119,7 +120,8 @@ export function getLocalStore() {
   const defaultStore = {
     languages: [],
     decks: {},
-    words: {}
+    words: {},
+    deletedDecks: {}
   };
   saveLocalStore(defaultStore);
   return defaultStore;
@@ -655,16 +657,30 @@ export async function syncLocalToCloud() {
 
     // 2. Sync Decks and Words for each language
     for (const l of store.languages) {
-      // Sync Decks: upload missing local custom decks to DynamoDB, then merge
+      // Sync Decks: absorb cloud decks & deleted deck tombstones
       const cloudDecksRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(l.code)}`, { method: 'GET' }).catch(() => null);
       const rawCloudDecks = (cloudDecksRes && Array.isArray(cloudDecksRes.decks)) ? cloudDecksRes.decks : [];
-      const cloudDecks = rawCloudDecks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-      const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
-      const localDecks = store.decks[l.code] || [];
+      
+      if (!store.deletedDecks) store.deletedDecks = {};
+      if (!store.deletedDecks[l.code]) store.deletedDecks[l.code] = [];
+      if (cloudDecksRes && Array.isArray(cloudDecksRes.deletedDeckIds)) {
+        for (const dId of cloudDecksRes.deletedDeckIds) {
+          if (!store.deletedDecks[l.code].includes(dId)) {
+            store.deletedDecks[l.code].push(dId);
+          }
+        }
+      }
 
-      // Upload any local decks that haven't reached DynamoDB yet
+      const deletedDeckSet = new Set(store.deletedDecks[l.code]);
+      const cloudDecks = rawCloudDecks
+        .filter(d => !deletedDeckSet.has(d.deckId))
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
+      const localDecks = (store.decks[l.code] || []).filter(d => !deletedDeckSet.has(d.deckId));
+
+      // Upload ONLY local custom decks created offline that haven't reached DynamoDB yet and are NOT deleted
       for (const ld of localDecks) {
-        if (ld.deckId.toLowerCase() !== 'all' && !cloudDeckIds.has(ld.deckId)) {
+        if (ld.deckId.toLowerCase() !== 'all' && !cloudDeckIds.has(ld.deckId) && !deletedDeckSet.has(ld.deckId) && ld.isCustomOffline === true) {
           try {
             const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
               method: 'POST',
@@ -676,19 +692,29 @@ export async function syncLocalToCloud() {
                 deckId: ld.deckId
               })
             });
-            if (res && res.deck) {
+            if (res && res.deck && !res.isDeleted) {
               cloudDecks.push(res.deck);
               cloudDeckIds.add(res.deck.deckId);
             }
           } catch (err) {
             console.warn('Failed to sync custom deck to cloud:', ld.name, err);
-            cloudDecks.push(ld);
           }
         }
       }
 
-      const unsyncedCustomDecks = localDecks.filter(d => !cloudDeckIds.has(d.deckId));
-      store.decks[l.code] = cloudDecks.length > 0 ? [...cloudDecks, ...unsyncedCustomDecks] : localDecks;
+      store.decks[l.code] = cloudDecks;
+
+      // Ensure any words in deleted decks are migrated to fallback deck
+      const remainingDecks = store.decks[l.code].filter(d => d.deckId.toLowerCase() !== 'all');
+      const fallbackDeckId = remainingDecks.length > 0 ? remainingDecks[0].deckId : 'practicing';
+      const localWords = store.words[l.code] || [];
+      for (const w of localWords) {
+        if (deletedDeckSet.has(w.deckId)) {
+          w.deckId = fallbackDeckId;
+          w.updatedAt = new Date().toISOString();
+        }
+      }
+      saveLocalStore(store);
 
       // Check cloud words
       const cloudWordsRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(l.code)}&deckId=all`, { method: 'GET' }).catch(() => ({ words: [] }));
@@ -1015,16 +1041,41 @@ export const Api = {
     if (shouldUseCloud() && CONFIG.API_ENDPOINTS.decks) {
       try {
         const res = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.decks}?langCode=${encodeURIComponent(langCode)}`, { method: 'GET' });
-        if (res.decks && Array.isArray(res.decks) && res.decks.length > 0) {
+        if (res && Array.isArray(res.decks)) {
           const store = getLocalStore();
-          const cloudDecks = res.decks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+          if (!store.deletedDecks) store.deletedDecks = {};
+          if (!store.deletedDecks[langCode]) store.deletedDecks[langCode] = [];
+          if (Array.isArray(res.deletedDeckIds)) {
+            for (const dId of res.deletedDeckIds) {
+              if (!store.deletedDecks[langCode].includes(dId)) {
+                store.deletedDecks[langCode].push(dId);
+              }
+            }
+          }
+
+          const deletedDeckSet = new Set(store.deletedDecks[langCode]);
+          const cloudDecks = res.decks
+            .filter(d => !deletedDeckSet.has(d.deckId))
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
           const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
-          const localDecks = store.decks[langCode] || [];
+          const localDecks = (store.decks[langCode] || []).filter(d => !deletedDeckSet.has(d.deckId));
           
-          // Preserve any local custom decks that haven't synced to cloud yet
-          const unsyncedCustom = localDecks.filter(d => !cloudDeckIds.has(d.deckId));
+          // Preserve ONLY local custom decks created offline that haven't synced to cloud yet and are not deleted
+          const unsyncedCustom = localDecks.filter(d => !cloudDeckIds.has(d.deckId) && d.isCustomOffline === true);
           
           store.decks[langCode] = [...cloudDecks, ...unsyncedCustom];
+
+          // Ensure any words belonging to deleted decks are migrated to fallback deck
+          const remainingDecks = store.decks[langCode].filter(d => d.deckId.toLowerCase() !== 'all');
+          const fallbackDeckId = remainingDecks.length > 0 ? remainingDecks[0].deckId : 'practicing';
+          const localWords = store.words[langCode] || [];
+          for (const w of localWords) {
+            if (deletedDeckSet.has(w.deckId)) {
+              w.deckId = fallbackDeckId;
+              w.updatedAt = new Date().toISOString();
+            }
+          }
+
           saveLocalStore(store);
 
           if (unsyncedCustom.length > 0) {
@@ -1045,14 +1096,19 @@ export const Api = {
       } catch (e) {}
     }
     const store = getLocalStore();
-    const decks = store.decks[langCode] || [
-      { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-      { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-      { deckId: 'colours', name: 'Colours', icon: '🎨', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-      { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-      { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-      { deckId: 'all', name: 'All', icon: '📚', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
-    ];
+    if (!store.deletedDecks) store.deletedDecks = {};
+    const deletedDeckSet = new Set(store.deletedDecks[langCode] || []);
+    let decks = (store.decks[langCode] || []).filter(d => !deletedDeckSet.has(d.deckId));
+    if (decks.length === 0) {
+      decks = [
+        { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'colours', name: 'Colours', icon: '🎨', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'all', name: 'All', icon: '📚', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+      ].filter(d => !deletedDeckSet.has(d.deckId));
+    }
     store.decks[langCode] = decks;
     saveLocalStore(store);
 
@@ -1080,6 +1136,7 @@ export const Api = {
       order: store.decks[langCode].length,
       hidden: false,
       isDefault: false,
+      isCustomOffline: true,
       createdAt: new Date().toISOString()
     };
     store.decks[langCode].push(newDeck);
@@ -1106,8 +1163,12 @@ export const Api = {
 
   async reorderDecks(langCode, orderList) {
     const store = getLocalStore();
+    if (!store.deletedDecks) store.deletedDecks = {};
+    const deletedDeckSet = new Set(store.deletedDecks[langCode] || []);
+    const safeOrderList = orderList.filter(item => !deletedDeckSet.has(item.deckId));
+
     const decks = store.decks[langCode] || [];
-    for (const item of orderList) {
+    for (const item of safeOrderList) {
       const target = decks.find(d => d.deckId === item.deckId);
       if (target) target.order = item.order;
     }
@@ -1118,7 +1179,7 @@ export const Api = {
       try {
         await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
           method: 'POST',
-          body: JSON.stringify({ action: 'reorder', langCode, orderList })
+          body: JSON.stringify({ action: 'reorder', langCode, orderList: safeOrderList })
         });
       } catch (e) {}
     }
@@ -1189,6 +1250,12 @@ export const Api = {
       throw new Error('The All deck cannot be deleted');
     }
     const store = getLocalStore();
+    if (!store.deletedDecks) store.deletedDecks = {};
+    if (!store.deletedDecks[langCode]) store.deletedDecks[langCode] = [];
+    if (!store.deletedDecks[langCode].includes(deckId)) {
+      store.deletedDecks[langCode].push(deckId);
+    }
+
     const currentDecks = store.decks[langCode] || [];
     store.decks[langCode] = currentDecks.filter(d => d.deckId !== deckId);
 
@@ -1198,7 +1265,10 @@ export const Api = {
 
     const words = store.words[langCode] || [];
     for (const w of words) {
-      if (w.deckId === deckId) w.deckId = fallbackDeckId;
+      if (w.deckId === deckId) {
+        w.deckId = fallbackDeckId;
+        w.updatedAt = new Date().toISOString();
+      }
     }
     saveLocalStore(store);
 
