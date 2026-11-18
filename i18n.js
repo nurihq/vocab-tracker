@@ -82,7 +82,9 @@ export const STATIC_TRANSLATIONS = {
     "darkMode": "Dark Mode",
     "dragToReorder": "Drag tiles to reorder your priority list",
     "tapToFlip": "Tap to flip",
-    "tapToFlipBack": "Tap to flip back"
+    "tapToFlipBack": "Tap to flip back",
+    "hints": "Hints",
+    "move": "Move"
   },
   "ko": {
     "appTitle": "monogenesis",

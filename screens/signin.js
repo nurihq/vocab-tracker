@@ -1,6 +1,6 @@
 import { CONFIG } from '../config.js?v=20261116_standardize_khmer_font';
 import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
-import { Auth, Api } from '../api.js?v=20261118_fix_mobile_tap_flip';
+import { Auth, Api } from '../api.js?v=20261118_flashcard_hints_and_move';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
 import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
 

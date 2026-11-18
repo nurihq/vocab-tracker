@@ -1082,6 +1082,106 @@ body {
   flex-wrap: wrap;
 }
 
+/* Flashcards Utility Bar: Move Select + Hints Toggle */
+.flashcards-utility-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 1rem;
+  gap: 0.75rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-md);
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.flashcards-utility-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.flashcard-move-select {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.82rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  max-width: 150px;
+  min-width: 85px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.flashcard-hints-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.flashcard-hints-toggle input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--primary);
+  cursor: pointer;
+  margin: 0;
+}
+
+.flashcard-hints-toggle:hover {
+  color: var(--text-primary);
+}
+
+.flashcard-current-deck-badge {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+  text-align: right;
+  flex-shrink: 1;
+}
+
+/* When hints are disabled, cleanly hide front pronunciation and card hints */
+.flashcards-container.hide-hints .card-face .card-pronunciation-sub.front-hint,
+.flashcards-container.hide-hints .card-hint {
+  display: none !important;
+}
+
+@media (max-width: 480px) {
+  .flashcards-utility-bar {
+    padding: 0.4rem 0.65rem;
+    gap: 0.5rem;
+  }
+  .flashcards-utility-left {
+    gap: 0.5rem;
+  }
+  .flashcard-move-select {
+    max-width: 115px;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.78rem;
+  }
+  .flashcard-hints-toggle {
+    font-size: 0.78rem;
+  }
+  .flashcard-current-deck-badge {
+    max-width: 95px;
+    font-size: 0.72rem;
+  }
+}
+
 .progress-bar-wrapper {
   width: 100%;
   height: 4px;

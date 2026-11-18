@@ -1,6 +1,6 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore } from '../api.js?v=20261118_fix_mobile_tap_flip';
+import { Api, getLocalStore } from '../api.js?v=20261118_flashcard_hints_and_move';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
 import { navigate } from '../app.js?v=20261116_move_deck_fix';
 
@@ -32,6 +32,11 @@ export function renderFlashcardsScreen(container, params = {}) {
   let showFirst = 'study'; // 'study' or 'base'
   let isFinished = false;
   let isShuffled = false;
+  let showHints = true;
+  try {
+    const savedHints = localStorage.getItem('vocab_flashcards_show_hints');
+    if (savedHints !== null) showHints = savedHints === 'true';
+  } catch (e) {}
 
   render();
 
@@ -251,7 +256,7 @@ export function renderFlashcardsScreen(container, params = {}) {
     const targetDecks = allDecks.filter(d => d.deckId !== 'all' && d.deckId !== currentWord.deckId);
 
     container.innerHTML = `
-      <div class="flashcards-container">
+      <div class="flashcards-container ${showHints ? '' : 'hide-hints'}">
         <!-- Top Controls: Show First Toggle & Shuffle -->
         <div class="flashcards-controls-top">
           <div class="lang-toggle-pill">
@@ -276,7 +281,7 @@ export function renderFlashcardsScreen(container, params = {}) {
               <div class="card-lang-indicator">${frontTag}</div>
               <div class="card-deck-badge">${currentIndex + 1} / ${words.length}</div>
               <div class="card-text-main" id="front-card-text" ${isStudyFront ? '' : 'data-card-base-text="true"'}>${frontWord}</div>
-              ${frontPronunciation ? `<div class="card-pronunciation-sub">${frontPronunciation}</div>` : ''}
+              ${frontPronunciation ? `<div class="card-pronunciation-sub front-hint">${frontPronunciation}</div>` : ''}
               <div class="card-hint" data-i18n="tapToFlip">${t('tapToFlip')}</div>
             </div>
 
@@ -291,18 +296,23 @@ export function renderFlashcardsScreen(container, params = {}) {
           </div>
         </div>
 
-        <!-- Move Word to Deck & Utility Bar -->
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 1rem; gap: 0.75rem; background: var(--bg-surface); border: 1px solid var(--border-color); padding: 0.5rem 0.85rem; border-radius: var(--radius-md);">
-          <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
-            <span style="font-size: 0.82rem; color: var(--text-secondary);" data-i18n="moveWord">${t('moveWord')}:</span>
-            <select class="move-select" id="flashcard-move-select" title="${t('moveWord')}" style="padding: 0.35rem 0.65rem; font-size: 0.82rem; border-radius: var(--radius-sm); flex: 1; max-width: 180px;">
-              <option value="" disabled selected>${t('moveWord')}...</option>
+        <!-- Utility Bar: Move Select + Hints Checkbox + Current Deck Badge -->
+        <div class="flashcards-utility-bar">
+          <div class="flashcards-utility-left">
+            <select class="move-select flashcard-move-select" id="flashcard-move-select" title="${t('move') || 'Move'}" aria-label="${t('move') || 'Move'}">
+              <option value="" disabled selected>${t('move') || 'Move'}...</option>
               ${targetDecks.map(d => `
                 <option value="${d.deckId}">${getDeckDisplayName(d.deckId)}</option>
               `).join('')}
             </select>
+
+            <label class="flashcard-hints-toggle" for="flashcard-hints-checkbox">
+              <input type="checkbox" id="flashcard-hints-checkbox" ${showHints ? 'checked' : ''}>
+              <span data-i18n="hints">${t('hints') || 'Hints'}</span>
+            </label>
           </div>
-          <span style="font-size: 0.78rem; color: var(--text-muted);">
+
+          <span class="flashcard-current-deck-badge" title="${getDeckDisplayName(currentWord.deckId || deckId)}">
             ${getDeckDisplayName(currentWord.deckId || deckId)}
           </span>
         </div>
@@ -376,6 +386,24 @@ export function renderFlashcardsScreen(container, params = {}) {
           await Api.moveWord(langCode, movedWord.wordId, fromDeckId, toDeckId);
         } catch (err) {
           console.error('Failed to move word in flashcards:', err);
+        }
+      });
+    }
+
+    // Hints Toggle Event Listener
+    const hintsCheckbox = container.querySelector('#flashcard-hints-checkbox');
+    if (hintsCheckbox) {
+      hintsCheckbox.addEventListener('mousedown', (e) => e.stopPropagation());
+      hintsCheckbox.addEventListener('pointerdown', (e) => e.stopPropagation());
+      hintsCheckbox.addEventListener('change', (e) => {
+        showHints = e.target.checked;
+        try {
+          localStorage.setItem('vocab_flashcards_show_hints', showHints ? 'true' : 'false');
+        } catch (err) {}
+        const flashcardsContainer = container.querySelector('.flashcards-container');
+        if (flashcardsContainer) {
+          if (showHints) flashcardsContainer.classList.remove('hide-hints');
+          else flashcardsContainer.classList.add('hide-hints');
         }
       });
     }
