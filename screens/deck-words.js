@@ -1,6 +1,6 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
 import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from '../api.js?v=20261118_swipe_down_to_refresh';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from '../api.js?v=20261118_add_adjectives_deck';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
 import { navigate } from '../app.js?v=20261118_swipe_down_to_refresh';
@@ -36,6 +36,7 @@ export function renderDeckWordsScreen(container, params = {}) {
     { deckId: 'inbox', name: 'Inbox', icon: '📥', langCode, isDefault: true },
     { deckId: 'emotions', name: 'Emotions', icon: '❤️', langCode, isDefault: true },
     { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, isDefault: true },
+    { deckId: 'adjectives', name: 'Adjectives', icon: '🔥', langCode, isDefault: true },
     { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode, isDefault: true },
     { deckId: 'colors', name: 'Colors', icon: '🌈', langCode, isDefault: true },
     { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode, isDefault: true },
@@ -112,6 +113,10 @@ export function renderDeckWordsScreen(container, params = {}) {
     }
     if (dId === 'verbs') {
       if (!dName || dName === 'Verbs' || dName === 'verbs') return t('verbs') || 'Verbs';
+      return dName;
+    }
+    if (dId === 'adjectives') {
+      if (!dName || dName === 'Adjectives' || dName === 'adjectives') return t('adjectives') || 'Adjectives';
       return dName;
     }
     if (dId === 'nouns') {

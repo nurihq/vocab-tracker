@@ -1,6 +1,6 @@
 import { CONFIG } from '../config.js?v=20261116_standardize_khmer_font';
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
-import { Auth, Api } from '../api.js?v=20261118_swipe_down_to_refresh';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
+import { Auth, Api } from '../api.js?v=20261118_add_adjectives_deck';
 import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
 import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
 

@@ -1,6 +1,6 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore } from '../api.js?v=20261118_swipe_down_to_refresh';
+import { Api, getLocalStore } from '../api.js?v=20261118_add_adjectives_deck';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
 import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
@@ -27,11 +27,12 @@ export function renderDecksScreen(container, params = {}) {
     { deckId: 'inbox', name: 'Inbox', icon: '📥', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
     { deckId: 'emotions', name: 'Emotions', icon: '❤️', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
     { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'colors', name: 'Colors', icon: '🌈', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'all', name: 'All', icon: '📚', langCode, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+    { deckId: 'adjectives', name: 'Adjectives', icon: '🔥', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'colors', name: 'Colors', icon: '🌈', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'all', name: 'All', icon: '📚', langCode, order: 8, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
   ];
   let decks = rawDecks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
@@ -104,6 +105,10 @@ export function renderDecksScreen(container, params = {}) {
       if (!dName || dName === 'Verbs' || dName === 'verbs') return t('verbs') || 'Verbs';
       return dName;
     }
+    if (dId === 'adjectives') {
+      if (!dName || dName === 'Adjectives' || dName === 'adjectives') return t('adjectives') || 'Adjectives';
+      return dName;
+    }
     if (dId === 'nouns') {
       if (!dName || dName === 'Nouns' || dName === 'nouns') return t('nouns') || 'Nouns';
       return dName;
@@ -144,6 +149,7 @@ export function renderDecksScreen(container, params = {}) {
     if (deck.deckId === 'inbox') return '📥';
     if (deck.deckId === 'emotions') return '❤️';
     if (deck.deckId === 'verbs') return '🏃🏽‍♀️';
+    if (deck.deckId === 'adjectives') return '🔥';
     if (deck.deckId === 'nouns') return '👘';
     if (deck.deckId === 'colors' || deck.deckId === 'colours') return '🌈';
     if (deck.deckId === 'fruits') return '🍏';

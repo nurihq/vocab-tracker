@@ -1,5 +1,5 @@
 import { CONFIG } from './config.js?v=20261116_standardize_khmer_font';
-import { getI18nBaseLang } from './i18n.js?v=20261116_standardize_khmer_font';
+import { getI18nBaseLang } from './i18n.js?v=20261118_add_adjectives_deck';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -95,12 +95,22 @@ export function migrateLegacyDefaultDecks(store) {
         { deckId: 'inbox', name: 'Inbox', icon: '📥', langCode: code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
         { deckId: 'emotions', name: 'Emotions', icon: '❤️', langCode: code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
         { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode: code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode: code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'colors', name: 'Colors', icon: '🌈', langCode: code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode: code, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: code, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'all', name: 'All', icon: '📚', langCode: code, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+        { deckId: 'adjectives', name: 'Adjectives', icon: '🔥', langCode: code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode: code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'colors', name: 'Colors', icon: '🌈', langCode: code, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode: code, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: code, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'all', name: 'All', icon: '📚', langCode: code, order: 8, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
       ];
+    } else if (decks.length > 0) {
+      // If language has modern default decks but is missing adjectives and adjectives hasn't been deleted
+      const hasAdjectives = decks.some(d => d.deckId === 'adjectives');
+      const isDeleted = store.deletedDecks?.[code]?.includes('adjectives');
+      if (!hasAdjectives && !isDeleted) {
+        const adjDeck = { deckId: 'adjectives', name: 'Adjectives', icon: '🔥', langCode: code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() };
+        decks.splice(3, 0, adjDeck);
+        decks.forEach((d, idx) => { d.order = idx; });
+      }
     }
   }
 }
@@ -982,11 +992,12 @@ export const Api = {
           { deckId: 'inbox', name: 'Inbox', icon: '📥', langCode: lang.code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
           { deckId: 'emotions', name: 'Emotions', icon: '❤️', langCode: lang.code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
           { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode: lang.code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode: lang.code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'colors', name: 'Colors', icon: '🌈', langCode: lang.code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode: lang.code, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: lang.code, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'all', name: 'All', icon: '📚', langCode: lang.code, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+          { deckId: 'adjectives', name: 'Adjectives', icon: '🔥', langCode: lang.code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode: lang.code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'colors', name: 'Colors', icon: '🌈', langCode: lang.code, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode: lang.code, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: lang.code, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'all', name: 'All', icon: '📚', langCode: lang.code, order: 8, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
         ];
       }
       if (!store.words[lang.code]) store.words[lang.code] = [];
@@ -1111,11 +1122,12 @@ export const Api = {
         { deckId: 'inbox', name: 'Inbox', icon: '📥', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
         { deckId: 'emotions', name: 'Emotions', icon: '❤️', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
         { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'colors', name: 'Colors', icon: '🌈', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'all', name: 'All', icon: '📚', langCode, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+        { deckId: 'adjectives', name: 'Adjectives', icon: '🔥', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'colors', name: 'Colors', icon: '🌈', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'all', name: 'All', icon: '📚', langCode, order: 8, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
       ].filter(d => !deletedDeckSet.has(d.deckId));
     }
     store.decks[langCode] = decks;

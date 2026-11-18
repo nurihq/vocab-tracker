@@ -42,6 +42,8 @@ export const STATIC_TRANSLATIONS = {
     "nounsMastered": "Nouns (mastered)",
     "inbox": "Inbox",
     "emotions": "Emotions",
+    "verbs": "Verbs",
+    "adjectives": "Adjectives",
     "nouns": "Nouns",
     "colors": "Colors",
     "fruits": "Fruits",

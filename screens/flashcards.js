@@ -1,6 +1,6 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
 import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore } from '../api.js?v=20261118_swipe_down_to_refresh';
+import { Api, getLocalStore } from '../api.js?v=20261118_add_adjectives_deck';
 import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
 import { navigate } from '../app.js?v=20261116_move_deck_fix';
 
@@ -22,6 +22,7 @@ export function renderFlashcardsScreen(container, params = {}) {
     { deckId: 'inbox', name: 'Inbox', icon: '📥', isDefault: true },
     { deckId: 'emotions', name: 'Emotions', icon: '❤️', isDefault: true },
     { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', isDefault: true },
+    { deckId: 'adjectives', name: 'Adjectives', icon: '🔥', isDefault: true },
     { deckId: 'nouns', name: 'Nouns', icon: '👘', isDefault: true },
     { deckId: 'colors', name: 'Colors', icon: '🌈', isDefault: true },
     { deckId: 'fruits', name: 'Fruits', icon: '🍏', isDefault: true },
@@ -100,6 +101,10 @@ export function renderFlashcardsScreen(container, params = {}) {
     }
     if (dId === 'verbs') {
       if (!dName || dName === 'Verbs' || dName === 'verbs') return t('verbs') || 'Verbs';
+      return dName;
+    }
+    if (dId === 'adjectives') {
+      if (!dName || dName === 'Adjectives' || dName === 'adjectives') return t('adjectives') || 'Adjectives';
       return dName;
     }
     if (dId === 'nouns') {

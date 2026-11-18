@@ -1,5 +1,5 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
-import { getAppSettings, updateAppSettings, shouldColorKhmer, shouldAutoRomaniseKhmer, shouldAutoTranslateKhmerAdd } from '../api.js?v=20261118_swipe_down_to_refresh';
+import { t, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
+import { getAppSettings, updateAppSettings, shouldColorKhmer, shouldAutoRomaniseKhmer, shouldAutoTranslateKhmerAdd } from '../api.js?v=20261118_add_adjectives_deck';
 import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
 

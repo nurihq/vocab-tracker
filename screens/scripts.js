@@ -1,4 +1,4 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
 
