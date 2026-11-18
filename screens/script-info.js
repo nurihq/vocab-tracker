@@ -1,10 +1,10 @@
-import { autoTranslateUi } from '../i18n.js?v=20261118_fix_desktop_drag';
-import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
-import { navigate } from '../app.js?v=20261118_fix_desktop_drag';
-import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261118_fix_desktop_drag';
-import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261118_fix_desktop_drag';
-import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261118_fix_desktop_drag';
-import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261118_fix_desktop_drag';
+import { autoTranslateUi } from '../i18n.js?v=20261118_fix_adjectives_flash';
+import { trackEvent } from '../analytics.js?v=20261118_fix_adjectives_flash';
+import { navigate } from '../app.js?v=20261118_fix_adjectives_flash';
+import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261118_fix_adjectives_flash';
+import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261118_fix_adjectives_flash';
+import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261118_fix_adjectives_flash';
+import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261118_fix_adjectives_flash';
 
 // ============================================================================
 // KHMER CHARACTER METADATA (Consonants + Subscripts + Dependent & Indep Vowels)

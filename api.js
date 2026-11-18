@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20261118_fix_desktop_drag';
-import { getI18nBaseLang } from './i18n.js?v=20261118_fix_desktop_drag';
+import { CONFIG } from './config.js?v=20261118_fix_adjectives_flash';
+import { getI18nBaseLang } from './i18n.js?v=20261118_fix_adjectives_flash';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;
@@ -694,31 +694,40 @@ export async function syncLocalToCloud() {
       const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
       const localDecks = (store.decks[l.code] || []).filter(d => !deletedDeckSet.has(d.deckId));
 
-      // Upload ONLY local custom decks created offline that haven't reached DynamoDB yet and are NOT deleted
+      // Upload local custom decks AND newly introduced default decks (e.g. 'adjectives') that haven't reached DynamoDB yet and are NOT deleted
       for (const ld of localDecks) {
-        if (ld.deckId.toLowerCase() !== 'all' && !cloudDeckIds.has(ld.deckId) && !deletedDeckSet.has(ld.deckId) && ld.isCustomOffline === true) {
+        const shouldUpload = ld.deckId.toLowerCase() !== 'all'
+          && !cloudDeckIds.has(ld.deckId)
+          && !deletedDeckSet.has(ld.deckId)
+          && (ld.isCustomOffline === true || ld.deckId === 'adjectives');
+        if (shouldUpload) {
           try {
             const res = await fetchWithAuth(CONFIG.API_ENDPOINTS.decks, {
               method: 'POST',
               body: JSON.stringify({
                 action: 'add',
                 langCode: l.code,
-                name: ld.name,
-                icon: ld.icon || '📁',
+                name: ld.name || 'Adjectives',
+                icon: ld.icon || (ld.deckId === 'adjectives' ? '🔥' : '📁'),
                 deckId: ld.deckId
               })
             });
             if (res && res.deck && !res.isDeleted) {
               cloudDecks.push(res.deck);
               cloudDeckIds.add(res.deck.deckId);
+            } else if (!res?.isDeleted) {
+              cloudDecks.push(ld);
+              cloudDeckIds.add(ld.deckId);
             }
           } catch (err) {
-            console.warn('Failed to sync custom deck to cloud:', ld.name, err);
+            console.warn('Failed to sync deck to cloud:', ld.name, err);
+            cloudDecks.push(ld);
+            cloudDeckIds.add(ld.deckId);
           }
         }
       }
 
-      store.decks[l.code] = cloudDecks;
+      store.decks[l.code] = cloudDecks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
       // Ensure any words in deleted decks are migrated to fallback deck
       const remainingDecks = store.decks[l.code].filter(d => d.deckId.toLowerCase() !== 'all');
@@ -1078,10 +1087,27 @@ export const Api = {
           const cloudDeckIds = new Set(cloudDecks.map(d => d.deckId));
           const localDecks = (store.decks[langCode] || []).filter(d => !deletedDeckSet.has(d.deckId));
           
-          // Preserve ONLY local custom decks created offline that haven't synced to cloud yet and are not deleted
-          const unsyncedCustom = localDecks.filter(d => !cloudDeckIds.has(d.deckId) && d.isCustomOffline === true);
-          
-          store.decks[langCode] = [...cloudDecks, ...unsyncedCustom];
+          // Preserve local custom decks created offline AND newly added default decks (e.g. 'adjectives') that haven't synced to cloud yet and are not deleted
+          const unsyncedDecks = localDecks.filter(d =>
+            !cloudDeckIds.has(d.deckId) &&
+            !deletedDeckSet.has(d.deckId) &&
+            (d.isCustomOffline === true || d.deckId === 'adjectives')
+          );
+
+          const mergedDecks = [...cloudDecks];
+          for (const ud of unsyncedDecks) {
+            if (ud.deckId === 'adjectives') {
+              // Insert Adjectives right after Verbs (index 3) if not yet ordered in cloud
+              const verbsIdx = mergedDecks.findIndex(d => d.deckId === 'verbs');
+              const insertPos = verbsIdx !== -1 ? verbsIdx + 1 : Math.min(3, mergedDecks.length);
+              mergedDecks.splice(insertPos, 0, ud);
+              mergedDecks.forEach((d, idx) => { d.order = idx; });
+            } else {
+              mergedDecks.push(ud);
+            }
+          }
+
+          store.decks[langCode] = mergedDecks;
 
           // Ensure any words belonging to deleted decks are migrated to fallback deck
           const remainingDecks = store.decks[langCode].filter(d => d.deckId.toLowerCase() !== 'all');
@@ -1096,7 +1122,7 @@ export const Api = {
 
           saveLocalStore(store);
 
-          if (unsyncedCustom.length > 0) {
+          if (unsyncedDecks.length > 0) {
             syncLocalToCloud().catch(() => {});
           }
 

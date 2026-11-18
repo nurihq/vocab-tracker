@@ -1,8 +1,8 @@
-import { CONFIG } from '../config.js?v=20261118_fix_desktop_drag';
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_desktop_drag';
-import { Auth, Api } from '../api.js?v=20261118_fix_desktop_drag';
-import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
-import { navigate } from '../app.js?v=20261118_fix_desktop_drag';
+import { CONFIG } from '../config.js?v=20261118_fix_adjectives_flash';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_adjectives_flash';
+import { Auth, Api } from '../api.js?v=20261118_fix_adjectives_flash';
+import { trackEvent } from '../analytics.js?v=20261118_fix_adjectives_flash';
+import { navigate } from '../app.js?v=20261118_fix_adjectives_flash';
 
 export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();

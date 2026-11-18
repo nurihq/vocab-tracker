@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261118_fix_desktop_drag';
-import { Auth } from '../api.js?v=20261118_fix_desktop_drag';
-import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
-import { navigate } from '../app.js?v=20261118_fix_desktop_drag';
+import { t, autoTranslateUi } from '../i18n.js?v=20261118_fix_adjectives_flash';
+import { Auth } from '../api.js?v=20261118_fix_adjectives_flash';
+import { trackEvent } from '../analytics.js?v=20261118_fix_adjectives_flash';
+import { navigate } from '../app.js?v=20261118_fix_adjectives_flash';
 
 export function renderAboutScreen(container) {
   const isAuthed = Auth.isAuthenticated();

@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20261118_fix_desktop_drag';
+import { t } from '../i18n.js?v=20261118_fix_adjectives_flash';
 
 export const Modal = {
   activeOverlay: null,

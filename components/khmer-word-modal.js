@@ -1,6 +1,6 @@
-import { escapeHtml, formatStudyTextHtml, parseKhmerWordTokens } from '../languages.js?v=20261118_fix_desktop_drag';
-import { copyToClipboard, showCopiedTooltip, speakKhmer } from '../api.js?v=20261118_fix_desktop_drag';
-import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
+import { escapeHtml, formatStudyTextHtml, parseKhmerWordTokens } from '../languages.js?v=20261118_fix_adjectives_flash';
+import { copyToClipboard, showCopiedTooltip, speakKhmer } from '../api.js?v=20261118_fix_adjectives_flash';
+import { trackEvent } from '../analytics.js?v=20261118_fix_adjectives_flash';
 
 export function getKhmerTokenSpeakText(tok) {
   if (!tok) return '';

@@ -1,6 +1,6 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_desktop_drag';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261118_fix_desktop_drag';
-import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_adjectives_flash';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261118_fix_adjectives_flash';
+import { trackEvent } from '../analytics.js?v=20261118_fix_adjectives_flash';
 
 const SCRIPT_LANGUAGES = [
   { code: 'ja', href: '/scripts/japanese', defaultName: 'Japanese', defaultNative: '日本語', defaultFlag: '🇯🇵' },

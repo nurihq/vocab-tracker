@@ -1,8 +1,8 @@
-import { LANGUAGES } from '../languages.js?v=20261118_fix_desktop_drag';
-import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_desktop_drag';
-import { Auth, Api } from '../api.js?v=20261118_fix_desktop_drag';
-import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
-import { navigate, navigateBack } from '../app.js?v=20261118_fix_desktop_drag';
+import { LANGUAGES } from '../languages.js?v=20261118_fix_adjectives_flash';
+import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_adjectives_flash';
+import { Auth, Api } from '../api.js?v=20261118_fix_adjectives_flash';
+import { trackEvent } from '../analytics.js?v=20261118_fix_adjectives_flash';
+import { navigate, navigateBack } from '../app.js?v=20261118_fix_adjectives_flash';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {
