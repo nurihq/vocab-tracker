@@ -1528,3 +1528,54 @@ export const Api = {
     return { message: 'Word deleted' };
   }
 };
+
+export async function copyToClipboard(text) {
+  const cleanText = String(text || '').trim();
+  if (!cleanText) return false;
+  try {
+    if (navigator.clipboard && window.isSecureContext && typeof navigator.clipboard.writeText === 'function') {
+      await navigator.clipboard.writeText(cleanText);
+      return true;
+    }
+  } catch (err) {}
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = cleanText;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '-9999px';
+    textArea.style.opacity = '0';
+    textArea.setAttribute('readonly', '');
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    return successful;
+  } catch (e) {
+    return false;
+  }
+}
+
+export function showCopiedTooltip(x, y, text = 'Copied!') {
+  document.querySelectorAll('.copy-toast-tooltip').forEach(el => el.remove());
+  const tooltip = document.createElement('div');
+  tooltip.className = 'copy-toast-tooltip';
+  tooltip.innerHTML = `<span class="copy-toast-icon">✓</span><span>${text}</span>`;
+
+  const posX = Math.max(50, Math.min(window.innerWidth - 50, x || window.innerWidth / 2));
+  const posY = Math.max(40, y || window.innerHeight / 2);
+
+  tooltip.style.left = `${posX}px`;
+  tooltip.style.top = `${posY}px`;
+  document.body.appendChild(tooltip);
+
+  requestAnimationFrame(() => {
+    tooltip.classList.add('is-visible');
+  });
+
+  setTimeout(() => {
+    tooltip.classList.remove('is-visible');
+    setTimeout(() => tooltip.remove(), 250);
+  }, 1400);
+}

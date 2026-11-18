@@ -1,10 +1,10 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer } from '../api.js?v=20261118_flashcard_hints_and_move';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from '../api.js?v=20261118_khmer_longpress_copy_and_highlight';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
-import { navigate } from '../app.js?v=20261116_move_deck_fix';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_move_deck_fix';
+import { navigate } from '../app.js?v=20261118_khmer_longpress_copy_and_highlight';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261118_khmer_longpress_copy_and_highlight';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -220,7 +220,7 @@ export function renderDeckWordsScreen(container, params = {}) {
                 <div class="word-main-row">
                   <div class="word-content edit-word-trigger" data-word-id="${w.wordId}" title="${t('editWord')} (Click to edit)">
                     <div class="word-study-row">
-                      <span class="word-study">${formatStudyTextHtml(w.studyWord)}</span>
+                      <span class="word-study" data-study-text="${escapeHtml(w.studyWord)}">${formatStudyTextHtml(w.studyWord)}</span>
                       ${pronHtml ? `<span class="word-pronunciation">${pronHtml}</span>` : ''}
                     </div>
                     <div class="word-base" data-word-base-id="${w.wordId}">${initialMeaning}</div>
@@ -364,6 +364,10 @@ export function renderDeckWordsScreen(container, params = {}) {
     // Word Click & Edit Word Handlers
     container.querySelectorAll('.edit-word-btn, .edit-word-trigger').forEach(trigger => {
       trigger.addEventListener('click', (e) => {
+        // If text was selected / highlighted with the mouse, do not open modal
+        const sel = window.getSelection();
+        if (sel && sel.toString().trim().length > 0) return;
+
         if (e.target.closest('.word-actions') && !e.target.closest('.edit-word-btn')) return;
         const wordId = trigger.getAttribute('data-word-id');
         const wordObj = words.find(w => w.wordId === wordId);
@@ -1005,20 +1009,32 @@ export function renderDeckWordsScreen(container, params = {}) {
       <div class="modal-box khmer-word-zoom-box" role="dialog" aria-modal="true">
         <button type="button" class="khmer-zoom-close-btn" id="khmer-zoom-close-btn" aria-label="Close">✕</button>
         <div class="khmer-zoom-word-row">
-          <div class="khmer-zoom-word">
+          <div class="khmer-zoom-word" data-study-text="${escapeHtml(word.studyWord)}">
             ${formatStudyTextHtml(word.studyWord)}
           </div>
-          <button type="button"
-                  class="tile-action-btn khmer-zoom-word-speak-btn"
-                  id="khmer-zoom-word-speak-btn"
-                  title="Listen to whole word in Khmer"
-                  aria-label="Listen to whole word in Khmer">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            </svg>
-          </button>
+          <div style="display: flex; gap: 0.4rem; align-items: center; flex-shrink: 0;">
+            <button type="button"
+                    class="tile-action-btn khmer-zoom-word-copy-btn"
+                    id="khmer-zoom-word-copy-btn"
+                    title="Copy word to clipboard"
+                    aria-label="Copy word to clipboard">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+            <button type="button"
+                    class="tile-action-btn khmer-zoom-word-speak-btn"
+                    id="khmer-zoom-word-speak-btn"
+                    title="Listen to whole word in Khmer"
+                    aria-label="Listen to whole word in Khmer">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+            </button>
+          </div>
         </div>
         ${tokens.length > 0 ? `
           <div class="khmer-zoom-tokens" aria-label="Tap any character or vowel to locate on keyboard">
@@ -1060,6 +1076,14 @@ export function renderDeckWordsScreen(container, params = {}) {
       if (e.key === 'Escape') closeZoom();
     };
     window.addEventListener('keydown', onEsc);
+
+    overlay.querySelector('#khmer-zoom-word-copy-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const btn = e.currentTarget;
+      const rect = btn.getBoundingClientRect();
+      copyToClipboard(word.studyWord);
+      showCopiedTooltip(rect.left + rect.width / 2, rect.top - 10, 'Copied!');
+    });
 
     overlay.querySelector('#khmer-zoom-word-speak-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();

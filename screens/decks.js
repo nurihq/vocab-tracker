@@ -1,6 +1,6 @@
 import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore } from '../api.js?v=20261118_flashcard_hints_and_move';
+import { Api, getLocalStore } from '../api.js?v=20261118_khmer_longpress_copy_and_highlight';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
 import { navigate } from '../app.js?v=20261116_standardize_khmer_font';

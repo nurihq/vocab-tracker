@@ -1,5 +1,5 @@
 import { t, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
-import { getAppSettings, updateAppSettings, shouldColorKhmer, shouldAutoRomaniseKhmer, shouldAutoTranslateKhmerAdd } from '../api.js?v=20261118_flashcard_hints_and_move';
+import { getAppSettings, updateAppSettings, shouldColorKhmer, shouldAutoRomaniseKhmer, shouldAutoTranslateKhmerAdd } from '../api.js?v=20261118_khmer_longpress_copy_and_highlight';
 import { LANGUAGES, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
 

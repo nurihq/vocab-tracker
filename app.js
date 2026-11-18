@@ -2,15 +2,15 @@ import { Navbar } from './components/navbar.js?v=20261116_standardize_khmer_font
 import { Modal } from './components/modal.js?v=20261116_standardize_khmer_font';
 import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_standardize_khmer_font';
 import { setI18nBaseLang } from './i18n.js?v=20261116_standardize_khmer_font';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer } from './api.js?v=20261118_flashcard_hints_and_move';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from './api.js?v=20261118_khmer_longpress_copy_and_highlight';
 import { trackPageView, trackEvent } from './analytics.js?v=20261116_standardize_khmer_font';
 
 import { renderHomeScreen } from './screens/home.js?v=20261116_standardize_khmer_font';
 import { renderSignInScreen } from './screens/signin.js?v=20261116_standardize_khmer_font';
 import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_standardize_khmer_font';
 import { renderDecksScreen } from './screens/decks.js?v=20261116_standardize_khmer_font';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261116_move_deck_fix';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261118_flashcard_hints_and_move';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261118_khmer_longpress_copy_and_highlight';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261118_khmer_longpress_copy_and_highlight';
 import { renderAboutScreen } from './screens/about.js?v=20261116_standardize_khmer_font';
 import { renderScriptsScreen } from './screens/scripts.js?v=20261116_standardize_khmer_font';
 import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_standardize_khmer_font';
@@ -96,6 +96,138 @@ export function navigateBack(target) {
   window.history.back();
 }
 
+let suppressClickUntil = 0;
+
+export function getKhmerTextFromElement(el) {
+  if (!el) return '';
+  const withStudyAttr = el.closest?.('[data-study-text]');
+  if (withStudyAttr) {
+    const text = withStudyAttr.getAttribute('data-study-text');
+    if (text && /[\u1780-\u17FF]/.test(text)) return text.trim();
+  }
+  const wordRow = el.closest?.('.word-row');
+  if (wordRow) {
+    const studySpan = wordRow.querySelector('.word-study');
+    if (studySpan) {
+      const text = studySpan.getAttribute('data-study-text') || studySpan.textContent;
+      if (text && /[\u1780-\u17FF]/.test(text)) return text.trim();
+    }
+  }
+  const zoomEl = el.closest?.('.khmer-zoom-word');
+  if (zoomEl) {
+    const text = zoomEl.getAttribute('data-study-text') || zoomEl.textContent;
+    if (text && /[\u1780-\u17FF]/.test(text)) return text.trim();
+  }
+  const cardText = el.closest?.('.card-text-main');
+  if (cardText) {
+    const text = cardText.getAttribute('data-study-text') || cardText.textContent;
+    if (text && /[\u1780-\u17FF]/.test(text)) return text.trim();
+  }
+  const targetContainer = el.closest?.('.word-study, .khmer-zoom-word, .card-text-main, .khmer-cons-char, [data-khmer-char]') || el;
+  if (targetContainer && targetContainer.cloneNode) {
+    const clone = targetContainer.cloneNode(true);
+    clone.querySelectorAll?.('.khmer-ov-left, .khmer-ov-anchor, .khmer-ov-right, .khmer-ov-box, .khmer-ov-right-box, .khmer-ov-spacer').forEach(n => n.remove());
+    const extracted = clone.textContent ? clone.textContent.trim() : '';
+    if (/[\u1780-\u17FF]/.test(extracted)) {
+      return extracted;
+    }
+  }
+  return '';
+}
+
+function setupMobileKhmerLongPressCopy() {
+  let touchTimer = null;
+  let startX = 0;
+  let startY = 0;
+  let longPressFired = false;
+
+  const cancelLongPress = () => {
+    if (touchTimer) {
+      clearTimeout(touchTimer);
+      touchTimer = null;
+    }
+  };
+
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) {
+      cancelLongPress();
+      return;
+    }
+    const touch = e.touches[0];
+    const target = e.target;
+    if (target.closest?.('input, textarea, select')) return;
+
+    const khmerText = getKhmerTextFromElement(target);
+    if (!khmerText) return;
+
+    cancelLongPress();
+    startX = touch.clientX;
+    startY = touch.clientY;
+    longPressFired = false;
+
+    touchTimer = setTimeout(async () => {
+      touchTimer = null;
+      longPressFired = true;
+      suppressClickUntil = Date.now() + 650;
+
+      const success = await copyToClipboard(khmerText);
+      if (success) {
+        try {
+          if (navigator.vibrate) navigator.vibrate(40);
+        } catch (_) {}
+        showCopiedTooltip(startX, startY - 30, 'Copied!');
+      }
+    }, 420);
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!touchTimer) return;
+    const touch = e.touches[0];
+    if (!touch) {
+      cancelLongPress();
+      return;
+    }
+    const distX = Math.abs(touch.clientX - startX);
+    const distY = Math.abs(touch.clientY - startY);
+    if (distX > 10 || distY > 10) {
+      cancelLongPress();
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    if (longPressFired) {
+      suppressClickUntil = Date.now() + 650;
+      longPressFired = false;
+      if (e.cancelable) e.preventDefault();
+    }
+    cancelLongPress();
+  }, { passive: false });
+
+  document.addEventListener('touchcancel', () => {
+    cancelLongPress();
+    longPressFired = false;
+  }, { passive: true });
+
+  // Suppress clicks triggered by long-press releases
+  document.addEventListener('click', (e) => {
+    if (Date.now() < suppressClickUntil) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      return;
+    }
+  }, true);
+
+  // Suppress context menu if long-press copy just occurred
+  document.addEventListener('contextmenu', (e) => {
+    if (Date.now() < suppressClickUntil || longPressFired) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    }
+  }, true);
+}
+
 class App {
   constructor() {
     this.navContainer = document.getElementById('nav-container');
@@ -110,6 +242,9 @@ class App {
     // Initialize Khmer consonant color setting attribute
     document.documentElement.setAttribute('data-khmer-colors', shouldColorKhmer() ? 'on' : 'off');
 
+    // Initialize mobile long-press to copy Khmer words
+    setupMobileKhmerLongPressCopy();
+
     this.navbar = new Navbar(
       (newBaseLang) => this.handleBaseLangChange(newBaseLang),
       (newTheme) => this.handleThemeChange(newTheme),
@@ -120,6 +255,17 @@ class App {
     // In the word list (.word-row), clicking a Khmer word opens the large Khmer Word Modal first.
     // Inside the Khmer Word Modal, Flashcards, or Settings preview, clicking a consonant navigates to the Khmer keyboard with that letter highlighted.
     document.addEventListener('click', (e) => {
+      if (Date.now() < suppressClickUntil) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return;
+      }
+
+      // If user highlighted / selected text on desktop, do not navigate to keyboard
+      const sel = window.getSelection();
+      if (sel && sel.toString().trim().length > 0) return;
+
       if (!e.target || !e.target.closest) return;
       const khmerCharEl = e.target.closest('.khmer-cons-char[data-khmer-char]');
       if (!khmerCharEl) return;

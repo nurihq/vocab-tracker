@@ -142,7 +142,11 @@ export function setupDraggableList({
 
     // ─── Desktop HTML5 Drag & Drop ──────────────────────────────────
     item.addEventListener('dragstart', (e) => {
-      if (e.target.closest('button, select, input, textarea, a, .tile-action-btn, .word-actions, .move-select')) {
+      if (handleSelector && !e.target.closest(handleSelector)) {
+        e.preventDefault();
+        return;
+      }
+      if (e.target.closest('button, select, input, textarea, a, .tile-action-btn, .word-actions, .move-select, .word-study, .word-content, .card-text-main')) {
         e.preventDefault();
         return;
       }

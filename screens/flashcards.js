@@ -1,6 +1,6 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore } from '../api.js?v=20261118_flashcard_hints_and_move';
+import { Api, getLocalStore } from '../api.js?v=20261118_khmer_longpress_copy_and_highlight';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
 import { navigate } from '../app.js?v=20261116_move_deck_fix';
 
@@ -280,7 +280,7 @@ export function renderFlashcardsScreen(container, params = {}) {
             <div class="card-face">
               <div class="card-lang-indicator">${frontTag}</div>
               <div class="card-deck-badge">${currentIndex + 1} / ${words.length}</div>
-              <div class="card-text-main" id="front-card-text" ${isStudyFront ? '' : 'data-card-base-text="true"'}>${frontWord}</div>
+              <div class="card-text-main" id="front-card-text" data-study-text="${escapeHtml(isStudyFront ? currentWord.studyWord : initialBaseMeaning)}" ${isStudyFront ? '' : 'data-card-base-text="true"'}>${frontWord}</div>
               ${frontPronunciation ? `<div class="card-pronunciation-sub front-hint">${frontPronunciation}</div>` : ''}
               <div class="card-hint" data-i18n="tapToFlip">${t('tapToFlip')}</div>
             </div>
@@ -289,7 +289,7 @@ export function renderFlashcardsScreen(container, params = {}) {
             <div class="card-face card-face-back">
               <div class="card-lang-indicator">${backTag}</div>
               <div class="card-deck-badge">${currentIndex + 1} / ${words.length}</div>
-              <div class="card-text-main" id="back-card-text" ${!isStudyFront ? '' : 'data-card-base-text="true"'}>${backWord}</div>
+              <div class="card-text-main" id="back-card-text" data-study-text="${escapeHtml(!isStudyFront ? currentWord.studyWord : initialBaseMeaning)}" ${!isStudyFront ? '' : 'data-card-base-text="true"'}>${backWord}</div>
               ${backPronunciation ? `<div class="card-pronunciation-sub">${backPronunciation}</div>` : ''}
               <div class="card-hint" data-i18n="tapToFlipBack">${t('tapToFlipBack')}</div>
             </div>
@@ -515,6 +515,8 @@ export function renderFlashcardsScreen(container, params = {}) {
 
         // Tap detected: If user didn't swipe horizontally or scroll vertically, and movement was minimal (< 22px)
         if (!isHorizontalSwipe && !isVerticalScroll && Math.abs(deltaX) < 22 && Math.abs(deltaY) < 22) {
+          // If finger was held down (long press >= 380ms, e.g. copying Khmer text), do not flip card
+          if (elapsed >= 380) return;
           lastTouchTapTime = Date.now();
           if (e && e.cancelable) e.preventDefault();
           flipCard();
@@ -536,6 +538,9 @@ export function renderFlashcardsScreen(container, params = {}) {
       stage.addEventListener('click', () => {
         // Prevent duplicate flip if this click is a synthetic event from a touch tap in the last 600ms
         if (Date.now() - lastTouchTapTime < 600) return;
+        // If user highlighted / selected text on desktop, do not flip
+        const sel = window.getSelection();
+        if (sel && sel.toString().trim().length > 0) return;
         flipCard();
       });
     }
