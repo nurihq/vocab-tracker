@@ -1,16 +1,17 @@
 import { Navbar } from './components/navbar.js?v=20261116_standardize_khmer_font';
 import { Modal } from './components/modal.js?v=20261116_standardize_khmer_font';
+import { setupPullToRefresh } from './components/pull-to-refresh.js?v=20261118_swipe_down_to_refresh';
 import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_standardize_khmer_font';
 import { setI18nBaseLang } from './i18n.js?v=20261116_standardize_khmer_font';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from './api.js?v=20261118_new_default_decks_inbox_emotions';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from './api.js?v=20261118_swipe_down_to_refresh';
 import { trackPageView, trackEvent } from './analytics.js?v=20261116_standardize_khmer_font';
 
 import { renderHomeScreen } from './screens/home.js?v=20261116_standardize_khmer_font';
 import { renderSignInScreen } from './screens/signin.js?v=20261116_standardize_khmer_font';
 import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_standardize_khmer_font';
 import { renderDecksScreen } from './screens/decks.js?v=20261116_standardize_khmer_font';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261118_new_default_decks_inbox_emotions';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261118_new_default_decks_inbox_emotions';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261118_swipe_down_to_refresh';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261118_swipe_down_to_refresh';
 import { renderAboutScreen } from './screens/about.js?v=20261116_standardize_khmer_font';
 import { renderScriptsScreen } from './screens/scripts.js?v=20261116_standardize_khmer_font';
 import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261116_standardize_khmer_font';
@@ -244,6 +245,16 @@ class App {
 
     // Initialize mobile long-press to copy Khmer words
     setupMobileKhmerLongPressCopy();
+
+    // Initialize mobile swipe-down to refresh
+    setupPullToRefresh({
+      onRefresh: async () => {
+        if (Auth.isAuthenticated()) {
+          await syncLocalToCloud().catch(() => {});
+        }
+        this.handleRoute();
+      }
+    });
 
     this.navbar = new Navbar(
       (newBaseLang) => this.handleBaseLangChange(newBaseLang),

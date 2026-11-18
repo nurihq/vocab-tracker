@@ -1,10 +1,10 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from '../api.js?v=20261118_new_default_decks_inbox_emotions';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from '../api.js?v=20261118_swipe_down_to_refresh';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
-import { navigate } from '../app.js?v=20261118_new_default_decks_inbox_emotions';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261118_new_default_decks_inbox_emotions';
+import { navigate } from '../app.js?v=20261118_swipe_down_to_refresh';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261118_swipe_down_to_refresh';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
