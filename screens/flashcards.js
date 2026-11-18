@@ -1,6 +1,6 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore } from '../api.js?v=20261118_khmer_longpress_copy_and_highlight';
+import { Api, getLocalStore } from '../api.js?v=20261118_new_default_decks_inbox_emotions';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
 import { navigate } from '../app.js?v=20261116_move_deck_fix';
 
@@ -19,11 +19,13 @@ export function renderFlashcardsScreen(container, params = {}) {
   let rawWords = (store.words[langCode] || []).filter(w => deckId === 'all' || w.deckId === deckId);
   let words = [...rawWords];
   let allDecks = store.decks[langCode] || [
-    { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', isDefault: true },
-    { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', isDefault: true },
-    { deckId: 'colours', name: 'Colours', icon: '🎨', isDefault: true },
-    { deckId: 'numbers', name: 'Numbers', icon: '🔢', isDefault: true },
+    { deckId: 'inbox', name: 'Inbox', icon: '📥', isDefault: true },
+    { deckId: 'emotions', name: 'Emotions', icon: '❤️', isDefault: true },
     { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', isDefault: true },
+    { deckId: 'nouns', name: 'Nouns', icon: '👘', isDefault: true },
+    { deckId: 'colors', name: 'Colors', icon: '🌈', isDefault: true },
+    { deckId: 'fruits', name: 'Fruits', icon: '🍏', isDefault: true },
+    { deckId: 'numbers', name: 'Numbers', icon: '🔢', isDefault: true },
     { deckId: 'all', name: 'All', icon: '📚', isDefault: true }
   ];
 
@@ -88,24 +90,40 @@ export function renderFlashcardsScreen(container, params = {}) {
     if (dId === 'all') return t('all');
     const match = allDecks.find(d => d.deckId === dId);
     const dName = match?.name;
-    if (dId === 'nouns_practice') {
-      if (!dName || dName === 'Nouns practice' || dName === 'Nouns (practice)' || dName === 'nouns_practice') return t('nounsPractice') || 'Nouns (practice)';
+    if (dId === 'inbox') {
+      if (!dName || dName === 'Inbox' || dName === 'inbox') return t('inbox') || 'Inbox';
       return dName;
     }
-    if (dId === 'nouns_mastered') {
-      if (!dName || dName === 'Nouns mastered' || dName === 'Nouns (mastered)' || dName === 'nouns_mastered') return t('nounsMastered') || 'Nouns (mastered)';
+    if (dId === 'emotions') {
+      if (!dName || dName === 'Emotions' || dName === 'emotions') return t('emotions') || 'Emotions';
       return dName;
     }
-    if (dId === 'colours') {
-      if (!dName || dName === 'Colours' || dName === 'Colors' || dName === 'colours') return t('colours') || 'Colours';
+    if (dId === 'verbs') {
+      if (!dName || dName === 'Verbs' || dName === 'verbs') return t('verbs') || 'Verbs';
+      return dName;
+    }
+    if (dId === 'nouns') {
+      if (!dName || dName === 'Nouns' || dName === 'nouns') return t('nouns') || 'Nouns';
+      return dName;
+    }
+    if (dId === 'colors' || dId === 'colours') {
+      if (!dName || dName === 'Colors' || dName === 'Colours' || dName === 'colors' || dName === 'colours') return t('colors') || t('colours') || 'Colors';
+      return dName;
+    }
+    if (dId === 'fruits') {
+      if (!dName || dName === 'Fruits' || dName === 'fruits') return t('fruits') || 'Fruits';
       return dName;
     }
     if (dId === 'numbers') {
       if (!dName || dName === 'Numbers' || dName === 'numbers') return t('numbers') || 'Numbers';
       return dName;
     }
-    if (dId === 'verbs') {
-      if (!dName || dName === 'Verbs' || dName === 'verbs') return t('verbs') || 'Verbs';
+    if (dId === 'nouns_practice') {
+      if (!dName || dName === 'Nouns practice' || dName === 'Nouns (practice)' || dName === 'nouns_practice') return t('nounsPractice') || 'Nouns (practice)';
+      return dName;
+    }
+    if (dId === 'nouns_mastered') {
+      if (!dName || dName === 'Nouns mastered' || dName === 'Nouns (mastered)' || dName === 'nouns_mastered') return t('nounsMastered') || 'Nouns (mastered)';
       return dName;
     }
     if (dId === 'practicing') {

@@ -1,6 +1,6 @@
 import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore } from '../api.js?v=20261118_khmer_longpress_copy_and_highlight';
+import { Api, getLocalStore } from '../api.js?v=20261118_new_default_decks_inbox_emotions';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
 import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
@@ -24,12 +24,14 @@ export function renderDecksScreen(container, params = {}) {
   // Instant optimistic render from local cache
   const store = getLocalStore();
   let rawDecks = store.decks[langCode] || [
-    { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'colours', name: 'Colours', icon: '🎨', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-    { deckId: 'all', name: 'All', icon: '📚', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+    { deckId: 'inbox', name: 'Inbox', icon: '📥', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'emotions', name: 'Emotions', icon: '❤️', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'colors', name: 'Colors', icon: '🌈', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+    { deckId: 'all', name: 'All', icon: '📚', langCode, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
   ];
   let decks = rawDecks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
@@ -90,24 +92,40 @@ export function renderDecksScreen(container, params = {}) {
     const dName = deck.name || '';
 
     if (dId === 'all') return t('all');
-    if (dId === 'nouns_practice') {
-      if (!dName || dName === 'Nouns practice' || dName === 'Nouns (practice)' || dName === 'nouns_practice') return t('nounsPractice') || 'Nouns (practice)';
+    if (dId === 'inbox') {
+      if (!dName || dName === 'Inbox' || dName === 'inbox') return t('inbox') || 'Inbox';
       return dName;
     }
-    if (dId === 'nouns_mastered') {
-      if (!dName || dName === 'Nouns mastered' || dName === 'Nouns (mastered)' || dName === 'nouns_mastered') return t('nounsMastered') || 'Nouns (mastered)';
+    if (dId === 'emotions') {
+      if (!dName || dName === 'Emotions' || dName === 'emotions') return t('emotions') || 'Emotions';
       return dName;
     }
-    if (dId === 'colours') {
-      if (!dName || dName === 'Colours' || dName === 'Colors' || dName === 'colours') return t('colours') || 'Colours';
+    if (dId === 'verbs') {
+      if (!dName || dName === 'Verbs' || dName === 'verbs') return t('verbs') || 'Verbs';
+      return dName;
+    }
+    if (dId === 'nouns') {
+      if (!dName || dName === 'Nouns' || dName === 'nouns') return t('nouns') || 'Nouns';
+      return dName;
+    }
+    if (dId === 'colors' || dId === 'colours') {
+      if (!dName || dName === 'Colors' || dName === 'Colours' || dName === 'colors' || dName === 'colours') return t('colors') || t('colours') || 'Colors';
+      return dName;
+    }
+    if (dId === 'fruits') {
+      if (!dName || dName === 'Fruits' || dName === 'fruits') return t('fruits') || 'Fruits';
       return dName;
     }
     if (dId === 'numbers') {
       if (!dName || dName === 'Numbers' || dName === 'numbers') return t('numbers') || 'Numbers';
       return dName;
     }
-    if (dId === 'verbs') {
-      if (!dName || dName === 'Verbs' || dName === 'verbs') return t('verbs') || 'Verbs';
+    if (dId === 'nouns_practice') {
+      if (!dName || dName === 'Nouns practice' || dName === 'Nouns (practice)' || dName === 'nouns_practice') return t('nounsPractice') || 'Nouns (practice)';
+      return dName;
+    }
+    if (dId === 'nouns_mastered') {
+      if (!dName || dName === 'Nouns mastered' || dName === 'Nouns (mastered)' || dName === 'nouns_mastered') return t('nounsMastered') || 'Nouns (mastered)';
       return dName;
     }
     if (dId === 'practicing') {
@@ -123,14 +141,18 @@ export function renderDecksScreen(container, params = {}) {
 
   function getDeckEmoji(deck) {
     if (deck.icon) return deck.icon;
+    if (deck.deckId === 'inbox') return '📥';
+    if (deck.deckId === 'emotions') return '❤️';
+    if (deck.deckId === 'verbs') return '🏃🏽‍♀️';
+    if (deck.deckId === 'nouns') return '👘';
+    if (deck.deckId === 'colors' || deck.deckId === 'colours') return '🌈';
+    if (deck.deckId === 'fruits') return '🍏';
+    if (deck.deckId === 'numbers') return '🔢';
+    if (deck.deckId === 'all') return '📚';
     if (deck.deckId === 'nouns_practice') return '🪑';
     if (deck.deckId === 'nouns_mastered') return '🏠';
-    if (deck.deckId === 'colours') return '🎨';
-    if (deck.deckId === 'numbers') return '🔢';
-    if (deck.deckId === 'verbs') return '🏃🏽‍♀️';
     if (deck.deckId === 'practicing') return '🌱';
     if (deck.deckId === 'mastered') return '✨';
-    if (deck.deckId === 'all') return '📚';
     return '📁';
   }
 

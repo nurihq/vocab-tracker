@@ -80,20 +80,26 @@ export function migrateLegacyDefaultDecks(store) {
   for (const code of Object.keys(store.decks)) {
     const decks = store.decks[code] || [];
     const words = store.words?.[code] || [];
-    const isLegacyOnly = decks.length === 3 &&
+    const isLegacyV1 = decks.length === 3 &&
       decks.some(d => d.deckId === 'practicing') &&
       decks.some(d => d.deckId === 'mastered') &&
       decks.some(d => d.deckId === 'all');
-    
+    const isLegacyV2 = decks.length === 6 &&
+      decks.some(d => d.deckId === 'nouns_practice') &&
+      decks.some(d => d.deckId === 'nouns_mastered') &&
+      decks.some(d => d.deckId === 'colours');
+
     // If language has empty default decks and no words, migrate seamlessly
-    if (isLegacyOnly && words.length === 0) {
+    if ((isLegacyV1 || isLegacyV2) && words.length === 0) {
       store.decks[code] = [
-        { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode: code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode: code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'colours', name: 'Colours', icon: '🎨', langCode: code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode: code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'all', name: 'All', icon: '📚', langCode: code, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+        { deckId: 'inbox', name: 'Inbox', icon: '📥', langCode: code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'emotions', name: 'Emotions', icon: '❤️', langCode: code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode: code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode: code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'colors', name: 'Colors', icon: '🌈', langCode: code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode: code, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: code, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'all', name: 'All', icon: '📚', langCode: code, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
       ];
     }
   }
@@ -973,12 +979,14 @@ export const Api = {
       store.languages.push(newLang);
       if (!store.decks[lang.code]) {
         store.decks[lang.code] = [
-          { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode: lang.code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode: lang.code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'colours', name: 'Colours', icon: '🎨', langCode: lang.code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: lang.code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode: lang.code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-          { deckId: 'all', name: 'All', icon: '📚', langCode: lang.code, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+          { deckId: 'inbox', name: 'Inbox', icon: '📥', langCode: lang.code, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'emotions', name: 'Emotions', icon: '❤️', langCode: lang.code, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode: lang.code, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode: lang.code, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'colors', name: 'Colors', icon: '🌈', langCode: lang.code, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode: lang.code, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode: lang.code, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+          { deckId: 'all', name: 'All', icon: '📚', langCode: lang.code, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
         ];
       }
       if (!store.words[lang.code]) store.words[lang.code] = [];
@@ -1066,7 +1074,7 @@ export const Api = {
 
           // Ensure any words belonging to deleted decks are migrated to fallback deck
           const remainingDecks = store.decks[langCode].filter(d => d.deckId.toLowerCase() !== 'all');
-          const fallbackDeckId = remainingDecks.length > 0 ? remainingDecks[0].deckId : 'practicing';
+          const fallbackDeckId = remainingDecks.length > 0 ? remainingDecks[0].deckId : 'inbox';
           const localWords = store.words[langCode] || [];
           for (const w of localWords) {
             if (deletedDeckSet.has(w.deckId)) {
@@ -1100,12 +1108,14 @@ export const Api = {
     let decks = (store.decks[langCode] || []).filter(d => !deletedDeckSet.has(d.deckId));
     if (decks.length === 0) {
       decks = [
-        { deckId: 'nouns_practice', name: 'Nouns (practice)', icon: '🪑', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'nouns_mastered', name: 'Nouns (mastered)', icon: '🏠', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'colours', name: 'Colours', icon: '🎨', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
-        { deckId: 'all', name: 'All', icon: '📚', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
+        { deckId: 'inbox', name: 'Inbox', icon: '📥', langCode, order: 0, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'emotions', name: 'Emotions', icon: '❤️', langCode, order: 1, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'verbs', name: 'Verbs', icon: '🏃🏽‍♀️', langCode, order: 2, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'nouns', name: 'Nouns', icon: '👘', langCode, order: 3, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'colors', name: 'Colors', icon: '🌈', langCode, order: 4, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'fruits', name: 'Fruits', icon: '🍏', langCode, order: 5, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'numbers', name: 'Numbers', icon: '🔢', langCode, order: 6, hidden: false, isDefault: true, createdAt: new Date().toISOString() },
+        { deckId: 'all', name: 'All', icon: '📚', langCode, order: 7, hidden: false, isDefault: true, createdAt: new Date().toISOString() }
       ].filter(d => !deletedDeckSet.has(d.deckId));
     }
     store.decks[langCode] = decks;
@@ -1260,7 +1270,7 @@ export const Api = {
 
     // Reassign words from deleted deck to fallback deck
     const remainingDecks = store.decks[langCode].filter(d => d.deckId.toLowerCase() !== 'all');
-    const fallbackDeckId = remainingDecks.length > 0 ? remainingDecks[0].deckId : 'practicing';
+    const fallbackDeckId = remainingDecks.length > 0 ? remainingDecks[0].deckId : 'inbox';
 
     const words = store.words[langCode] || [];
     for (const w of words) {
