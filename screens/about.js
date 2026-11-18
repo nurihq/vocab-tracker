@@ -1,6 +1,6 @@
 import { t, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { Auth } from '../api.js?v=20261118_swipe_down_to_refresh';
-import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
+import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
 import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
 
 export function renderAboutScreen(container) {

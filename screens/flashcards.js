@@ -1,7 +1,7 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_standardize_khmer_font';
 import { Api, getLocalStore } from '../api.js?v=20261118_swipe_down_to_refresh';
-import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
+import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
 import { navigate } from '../app.js?v=20261116_move_deck_fix';
 
 export function renderFlashcardsScreen(container, params = {}) {

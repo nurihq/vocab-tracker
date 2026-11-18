@@ -1,5 +1,5 @@
 import { autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
-import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
+import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
 import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261118_swipe_down_to_refresh';
 import { HIRAGANA_SECTIONS, HIRAGANA_STROKE_ORDER } from '../scripts/data/hiragana-data.js?v=20261116_standardize_khmer_font';
 import { KATAKANA_SECTIONS, KATAKANA_STROKE_ORDER } from '../scripts/data/katakana-data.js?v=20261116_standardize_khmer_font';

@@ -2,7 +2,7 @@ import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261116_stand
 import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_standardize_khmer_font';
 import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261118_swipe_down_to_refresh';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
-import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
+import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
 import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
 import { setupDraggableList } from '../components/drag-controller.js?v=20261116_standardize_khmer_font';
 

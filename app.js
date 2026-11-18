@@ -4,7 +4,7 @@ import { setupPullToRefresh } from './components/pull-to-refresh.js?v=20261118_s
 import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261116_standardize_khmer_font';
 import { setI18nBaseLang } from './i18n.js?v=20261116_standardize_khmer_font';
 import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from './api.js?v=20261118_swipe_down_to_refresh';
-import { trackPageView, trackEvent } from './analytics.js?v=20261116_standardize_khmer_font';
+import { trackPageView, trackEvent } from './analytics.js?v=20261118_ga_human_and_return_tracking';
 
 import { renderHomeScreen } from './screens/home.js?v=20261116_standardize_khmer_font';
 import { renderSignInScreen } from './screens/signin.js?v=20261116_standardize_khmer_font';
