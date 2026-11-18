@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, escapeHtml, parseKhmerWordTokens } from '../languages.js?v=20261118_khmer_modal_in_hints';
-import { Api, getLocalStore } from '../api.js?v=20261118_add_adjectives_deck';
-import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
-import { navigate } from '../app.js?v=20261118_fix_escape_html';
-import { openKhmerWordZoomModal } from '../components/khmer-word-modal.js?v=20261118_khmer_modal_in_hints';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_unified_nav_fix';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, escapeHtml, parseKhmerWordTokens } from '../languages.js?v=20261118_unified_nav_fix';
+import { Api, getLocalStore } from '../api.js?v=20261118_unified_nav_fix';
+import { trackEvent } from '../analytics.js?v=20261118_unified_nav_fix';
+import { navigate } from '../app.js?v=20261118_unified_nav_fix';
+import { openKhmerWordZoomModal } from '../components/khmer-word-modal.js?v=20261118_unified_nav_fix';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -13,7 +13,13 @@ export function renderFlashcardsScreen(container, params = {}) {
   const localizedStudyName = getLocalizedLanguageName(langCode, currentBase);
   const localizedBaseName = getLocalizedLanguageName(currentBase, currentBase);
 
-  const isStillMounted = () => window.location.hash.startsWith(`#/languages/${langCode}/decks/${deckId}/study`);
+  const mountToken = Symbol('flashcards-screen');
+  container.__mountToken = mountToken;
+  const isStillMounted = () => {
+    if (container.__mountToken !== mountToken) return false;
+    const hash = (window.location.hash || '').split('?')[0].replace(/\/+$/, '');
+    return hash === `#/languages/${langCode}/decks/${deckId}/study`;
+  };
 
   // Instant optimistic words and decks from local store
   const store = getLocalStore();

@@ -1,8 +1,8 @@
-import { CONFIG } from '../config.js?v=20261118_fix_deck_bounce';
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
-import { Auth, Api } from '../api.js?v=20261118_fix_deck_bounce';
-import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
-import { navigate } from '../app.js?v=20261118_fix_deck_bounce';
+import { CONFIG } from '../config.js?v=20261118_unified_nav_fix';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_unified_nav_fix';
+import { Auth, Api } from '../api.js?v=20261118_unified_nav_fix';
+import { trackEvent } from '../analytics.js?v=20261118_unified_nav_fix';
+import { navigate } from '../app.js?v=20261118_unified_nav_fix';
 
 export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();

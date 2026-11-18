@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261118_fix_deck_bounce';
-import { Api, getLocalStore } from '../api.js?v=20261118_fix_deck_bounce';
-import { Modal } from '../components/modal.js?v=20261118_fix_deck_bounce';
-import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
-import { navigate } from '../app.js?v=20261118_fix_deck_bounce';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261118_fix_deck_bounce';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_unified_nav_fix';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261118_unified_nav_fix';
+import { Api, getLocalStore } from '../api.js?v=20261118_unified_nav_fix';
+import { Modal } from '../components/modal.js?v=20261118_unified_nav_fix';
+import { trackEvent } from '../analytics.js?v=20261118_unified_nav_fix';
+import { navigate } from '../app.js?v=20261118_unified_nav_fix';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261118_unified_nav_fix';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -352,6 +352,7 @@ export function renderDecksScreen(container, params = {}) {
           return;
         }
         e.preventDefault();
+        e.stopPropagation();
         const deckId = tile.getAttribute('data-deck-id');
         trackEvent('select_deck', { langCode, deckId });
         navigate(`#/languages/${langCode}/decks/${deckId}`);

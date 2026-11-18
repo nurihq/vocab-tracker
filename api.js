@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20261118_fix_deck_bounce';
-import { getI18nBaseLang } from './i18n.js?v=20261118_fix_deck_bounce';
+import { CONFIG } from './config.js?v=20261118_unified_nav_fix';
+import { getI18nBaseLang } from './i18n.js?v=20261118_unified_nav_fix';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;

@@ -1,22 +1,22 @@
-import { Navbar } from './components/navbar.js?v=20261118_fix_deck_bounce';
-import { Modal } from './components/modal.js?v=20261118_fix_deck_bounce';
-import { setupPullToRefresh } from './components/pull-to-refresh.js?v=20261118_fix_deck_bounce';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261118_fix_deck_bounce';
-import { setI18nBaseLang } from './i18n.js?v=20261118_fix_deck_bounce';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from './api.js?v=20261118_fix_deck_bounce';
-import { trackPageView, trackEvent } from './analytics.js?v=20261118_fix_deck_bounce';
+import { Navbar } from './components/navbar.js?v=20261118_unified_nav_fix';
+import { Modal } from './components/modal.js?v=20261118_unified_nav_fix';
+import { setupPullToRefresh } from './components/pull-to-refresh.js?v=20261118_unified_nav_fix';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261118_unified_nav_fix';
+import { setI18nBaseLang } from './i18n.js?v=20261118_unified_nav_fix';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from './api.js?v=20261118_unified_nav_fix';
+import { trackPageView, trackEvent } from './analytics.js?v=20261118_unified_nav_fix';
 
-import { renderHomeScreen } from './screens/home.js?v=20261118_fix_deck_bounce';
-import { renderSignInScreen } from './screens/signin.js?v=20261118_fix_deck_bounce';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261118_fix_deck_bounce';
-import { renderDecksScreen } from './screens/decks.js?v=20261118_fix_deck_bounce';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261118_khmer_modal_in_hints';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261118_khmer_modal_in_hints';
-import { renderAboutScreen } from './screens/about.js?v=20261118_fix_deck_bounce';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261118_fix_deck_bounce';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261118_fix_deck_bounce';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261118_fix_deck_bounce';
-import { renderSettingsScreen } from './screens/settings.js?v=20261118_fix_deck_bounce';
+import { renderHomeScreen } from './screens/home.js?v=20261118_unified_nav_fix';
+import { renderSignInScreen } from './screens/signin.js?v=20261118_unified_nav_fix';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261118_unified_nav_fix';
+import { renderDecksScreen } from './screens/decks.js?v=20261118_unified_nav_fix';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261118_unified_nav_fix';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261118_unified_nav_fix';
+import { renderAboutScreen } from './screens/about.js?v=20261118_unified_nav_fix';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261118_unified_nav_fix';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261118_unified_nav_fix';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261118_unified_nav_fix';
+import { renderSettingsScreen } from './screens/settings.js?v=20261118_unified_nav_fix';
 
 const routeHistory = [];
 
@@ -399,25 +399,13 @@ class App {
     // Auto-sync from cloud when switching back to tab/window or unlocking screen
     window.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && Auth.isAuthenticated()) {
-        syncLocalToCloud().then(() => {
-          const currentPath = getActiveRoutePath();
-          // Never interrupt an active study session, script drawing, or active text editing
-          if (currentPath.includes('/study') || currentPath.startsWith('/scripts')) return;
-          if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
-          this.handleRoute();
-        });
+        syncLocalToCloud();
       }
     });
 
     window.addEventListener('focus', () => {
       if (Auth.isAuthenticated()) {
-        syncLocalToCloud().then(() => {
-          const currentPath = getActiveRoutePath();
-          // Never interrupt an active study session, script drawing, or active text editing
-          if (currentPath.includes('/study') || currentPath.startsWith('/scripts')) return;
-          if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
-          this.handleRoute();
-        });
+        syncLocalToCloud();
       }
     });
 
@@ -461,6 +449,11 @@ class App {
     const prevPath = this.currentPath || null;
     const path = getActiveRoutePath();
     const routeToken = path === '/' ? '#/' : `#${path}`;
+
+    // Always scroll to top when changing routes so mobile taps don't leave the viewport stranded
+    if (prevPath !== null && prevPath !== path) {
+      window.scrollTo(0, 0);
+    }
 
     if (routeHistory.length >= 2 && routeHistory[routeHistory.length - 2] === path) {
       routeHistory.pop();
@@ -528,6 +521,7 @@ class App {
     }
 
     this.currentPath = path;
+    this.mainContainer.__mountToken = Symbol(path);
 
     document.body.classList.toggle('is-script-practice-route', Boolean(practiceMatch));
 

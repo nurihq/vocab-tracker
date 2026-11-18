@@ -1,11 +1,11 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens, escapeHtml } from '../languages.js?v=20261118_fix_deck_bounce';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from '../api.js?v=20261118_fix_deck_bounce';
-import { Modal } from '../components/modal.js?v=20261118_fix_deck_bounce';
-import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
-import { navigate } from '../app.js?v=20261118_fix_deck_bounce';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261118_fix_deck_bounce';
-import { openKhmerWordZoomModal } from '../components/khmer-word-modal.js?v=20261118_fix_deck_bounce';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_unified_nav_fix';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens, escapeHtml } from '../languages.js?v=20261118_unified_nav_fix';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from '../api.js?v=20261118_unified_nav_fix';
+import { Modal } from '../components/modal.js?v=20261118_unified_nav_fix';
+import { trackEvent } from '../analytics.js?v=20261118_unified_nav_fix';
+import { navigate } from '../app.js?v=20261118_unified_nav_fix';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261118_unified_nav_fix';
+import { openKhmerWordZoomModal } from '../components/khmer-word-modal.js?v=20261118_unified_nav_fix';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';

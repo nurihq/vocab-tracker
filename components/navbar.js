@@ -1,8 +1,8 @@
-import { LANGUAGES } from '../languages.js?v=20261118_fix_deck_bounce';
-import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
-import { Auth, Api } from '../api.js?v=20261118_fix_deck_bounce';
-import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
-import { navigate, navigateBack } from '../app.js?v=20261118_fix_deck_bounce';
+import { LANGUAGES } from '../languages.js?v=20261118_unified_nav_fix';
+import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_unified_nav_fix';
+import { Auth, Api } from '../api.js?v=20261118_unified_nav_fix';
+import { trackEvent } from '../analytics.js?v=20261118_unified_nav_fix';
+import { navigate, navigateBack } from '../app.js?v=20261118_unified_nav_fix';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {

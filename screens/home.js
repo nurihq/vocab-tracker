@@ -1,10 +1,12 @@
-import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
-import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting, formatStudyTextHtml } from '../languages.js?v=20261118_fix_deck_bounce';
-import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261118_fix_deck_bounce';
-import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
-import { navigate } from '../app.js?v=20261118_fix_deck_bounce';
+import { t, getI18nBaseLang, fetchLiveTranslation, autoTranslateUi } from '../i18n.js?v=20261118_unified_nav_fix';
+import { getLanguageByCode, getLocalizedLanguageName, getLanguageGreeting, formatStudyTextHtml } from '../languages.js?v=20261118_unified_nav_fix';
+import { Auth, Api, getRecentStudyLanguages, recordLanguageUsage } from '../api.js?v=20261118_unified_nav_fix';
+import { trackEvent } from '../analytics.js?v=20261118_unified_nav_fix';
+import { navigate } from '../app.js?v=20261118_unified_nav_fix';
 
 export function renderHomeScreen(container) {
+  const mountToken = Symbol('home-screen');
+  container.__mountToken = mountToken;
   const currentBase = getI18nBaseLang();
   const baseLangInfo = getLanguageByCode(currentBase);
   const localizedBaseName = getLocalizedLanguageName(currentBase, currentBase);
@@ -213,6 +215,7 @@ export function renderHomeScreen(container) {
 
     // Background async refresh in case cloud languages updated
     Api.getLanguages().then(res => {
+      if (container.__mountToken !== mountToken) return;
       if (res && res.languages) {
         const updatedRecent = getRecentStudyLanguages(3);
         const currentCodes = Array.from(container.querySelectorAll('.home-card-stage.is-recent-card[data-lang]'))

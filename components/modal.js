@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20261118_fix_deck_bounce';
+import { t } from '../i18n.js?v=20261118_unified_nav_fix';
 
 export const Modal = {
   activeOverlay: null,

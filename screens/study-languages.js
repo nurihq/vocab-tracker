@@ -1,15 +1,21 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
-import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261118_fix_deck_bounce';
-import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261118_fix_deck_bounce';
-import { Modal } from '../components/modal.js?v=20261118_fix_deck_bounce';
-import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
-import { navigate } from '../app.js?v=20261118_fix_deck_bounce';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261118_fix_deck_bounce';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_unified_nav_fix';
+import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261118_unified_nav_fix';
+import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261118_unified_nav_fix';
+import { Modal } from '../components/modal.js?v=20261118_unified_nav_fix';
+import { trackEvent } from '../analytics.js?v=20261118_unified_nav_fix';
+import { navigate } from '../app.js?v=20261118_unified_nav_fix';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261118_unified_nav_fix';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
   const currentBase = getI18nBaseLang();
-  const isStillMounted = () => window.location.hash === '#/languages' || window.location.hash === '#/languages/';
+  const mountToken = Symbol('study-languages-screen');
+  container.__mountToken = mountToken;
+  const isStillMounted = () => {
+    if (container.__mountToken !== mountToken) return false;
+    const hash = (window.location.hash || '').split('?')[0].replace(/\/+$/, '');
+    return hash === '#/languages';
+  };
 
   // Instant optimistic load from local storage
   const store = getLocalStore();
@@ -26,6 +32,7 @@ export function renderStudyLanguagesScreen(container) {
 
   // Background async refresh from DynamoDB
   async function refreshBackground() {
+    if (!isStillMounted()) return;
     try {
       const oldDataStr = JSON.stringify(languages.map(l => ({ code: l.code, order: l.order, count: vocabCounts[l.code] || 0, hidden: l.hidden })));
       
@@ -220,6 +227,7 @@ export function renderStudyLanguagesScreen(container) {
           return;
         }
         e.preventDefault();
+        e.stopPropagation();
         const code = tile.getAttribute('data-code');
         recordLanguageUsage(code);
         sessionStorage.setItem('vocab_decks_back_source', 'languages');
