@@ -1,9 +1,9 @@
-import { autoTranslateUi } from '../i18n.js?v=20261118_unified_nav_fix';
-import { trackEvent } from '../analytics.js?v=20261118_unified_nav_fix';
-import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261118_unified_nav_fix';
-import { HIRAGANA_SECTIONS, HIRAGANA_STROKE_ORDER } from '../scripts/data/hiragana-data.js?v=20261118_unified_nav_fix';
-import { KATAKANA_SECTIONS, KATAKANA_STROKE_ORDER } from '../scripts/data/katakana-data.js?v=20261118_unified_nav_fix';
-import { KHMER_SECTIONS, KHMER_STROKE_ORDER } from '../scripts/data/khmer-data.js?v=20261118_unified_nav_fix';
+import { autoTranslateUi } from '../i18n.js?v=20261118_muusikatoan_ba_pa';
+import { trackEvent } from '../analytics.js?v=20261118_muusikatoan_ba_pa';
+import { notifyScriptProgressChange, syncScriptsProgress } from '../api.js?v=20261118_muusikatoan_ba_pa';
+import { HIRAGANA_SECTIONS, HIRAGANA_STROKE_ORDER } from '../scripts/data/hiragana-data.js?v=20261118_muusikatoan_ba_pa';
+import { KATAKANA_SECTIONS, KATAKANA_STROKE_ORDER } from '../scripts/data/katakana-data.js?v=20261118_muusikatoan_ba_pa';
+import { KHMER_SECTIONS, KHMER_STROKE_ORDER } from '../scripts/data/khmer-data.js?v=20261118_muusikatoan_ba_pa';
 
 const SCRIPT_CONFIGS = {
   hiragana: {

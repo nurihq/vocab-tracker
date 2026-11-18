@@ -1,10 +1,10 @@
-import { autoTranslateUi } from '../i18n.js?v=20261118_unified_nav_fix';
-import { trackEvent } from '../analytics.js?v=20261118_unified_nav_fix';
-import { navigate } from '../app.js?v=20261118_unified_nav_fix';
-import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261118_unified_nav_fix';
-import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261118_unified_nav_fix';
-import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261118_unified_nav_fix';
-import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261118_unified_nav_fix';
+import { autoTranslateUi } from '../i18n.js?v=20261118_muusikatoan_ba_pa';
+import { trackEvent } from '../analytics.js?v=20261118_muusikatoan_ba_pa';
+import { navigate } from '../app.js?v=20261118_muusikatoan_ba_pa';
+import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261118_muusikatoan_ba_pa';
+import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261118_muusikatoan_ba_pa';
+import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261118_muusikatoan_ba_pa';
+import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261118_muusikatoan_ba_pa';
 
 // ============================================================================
 // KHMER CHARACTER METADATA (Consonants + Subscripts + Dependent & Indep Vowels)
@@ -103,20 +103,45 @@ const KHMER_CHAR_LOOKUP = {
   '០': { type: 'digit', romaji: '0', note: '0 (soun) — Khmer Digit 0' },
 
   // Khmer Diacritics & Punctuation Signs
-  '់': { type: 'sign', romaji: 'bantoc', note: 'Bantoc — shortens preceding vowel sound' },
-  '៉': { type: 'sign', romaji: 'muusik.', note: 'Muusikatoan — shifts O-series consonants to A-series sound' },
-  '៊': { type: 'sign', romaji: 'triisap', note: 'Triisap — shifts A-series consonants to O-series sound' },
+  '់': {
+    type: 'sign',
+    romaji: 'bantoc',
+    note: 'Bantoc — shortens the preceding vowel sound',
+    examples: [
+      { label: 'Short vowel', text: 'ក់', rom: 'kâk', speak: 'ក់' },
+      { label: 'Example', text: 'សក់', rom: 'sâk (hair)', speak: 'សក់' }
+    ]
+  },
+  '៉': {
+    type: 'sign',
+    romaji: 'muusik.',
+    note: 'Muusikatoan — 1) shifts O-series consonants (ង ញ ម យ រ វ) to A-series, and 2) converts A-series ប (ba) → ប៉ (pa), especially before vowels like ា to prevent ligature into បា',
+    examples: [
+      { label: 'ប (ba) → ប៉ (pa)', text: 'ប៉', rom: 'pa', series: 'a', speak: 'ប៉' },
+      { label: 'Apple', text: 'ផ្លែប៉ោម', rom: 'phlae paom', series: 'a', speak: 'ផ្លែប៉ោម' },
+      { label: 'O → A shift', text: 'ម៉ា', rom: 'maa', series: 'a', speak: 'ម៉ា' }
+    ]
+  },
+  '៊': {
+    type: 'sign',
+    romaji: 'triisap',
+    note: 'Triisap — shifts A-series consonants (ប ស ហ អ) to O-series sound',
+    examples: [
+      { label: 'ស (sa) → ស៊ (so)', text: 'ស៊ុប', rom: 'sup (soup)', series: 'o', speak: 'ស៊ុប' },
+      { label: 'ប (ba) → ប៊ (bo)', text: 'ប៊ិច', rom: 'bich (pen)', series: 'o', speak: 'ប៊ិច' }
+    ]
+  },
   'ៗ': { type: 'sign', romaji: 'repeat', note: 'Lekhto / Lek Too — repetition mark for words & phrases' },
   '។': { type: 'sign', romaji: 'khan (.)', note: 'Khan — sentence ending period / full stop' },
   '៕': { type: 'sign', romaji: 'end', note: 'Bariyoosan — marks end of text, chapter, or story' },
   '៖': { type: 'sign', romaji: 'colon (:)', note: 'Camnuc Pii Kuuh — Khmer colon / divider' },
   'ៈ': { type: 'sign', romaji: 'yuukal.', note: 'Yuukaleapintu (យុគលពិន្ទុ) — short vowel / glottal stop' },
   '៛': { type: 'sign', romaji: 'riel', note: 'Khmer Riel currency symbol (៛)' },
-  '៍': { type: 'sign', romaji: 'silent', note: 'Toandakhiat — silences the consonant beneath it' },
-  '័': { type: 'sign', romaji: 'samyok', note: 'Samyok Sannya — combines with consonants to modify vowel' },
-  '៏': { type: 'sign', romaji: 'ahsda', note: 'Ahsda — used on short words (e.g. ក៏ "also")' },
+  '៍': { type: 'sign', romaji: 'silent', note: 'Toandakhiat — silences the consonant or syllable beneath it' },
+  '័': { type: 'sign', romaji: 'samyok', note: 'Samyok Sannya — combines with consonants to modify vowel sound' },
+  '៏': { type: 'sign', romaji: 'ahsda', note: 'Ahsda — used on short single-consonant words (e.g. ក៏ "also")' },
   '៌': { type: 'sign', romaji: 'robat', note: 'Robat — Sanskrit repha symbol; appears in loanwords' },
-  '៎': { type: 'sign', romaji: 'kakabat', note: 'Kakabat — exclamation / emphasis mark' },
+  '៎': { type: 'sign', romaji: 'kakabat', note: 'Kakabat — exclamation / rising intonation mark' },
   '៑': { type: 'sign', romaji: 'viriam', note: 'Viriam — virama / vowel killer in classical loanwords' },
   '!': { type: 'sign', romaji: '!', note: 'Exclamation mark' },
   '?': { type: 'sign', romaji: '?', note: 'Question mark' },
@@ -1324,7 +1349,24 @@ function renderKhmerKeyboardChecklistScreen(container) {
     } else if (meta.type === 'digit') {
       extraInfoHtml = `<div class="char-action-submeta">Khmer Digit (${meta.note || ''})</div>`;
     } else if (meta.type === 'sign') {
-      extraInfoHtml = `<div class="char-action-submeta">Diacritic / Sign (${meta.note || ''})</div>`;
+      const examplesHtml = Array.isArray(meta.examples) && meta.examples.length > 0 ? `
+        <div class="char-action-ao-pills">
+          ${meta.examples.map(ex => `
+            <button type="button" class="ao-pill ${ex.series ? `series-${ex.series}` : 'series-a'} khmer-vowel-speak-btn" data-speak-text="${ex.speak || ex.text}" title="Listen to ${ex.text} (${ex.rom})">
+              <span>${ex.label ? `${ex.label}: ` : ''}<strong>${ex.text}</strong> <em>(${ex.rom})</em></span>
+              <svg class="speaker-outline-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+            </button>
+          `).join('')}
+        </div>
+      ` : '';
+      extraInfoHtml = `
+        <div class="char-action-submeta">Diacritic / Sign (${meta.note || ''})</div>
+        ${examplesHtml}
+      `;
     } else {
       extraInfoHtml = `<div class="char-action-submeta">${meta.note || 'Independent Vowel'}</div>`;
     }

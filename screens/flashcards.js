@@ -1,9 +1,9 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_unified_nav_fix';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, escapeHtml, parseKhmerWordTokens } from '../languages.js?v=20261118_unified_nav_fix';
-import { Api, getLocalStore } from '../api.js?v=20261118_unified_nav_fix';
-import { trackEvent } from '../analytics.js?v=20261118_unified_nav_fix';
-import { navigate } from '../app.js?v=20261118_unified_nav_fix';
-import { openKhmerWordZoomModal } from '../components/khmer-word-modal.js?v=20261118_unified_nav_fix';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_muusikatoan_ba_pa';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, escapeHtml, parseKhmerWordTokens } from '../languages.js?v=20261118_muusikatoan_ba_pa';
+import { Api, getLocalStore } from '../api.js?v=20261118_muusikatoan_ba_pa';
+import { trackEvent } from '../analytics.js?v=20261118_muusikatoan_ba_pa';
+import { navigate } from '../app.js?v=20261118_muusikatoan_ba_pa';
+import { openKhmerWordZoomModal } from '../components/khmer-word-modal.js?v=20261118_muusikatoan_ba_pa';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';

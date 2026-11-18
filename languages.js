@@ -479,13 +479,29 @@ export function parseKhmerWordTokens(text) {
                 speakText: `${vCarrier}${vCh}`
               });
             } else if (KHMER_VOWEL_POS[vCh] || KHMER_INDEP_AND_SIGNS.has(vCh)) {
+              let signRomaji = KHMER_KEYSTROKE_VOWEL_ROMAJI[vCh] || '';
+              let signSpeakText = vCh;
+              if (vCh === '\u17C9') {
+                // Muusikatoan (៉)
+                if (ch === 'ប') {
+                  signRomaji = '→ pa';
+                  signSpeakText = 'ប៉';
+                } else {
+                  signRomaji = '→ A';
+                  signSpeakText = `${ch}៉`;
+                }
+              } else if (vCh === '\u17CA') {
+                // Triisap (៊)
+                signRomaji = '→ O';
+                signSpeakText = `${ch}៊`;
+              }
               tokens.push({
                 char: vCh,
                 display: vCh,
                 series: null,
                 kind: 'sign',
-                romaji: KHMER_KEYSTROKE_VOWEL_ROMAJI[vCh] || '',
-                speakText: vCh
+                romaji: signRomaji,
+                speakText: signSpeakText
               });
             }
             vIdx++;
@@ -723,6 +739,12 @@ export const KHMER_KEYSTROKE_VOWEL_ROMAJI = {
   'ំ': 'am',
   'ះ': 'ah',
 
+  // Diacritics
+  '៉': 'muusik.',
+  '៊': 'triisap',
+  '់': 'bantoc',
+  '៍': 'silent',
+
   // Independent vowels & digits
   'ឥ': 'e', 'ឦ': 'ei', 'ឧ': 'o', 'ឨ': 'ok', 'ឩ': 'ou', 'ឪ': 'ov',
   'ឫ': 'rue', 'ឬ': 'rueu', 'ឭ': 'lue', 'ឮ': 'lueu',
@@ -732,7 +754,7 @@ export const KHMER_KEYSTROKE_VOWEL_ROMAJI = {
 };
 
 const KHMER_A_ROMAJI_SET = new Set([
-  'ka', 'kha', 'cha', 'chha', 'da', 'tha', 'na', 'ta', 'ba', 'pha', 'sa', 'ha', 'la'
+  'ka', 'kha', 'cha', 'chha', 'da', 'tha', 'na', 'ta', 'ba', 'pa', 'pha', 'sa', 'ha', 'la'
 ]);
 
 const KHMER_O_ROMAJI_SET = new Set([
@@ -774,14 +796,7 @@ export function tokenizeKhmerRomanisation(text) {
     // 2. Base Consonant
     const consMeta = KHMER_CONSONANT_ROMAJI[ch];
     if (consMeta) {
-      tokens.push({
-        text: consMeta.romaji,
-        series: consMeta.series,
-        type: 'consonant',
-        khmerChar: ch
-      });
-
-      // Lookahead in this cluster to determine cluster series for any subsequent vowels
+      // Lookahead in this cluster to determine cluster series & diacritics
       let lookahead = i + 1;
       const subCons = [];
       let diacritics = '';
@@ -794,7 +809,32 @@ export function tokenizeKhmerRomanisation(text) {
           lookahead++;
         }
       }
+
+      let consRomaji = consMeta.romaji;
+      if (ch === 'ប' && diacritics.includes('\u17C9')) {
+        // ប (ba) + ៉ (Muusikatoan) -> ប៉ (pa)
+        consRomaji = 'pa';
+      } else if (diacritics.includes('\u17C9') && consMeta.series === 'o') {
+        // O-series consonant shifted to A-series by ៉ (e.g. ម mo -> ម៉ ma)
+        consRomaji = consMeta.romaji.replace(/o$/, 'a');
+      } else if (diacritics.includes('\u17CA') && consMeta.series === 'a') {
+        // A-series consonant shifted to O-series by ៊ (e.g. ស sa -> ស៊ so, ប ba -> ប៊ bo)
+        consRomaji = consMeta.romaji.replace(/a$/, 'o');
+      }
+
+      tokens.push({
+        text: consRomaji,
+        series: consMeta.series,
+        type: 'consonant',
+        khmerChar: ch
+      });
+
       currentSeries = resolveKhmerClusterSeries(ch, subCons, diacritics);
+      continue;
+    }
+
+    // Skip standalone shifter/length diacritics in plus-separated word romanisation since their effect is applied to the consonant/vowel
+    if (ch === '\u17C9' || ch === '\u17CA' || ch === '\u17CB' || ch === '\u17CD') {
       continue;
     }
 

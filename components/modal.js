@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20261118_unified_nav_fix';
+import { t } from '../i18n.js?v=20261118_muusikatoan_ba_pa';
 
 export const Modal = {
   activeOverlay: null,

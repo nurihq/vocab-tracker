@@ -1,22 +1,22 @@
-import { Navbar } from './components/navbar.js?v=20261118_unified_nav_fix';
-import { Modal } from './components/modal.js?v=20261118_unified_nav_fix';
-import { setupPullToRefresh } from './components/pull-to-refresh.js?v=20261118_unified_nav_fix';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261118_unified_nav_fix';
-import { setI18nBaseLang } from './i18n.js?v=20261118_unified_nav_fix';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from './api.js?v=20261118_unified_nav_fix';
-import { trackPageView, trackEvent } from './analytics.js?v=20261118_unified_nav_fix';
+import { Navbar } from './components/navbar.js?v=20261118_muusikatoan_ba_pa';
+import { Modal } from './components/modal.js?v=20261118_muusikatoan_ba_pa';
+import { setupPullToRefresh } from './components/pull-to-refresh.js?v=20261118_muusikatoan_ba_pa';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261118_muusikatoan_ba_pa';
+import { setI18nBaseLang } from './i18n.js?v=20261118_muusikatoan_ba_pa';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from './api.js?v=20261118_muusikatoan_ba_pa';
+import { trackPageView, trackEvent } from './analytics.js?v=20261118_muusikatoan_ba_pa';
 
-import { renderHomeScreen } from './screens/home.js?v=20261118_unified_nav_fix';
-import { renderSignInScreen } from './screens/signin.js?v=20261118_unified_nav_fix';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261118_unified_nav_fix';
-import { renderDecksScreen } from './screens/decks.js?v=20261118_unified_nav_fix';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261118_unified_nav_fix';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261118_unified_nav_fix';
-import { renderAboutScreen } from './screens/about.js?v=20261118_unified_nav_fix';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261118_unified_nav_fix';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261118_unified_nav_fix';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261118_unified_nav_fix';
-import { renderSettingsScreen } from './screens/settings.js?v=20261118_unified_nav_fix';
+import { renderHomeScreen } from './screens/home.js?v=20261118_muusikatoan_ba_pa';
+import { renderSignInScreen } from './screens/signin.js?v=20261118_muusikatoan_ba_pa';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261118_muusikatoan_ba_pa';
+import { renderDecksScreen } from './screens/decks.js?v=20261118_muusikatoan_ba_pa';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261118_muusikatoan_ba_pa';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261118_muusikatoan_ba_pa';
+import { renderAboutScreen } from './screens/about.js?v=20261118_muusikatoan_ba_pa';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261118_muusikatoan_ba_pa';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261118_muusikatoan_ba_pa';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261118_muusikatoan_ba_pa';
+import { renderSettingsScreen } from './screens/settings.js?v=20261118_muusikatoan_ba_pa';
 
 const routeHistory = [];
 
