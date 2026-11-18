@@ -8,8 +8,8 @@ import { trackPageView, trackEvent } from './analytics.js?v=20261118_ga_human_an
 
 import { renderHomeScreen } from './screens/home.js?v=20261116_standardize_khmer_font';
 import { renderSignInScreen } from './screens/signin.js?v=20261116_standardize_khmer_font';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261116_standardize_khmer_font';
-import { renderDecksScreen } from './screens/decks.js?v=20261118_add_adjectives_deck';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261118_fix_mobile_tile_clicks';
+import { renderDecksScreen } from './screens/decks.js?v=20261118_fix_mobile_tile_clicks';
 import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261118_add_adjectives_deck';
 import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261118_add_adjectives_deck';
 import { renderAboutScreen } from './screens/about.js?v=20261116_standardize_khmer_font';
@@ -101,6 +101,11 @@ let suppressClickUntil = 0;
 
 export function getKhmerTextFromElement(el) {
   if (!el) return '';
+  // Never intercept clicks on UI buttons, deck tiles, navigation links, or action elements
+  if (el.closest?.('.tile, button, a, select, input, textarea, .nav-btn, .navbar, .screen-actions, .tile-action-btn, .tile-actions')) {
+    return '';
+  }
+
   const withStudyAttr = el.closest?.('[data-study-text]');
   if (withStudyAttr) {
     const text = withStudyAttr.getAttribute('data-study-text');
@@ -124,7 +129,7 @@ export function getKhmerTextFromElement(el) {
     const text = cardText.getAttribute('data-study-text') || cardText.textContent;
     if (text && /[\u1780-\u17FF]/.test(text)) return text.trim();
   }
-  const targetContainer = el.closest?.('.word-study, .khmer-zoom-word, .card-text-main, .khmer-cons-char, [data-khmer-char]') || el;
+  const targetContainer = el.closest?.('.word-study, .khmer-zoom-word, .card-text-main, .khmer-cons-char, [data-khmer-char]');
   if (targetContainer && targetContainer.cloneNode) {
     const clone = targetContainer.cloneNode(true);
     clone.querySelectorAll?.('.khmer-ov-left, .khmer-ov-anchor, .khmer-ov-right, .khmer-ov-box, .khmer-ov-right-box, .khmer-ov-spacer').forEach(n => n.remove());

@@ -3,8 +3,8 @@ import { LANGUAGES, getLanguageByCode, getLocalizedLanguageName } from '../langu
 import { Api, getLocalStore, recordLanguageUsage } from '../api.js?v=20261118_add_adjectives_deck';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
-import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_standardize_khmer_font';
+import { navigate } from '../app.js?v=20261118_fix_mobile_tile_clicks';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261118_fix_mobile_tile_clicks';
 
 export function renderStudyLanguagesScreen(container) {
   let showHidden = false;
@@ -92,14 +92,15 @@ export function renderStudyLanguagesScreen(container) {
           const totalWords = vocabCounts[lang.code] || 0;
 
           return `
-            <div class="tile ${lang.hidden ? 'is-hidden-item' : ''}" 
-                 data-code="${lang.code}" 
-                 data-index="${index}"
-                 role="button"
-                 tabindex="0">
+            <a href="#/languages/${lang.code}/decks" 
+               class="tile ${lang.hidden ? 'is-hidden-item' : ''}" 
+               data-code="${lang.code}" 
+               data-index="${index}"
+               role="button"
+               tabindex="0">
               <div class="tile-top">
                 <span class="tile-flag">${langInfo.flag || lang.flag || '🌐'}</span>
-                <div class="tile-actions" onclick="event.stopPropagation();">
+                <div class="tile-actions">
                   <span class="tile-badge">${totalWords} ${totalWords === 1 ? t('word') : t('words')}</span>
                   <button class="tile-action-btn hide-toggle-btn ${lang.hidden ? 'is-unhide-active' : ''}" 
                           data-code="${lang.code}" 
@@ -120,7 +121,7 @@ export function renderStudyLanguagesScreen(container) {
                 <div class="tile-subtitle">${langInfo.nativeName || lang.code.toUpperCase()}</div>
               </div>
               <div class="tile-drag-handle" title="Drag to reorder" onclick="event.preventDefault(); event.stopPropagation();">⋮⋮</div>
-            </div>
+            </a>
           `;
         }).join('')}
 
@@ -180,6 +181,7 @@ export function renderStudyLanguagesScreen(container) {
     setupDraggableList({
       container: grid,
       itemSelector: '.tile[data-code]',
+      handleSelector: '.tile-drag-handle',
       getItemKey: (el) => el.getAttribute('data-code'),
       onReorder: async (fromIdx, toIdx) => {
         const visibleLanguages = showHidden ? languages : languages.filter(l => !l.hidden);
@@ -212,7 +214,12 @@ export function renderStudyLanguagesScreen(container) {
 
     grid.querySelectorAll('.tile[data-code]').forEach(tile => {
       tile.addEventListener('click', (e) => {
-        if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
+        if (e.target.closest('.tile-action-btn') || e.target.closest('.tile-drag-handle')) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+        e.preventDefault();
         const code = tile.getAttribute('data-code');
         recordLanguageUsage(code);
         sessionStorage.setItem('vocab_decks_back_source', 'languages');

@@ -3,8 +3,8 @@ import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=2
 import { Api, getLocalStore } from '../api.js?v=20261118_add_adjectives_deck';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
-import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261116_standardize_khmer_font';
+import { navigate } from '../app.js?v=20261118_fix_mobile_tile_clicks';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261118_fix_mobile_tile_clicks';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -202,14 +202,15 @@ export function renderDecksScreen(container, params = {}) {
           const emoji = getDeckEmoji(deck);
 
           return `
-            <div class="tile ${deck.hidden ? 'is-hidden-item' : ''}" 
-                 data-deck-id="${deck.deckId}" 
-                 data-index="${index}"
-                 role="button"
-                 tabindex="0">
+            <a href="#/languages/${langCode}/decks/${deck.deckId}" 
+               class="tile ${deck.hidden ? 'is-hidden-item' : ''}" 
+               data-deck-id="${deck.deckId}" 
+               data-index="${index}"
+               role="button"
+               tabindex="0">
               <div class="tile-top">
                 <span class="tile-flag">${emoji}</span>
-                <div class="tile-actions" onclick="event.stopPropagation();">
+                <div class="tile-actions">
                   <span class="tile-badge">${deck.wordCount ?? 0} ${t('words')}</span>
                   <button class="tile-action-btn hide-toggle-btn ${deck.hidden ? 'is-unhide-active' : ''}" 
                           data-deck-id="${deck.deckId}" 
@@ -237,7 +238,7 @@ export function renderDecksScreen(container, params = {}) {
                 <div class="tile-title">${displayName}</div>
               </div>
               <div class="tile-drag-handle" title="Drag to reorder" onclick="event.preventDefault(); event.stopPropagation();">⋮⋮</div>
-            </div>
+            </a>
           `;
         }).join('')}
 
@@ -303,6 +304,7 @@ export function renderDecksScreen(container, params = {}) {
     setupDraggableList({
       container: grid,
       itemSelector: '.tile[data-deck-id]',
+      handleSelector: '.tile-drag-handle',
       getItemKey: (el) => el.getAttribute('data-deck-id'),
       onReorder: async (fromIdx, toIdx) => {
         const visibleDecks = showHidden ? decks : decks.filter(d => !d.hidden);
@@ -335,7 +337,12 @@ export function renderDecksScreen(container, params = {}) {
 
     grid.querySelectorAll('.tile[data-deck-id]').forEach(tile => {
       tile.addEventListener('click', (e) => {
-        if (e.target.closest('.tile-actions') || e.target.closest('.tile-drag-handle')) return;
+        if (e.target.closest('.tile-action-btn') || e.target.closest('.tile-drag-handle')) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+        e.preventDefault();
         const deckId = tile.getAttribute('data-deck-id');
         trackEvent('select_deck', { langCode, deckId });
         navigate(`#/languages/${langCode}/decks/${deckId}`);

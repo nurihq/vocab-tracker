@@ -3,8 +3,8 @@ import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, forma
 import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from '../api.js?v=20261118_add_adjectives_deck';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
-import { navigate } from '../app.js?v=20261118_swipe_down_to_refresh';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261118_swipe_down_to_refresh';
+import { navigate } from '../app.js?v=20261118_fix_mobile_tile_clicks';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261118_fix_mobile_tile_clicks';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';

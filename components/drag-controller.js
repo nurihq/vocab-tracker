@@ -210,6 +210,11 @@ export function setupDraggableList({
         return;
       }
 
+      // If a handleSelector is defined, ONLY initiate touch drag when touching the handle
+      if (handleSelector && !e.target.closest(handleSelector)) {
+        return;
+      }
+
       holdTimer = setTimeout(() => {
         isTouchDragging = true;
         draggedItem = item;
@@ -258,16 +263,19 @@ export function setupDraggableList({
       stopAutoScroll();
 
       if (isTouchDragging) {
-        if (e.cancelable) {
-          e.preventDefault();
+        const wasActuallyMoved = Boolean(currentDropTarget && currentDropTarget !== item);
+        if (wasActuallyMoved) {
+          if (e.cancelable) {
+            e.preventDefault();
+          }
+          suppressClickUntil = Date.now() + 450;
         }
-        suppressClickUntil = Date.now() + 450;
 
         item.classList.remove('is-touch-dragging', 'is-dragging');
         container.classList.remove('is-dragging-active');
         items.forEach(it => it.classList.remove('drag-over'));
 
-        if (currentDropTarget && currentDropTarget !== item) {
+        if (wasActuallyMoved) {
           const fromIndex = parseInt(item.getAttribute('data-drag-index'), 10);
           const toIndex = parseInt(currentDropTarget.getAttribute('data-drag-index'), 10);
 
