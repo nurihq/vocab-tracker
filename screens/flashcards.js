@@ -1,8 +1,8 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_standardize_khmer_font';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, escapeHtml } from '../languages.js?v=20261118_fix_escape_html';
 import { Api, getLocalStore } from '../api.js?v=20261118_add_adjectives_deck';
 import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
-import { navigate } from '../app.js?v=20261116_move_deck_fix';
+import { navigate } from '../app.js?v=20261118_fix_escape_html';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';

@@ -1,5 +1,5 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens } from '../languages.js?v=20261116_standardize_khmer_font';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens, escapeHtml } from '../languages.js?v=20261118_fix_escape_html';
 import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from '../api.js?v=20261118_add_adjectives_deck';
 import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
 import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';

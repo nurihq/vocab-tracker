@@ -324,7 +324,8 @@ export function getKhmerVowelRomaji(vowelChar, series = 'a') {
 }
 
 
-function escapeHtml(str) {
+export function escapeHtml(str) {
+  if (str == null) return '';
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
