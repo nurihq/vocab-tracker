@@ -1,6 +1,6 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_standardize_khmer_font';
-import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261118_fix_deck_bounce';
+import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
 
 const SCRIPT_LANGUAGES = [
   { code: 'ja', href: '/scripts/japanese', defaultName: 'Japanese', defaultNative: '日本語', defaultFlag: '🇯🇵' },

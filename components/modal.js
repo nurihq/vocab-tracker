@@ -1,4 +1,4 @@
-import { t } from '../i18n.js?v=20261118_add_adjectives_deck';
+import { t } from '../i18n.js?v=20261118_fix_deck_bounce';
 
 export const Modal = {
   activeOverlay: null,

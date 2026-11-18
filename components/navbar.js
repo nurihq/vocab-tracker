@@ -1,8 +1,8 @@
-import { LANGUAGES } from '../languages.js?v=20261116_standardize_khmer_font';
-import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
-import { Auth, Api } from '../api.js?v=20261118_add_adjectives_deck';
-import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
-import { navigate, navigateBack } from '../app.js?v=20261116_standardize_khmer_font';
+import { LANGUAGES } from '../languages.js?v=20261118_fix_deck_bounce';
+import { t, setI18nBaseLang, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
+import { Auth, Api } from '../api.js?v=20261118_fix_deck_bounce';
+import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
+import { navigate, navigateBack } from '../app.js?v=20261118_fix_deck_bounce';
 
 export class Navbar {
   constructor(onBaseLangChange, onThemeChange, onSignOut) {

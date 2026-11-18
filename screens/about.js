@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
-import { Auth } from '../api.js?v=20261118_add_adjectives_deck';
-import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
-import { navigate } from '../app.js?v=20261116_standardize_khmer_font';
+import { t, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
+import { Auth } from '../api.js?v=20261118_fix_deck_bounce';
+import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
+import { navigate } from '../app.js?v=20261118_fix_deck_bounce';
 
 export function renderAboutScreen(container) {
   const isAuthed = Auth.isAuthenticated();

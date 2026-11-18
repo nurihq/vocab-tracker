@@ -1,17 +1,26 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore } from '../api.js?v=20261118_add_adjectives_deck';
-import { Modal } from '../components/modal.js?v=20261116_standardize_khmer_font';
-import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
-import { navigate } from '../app.js?v=20261118_fix_mobile_tile_clicks';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261118_fix_mobile_tile_clicks';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261118_fix_deck_bounce';
+import { Api, getLocalStore } from '../api.js?v=20261118_fix_deck_bounce';
+import { Modal } from '../components/modal.js?v=20261118_fix_deck_bounce';
+import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
+import { navigate } from '../app.js?v=20261118_fix_deck_bounce';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261118_fix_deck_bounce';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';
   const langInfo = getLanguageByCode(langCode);
   const currentBase = getI18nBaseLang();
   const localizedLangName = getLocalizedLanguageName(langCode, currentBase);
-  const isStillMounted = () => window.location.hash.startsWith(`#/languages/${langCode}/decks`);
+  // Root cause of the "bounces back from a deck" bug: this used startsWith(), which is also true for
+  // `#/languages/xx/decks/<deckId>`, so a late background refresh re-rendered the decks list over the
+  // deck screen. Require an exact route match AND that this is still the active screen instance.
+  const mountToken = Symbol('decks-screen');
+  container.__mountToken = mountToken;
+  const isStillMounted = () => {
+    if (container.__mountToken !== mountToken) return false;
+    const hash = (window.location.hash || '').split('?')[0].replace(/\/+$/, '');
+    return hash === `#/languages/${langCode}/decks`;
+  };
 
   const scriptKeyboardLink = langCode === 'ja'
     ? { url: '/scripts/japanese/hiragana', icon: 'あ', label: 'Hiragana Keyboard' }

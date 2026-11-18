@@ -1,8 +1,8 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, escapeHtml } from '../languages.js?v=20261118_fix_escape_html';
-import { Api, getLocalStore } from '../api.js?v=20261118_add_adjectives_deck';
-import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
-import { navigate } from '../app.js?v=20261118_fix_escape_html';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, escapeHtml } from '../languages.js?v=20261118_fix_deck_bounce';
+import { Api, getLocalStore } from '../api.js?v=20261118_fix_deck_bounce';
+import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
+import { navigate } from '../app.js?v=20261118_fix_deck_bounce';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
