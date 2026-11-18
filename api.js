@@ -719,7 +719,6 @@ export async function syncLocalToCloud() {
       // Check cloud words
       const cloudWordsRes = await fetchWithAuth(`${CONFIG.API_ENDPOINTS.words}?langCode=${encodeURIComponent(l.code)}&deckId=all`, { method: 'GET' }).catch(() => ({ words: [] }));
       const cloudWords = (cloudWordsRes && Array.isArray(cloudWordsRes.words)) ? cloudWordsRes.words : [];
-      const localWords = store.words[l.code] || [];
       
       const cloudIds = new Set(cloudWords.map(w => w.wordId));
       const cloudTexts = new Set(cloudWords.map(w => (w.studyWord || '').toLowerCase().trim()));
