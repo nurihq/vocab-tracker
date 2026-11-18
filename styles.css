@@ -1164,6 +1164,98 @@ body {
   display: none !important;
 }
 
+/* Flashcards Khmer Hint & Romanisation Details */
+.flashcard-hint-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  max-width: 100%;
+}
+
+.flashcard-hint-pron {
+  display: inline-block;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--accent-zen);
+}
+
+.flashcard-hint-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  font-style: normal;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.flashcard-hint-modal-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.flashcard-hint-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.flashcard-hint-token-pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.45rem;
+  min-width: 32px;
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-khmer);
+  font-style: normal;
+  line-height: 1.1;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.flashcard-hint-token-pill:hover {
+  transform: scale(1.08);
+  border-color: var(--primary);
+}
+
+.flashcard-hint-token-pill .hint-token-glyph {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.flashcard-hint-token-pill .hint-token-romaji {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.card-stage .card-pronunciation-sub,
+.card-stage .flashcard-hint-row,
+.card-stage .flashcard-hint-modal-btn,
+.card-stage .flashcard-hint-tokens,
+.card-stage .flashcard-hint-token-pill {
+  pointer-events: auto !important;
+}
+
 @media (max-width: 480px) {
   .flashcards-utility-bar {
     padding: 0.4rem 0.65rem;

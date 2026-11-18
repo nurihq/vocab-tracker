@@ -1,8 +1,9 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_fix_deck_bounce';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, escapeHtml } from '../languages.js?v=20261118_fix_deck_bounce';
-import { Api, getLocalStore } from '../api.js?v=20261118_fix_deck_bounce';
-import { trackEvent } from '../analytics.js?v=20261118_fix_deck_bounce';
-import { navigate } from '../app.js?v=20261118_fix_deck_bounce';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_add_adjectives_deck';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, escapeHtml, parseKhmerWordTokens } from '../languages.js?v=20261118_khmer_modal_in_hints';
+import { Api, getLocalStore } from '../api.js?v=20261118_add_adjectives_deck';
+import { trackEvent } from '../analytics.js?v=20261118_ga_human_and_return_tracking';
+import { navigate } from '../app.js?v=20261118_fix_escape_html';
+import { openKhmerWordZoomModal } from '../components/khmer-word-modal.js?v=20261118_khmer_modal_in_hints';
 
 export function renderFlashcardsScreen(container, params = {}) {
   const langCode = params.code || 'ja';
@@ -42,6 +43,27 @@ export function renderFlashcardsScreen(container, params = {}) {
   } catch (e) {}
 
   render();
+
+  // Reopen Khmer word zoom modal if returning from the Khmer keyboard
+  try {
+    const rawZoom = sessionStorage.getItem('khmer_zoom_return_state');
+    if (rawZoom) {
+      const parsedZoom = JSON.parse(rawZoom);
+      const expectedPath = `/languages/${langCode}/decks/${deckId}/study`;
+      if (parsedZoom && parsedZoom.route === expectedPath && parsedZoom.wordId) {
+        sessionStorage.removeItem('khmer_zoom_return_state');
+        const targetIdx = words.findIndex(w => w.wordId === parsedZoom.wordId);
+        if (targetIdx !== -1) {
+          currentIndex = targetIdx;
+          render();
+        }
+        const targetWord = words.find(w => w.wordId === parsedZoom.wordId);
+        if (targetWord) {
+          openKhmerWordZoomModal(targetWord, { langCode });
+        }
+      }
+    }
+  } catch (err) {}
 
   // Background refresh
   async function refreshBackground() {
@@ -156,6 +178,7 @@ export function renderFlashcardsScreen(container, params = {}) {
   }
 
   function handleKey(e) {
+    if (document.querySelector('.modal-overlay.is-active')) return;
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
     if (e.code === 'Space') {
       e.preventDefault();
@@ -267,6 +290,35 @@ export function renderFlashcardsScreen(container, params = {}) {
     const initialBaseMeaning = getCachedWordMeaning(currentWord.studyWord, currentWord.baseWord, langCode, currentBase);
 
     const isStudyFront = showFirst === 'study';
+    const hasKhmerScript = (langCode && langCode.toLowerCase() === 'km') || /[\u1780-\u17FF]/.test(currentWord.studyWord || '');
+    const khmerTokens = hasKhmerScript ? parseKhmerWordTokens(currentWord.studyWord) : [];
+
+    const renderKhmerHintDetails = (isFront) => {
+      if (!hasKhmerScript) return '';
+      return `
+        <div class="flashcard-hint-row">
+          <button type="button" class="flashcard-hint-modal-btn ${isFront ? 'front-hint-btn' : 'back-hint-btn'}" title="View Khmer character breakdown, romanisation & audio">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>Romanisation Details</span>
+          </button>
+        </div>
+        ${khmerTokens.length > 0 ? `
+          <div class="flashcard-hint-tokens" title="Tap to open full Khmer romanisation breakdown">
+            ${khmerTokens.map(tok => `
+              <span class="flashcard-hint-token-pill ${tok.series ? `khmer-color-${tok.series}` : 'is-vowel-pill'}">
+                <span class="hint-token-glyph">${tok.display}</span>
+                ${tok.romaji ? `<span class="hint-token-romaji">${tok.romaji}</span>` : ''}
+              </span>
+            `).join('')}
+          </div>
+        ` : ''}
+      `;
+    };
+
     const studyPronHtml = formatStudyPronunciationHtml(currentWord.pronunciation, currentWord.studyWord, langCode);
     const frontWord = isStudyFront ? formatStudyTextHtml(currentWord.studyWord) : formatStudyTextHtml(initialBaseMeaning);
     const frontPronunciation = isStudyFront ? studyPronHtml : '';
@@ -304,7 +356,25 @@ export function renderFlashcardsScreen(container, params = {}) {
               <div class="card-lang-indicator">${frontTag}</div>
               <div class="card-deck-badge">${currentIndex + 1} / ${words.length}</div>
               <div class="card-text-main" id="front-card-text" data-study-text="${escapeHtml(isStudyFront ? currentWord.studyWord : initialBaseMeaning)}" ${isStudyFront ? '' : 'data-card-base-text="true"'}>${frontWord}</div>
-              ${frontPronunciation ? `<div class="card-pronunciation-sub front-hint">${frontPronunciation}</div>` : ''}
+              ${isStudyFront ? `
+                <div class="card-pronunciation-sub front-hint">
+                  ${frontPronunciation ? `<div class="flashcard-hint-pron">${frontPronunciation}</div>` : ''}
+                  ${renderKhmerHintDetails(true)}
+                </div>
+              ` : (hasKhmerScript ? `
+                <div class="card-pronunciation-sub front-hint">
+                  <div class="flashcard-hint-row">
+                    <button type="button" class="flashcard-hint-modal-btn front-hint-btn" title="Peek Khmer romanisation & breakdown hint">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                      </svg>
+                      <span>Romanisation Hint</span>
+                    </button>
+                  </div>
+                </div>
+              ` : '')}
               <div class="card-hint" data-i18n="tapToFlip">${t('tapToFlip')}</div>
             </div>
 
@@ -313,7 +383,16 @@ export function renderFlashcardsScreen(container, params = {}) {
               <div class="card-lang-indicator">${backTag}</div>
               <div class="card-deck-badge">${currentIndex + 1} / ${words.length}</div>
               <div class="card-text-main" id="back-card-text" data-study-text="${escapeHtml(!isStudyFront ? currentWord.studyWord : initialBaseMeaning)}" ${!isStudyFront ? '' : 'data-card-base-text="true"'}>${backWord}</div>
-              ${backPronunciation ? `<div class="card-pronunciation-sub">${backPronunciation}</div>` : ''}
+              ${!isStudyFront ? `
+                <div class="card-pronunciation-sub">
+                  ${backPronunciation ? `<div class="flashcard-hint-pron">${backPronunciation}</div>` : ''}
+                  ${renderKhmerHintDetails(false)}
+                </div>
+              ` : (backPronunciation ? `
+                <div class="card-pronunciation-sub">
+                  <div class="flashcard-hint-pron">${backPronunciation}</div>
+                </div>
+              ` : '')}
               <div class="card-hint" data-i18n="tapToFlipBack">${t('tapToFlipBack')}</div>
             </div>
           </div>
@@ -431,6 +510,16 @@ export function renderFlashcardsScreen(container, params = {}) {
       });
     }
 
+    // Khmer Romanisation Details Hint Modal Listeners
+    container.querySelectorAll('.flashcard-hint-modal-btn, .flashcard-hint-tokens, .flashcard-hint-token-pill').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        trackEvent('open_khmer_hint_modal', { langCode, wordId: currentWord.wordId });
+        openKhmerWordZoomModal(currentWord, { langCode });
+      });
+    });
+
     // Card Gesture & Swipe Controller (Touch + Tap)
     const stage = container.querySelector('#card-stage');
     if (stage) {
@@ -540,6 +629,9 @@ export function renderFlashcardsScreen(container, params = {}) {
         if (!isHorizontalSwipe && !isVerticalScroll && Math.abs(deltaX) < 22 && Math.abs(deltaY) < 22) {
           // If finger was held down (long press >= 380ms, e.g. copying Khmer text), do not flip card
           if (elapsed >= 380) return;
+          if (e.target.closest?.('button, a, select, input, .flashcard-hint-modal-btn, .flashcard-hint-tokens, .flashcard-hint-token-pill, .khmer-zoom-token-pill, .khmer-zoom-token-speak-btn')) {
+            return;
+          }
           lastTouchTapTime = Date.now();
           if (e && e.cancelable) e.preventDefault();
           flipCard();
@@ -558,7 +650,10 @@ export function renderFlashcardsScreen(container, params = {}) {
       });
 
       // Desktop click handler (and fallback if touch was not consumed)
-      stage.addEventListener('click', () => {
+      stage.addEventListener('click', (e) => {
+        if (e.target.closest?.('button, a, select, input, .flashcard-hint-modal-btn, .flashcard-hint-tokens, .flashcard-hint-token-pill, .khmer-zoom-token-pill, .khmer-zoom-token-speak-btn')) {
+          return;
+        }
         // Prevent duplicate flip if this click is a synthetic event from a touch tap in the last 600ms
         if (Date.now() - lastTouchTapTime < 600) return;
         // If user highlighted / selected text on desktop, do not flip
