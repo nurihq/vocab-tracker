@@ -1,11 +1,11 @@
-import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_muusikatoan_ba_pa';
-import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens, escapeHtml } from '../languages.js?v=20261118_muusikatoan_ba_pa';
-import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from '../api.js?v=20261118_muusikatoan_ba_pa';
-import { Modal } from '../components/modal.js?v=20261118_muusikatoan_ba_pa';
-import { trackEvent } from '../analytics.js?v=20261118_muusikatoan_ba_pa';
-import { navigate } from '../app.js?v=20261118_muusikatoan_ba_pa';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261118_muusikatoan_ba_pa';
-import { openKhmerWordZoomModal } from '../components/khmer-word-modal.js?v=20261118_muusikatoan_ba_pa';
+import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261118_fix_desktop_drag';
+import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml, getKhmerWordRomanisation, isKhmerAutoRomanisationEnabled, parseKhmerWordTokens, escapeHtml } from '../languages.js?v=20261118_fix_desktop_drag';
+import { Api, getLocalStore, speakKhmer, shouldAutoTranslateKhmerAdd, translateTextToTarget, getTranslationCandidates, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from '../api.js?v=20261118_fix_desktop_drag';
+import { Modal } from '../components/modal.js?v=20261118_fix_desktop_drag';
+import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
+import { navigate } from '../app.js?v=20261118_fix_desktop_drag';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261118_fix_desktop_drag';
+import { openKhmerWordZoomModal } from '../components/khmer-word-modal.js?v=20261118_fix_desktop_drag';
 
 export function renderDeckWordsScreen(container, params = {}) {
   const langCode = params.code || 'ja';

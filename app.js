@@ -1,22 +1,22 @@
-import { Navbar } from './components/navbar.js?v=20261118_muusikatoan_ba_pa';
-import { Modal } from './components/modal.js?v=20261118_muusikatoan_ba_pa';
-import { setupPullToRefresh } from './components/pull-to-refresh.js?v=20261118_muusikatoan_ba_pa';
-import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261118_muusikatoan_ba_pa';
-import { setI18nBaseLang } from './i18n.js?v=20261118_muusikatoan_ba_pa';
-import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from './api.js?v=20261118_muusikatoan_ba_pa';
-import { trackPageView, trackEvent } from './analytics.js?v=20261118_muusikatoan_ba_pa';
+import { Navbar } from './components/navbar.js?v=20261118_fix_desktop_drag';
+import { Modal } from './components/modal.js?v=20261118_fix_desktop_drag';
+import { setupPullToRefresh } from './components/pull-to-refresh.js?v=20261118_fix_desktop_drag';
+import { detectBrowserLanguage, getLanguageByCode } from './languages.js?v=20261118_fix_desktop_drag';
+import { setI18nBaseLang } from './i18n.js?v=20261118_fix_desktop_drag';
+import { Auth, syncLocalToCloud, recordLanguageUsage, shouldColorKhmer, copyToClipboard, showCopiedTooltip } from './api.js?v=20261118_fix_desktop_drag';
+import { trackPageView, trackEvent } from './analytics.js?v=20261118_fix_desktop_drag';
 
-import { renderHomeScreen } from './screens/home.js?v=20261118_muusikatoan_ba_pa';
-import { renderSignInScreen } from './screens/signin.js?v=20261118_muusikatoan_ba_pa';
-import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261118_muusikatoan_ba_pa';
-import { renderDecksScreen } from './screens/decks.js?v=20261118_muusikatoan_ba_pa';
-import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261118_muusikatoan_ba_pa';
-import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261118_muusikatoan_ba_pa';
-import { renderAboutScreen } from './screens/about.js?v=20261118_muusikatoan_ba_pa';
-import { renderScriptsScreen } from './screens/scripts.js?v=20261118_muusikatoan_ba_pa';
-import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261118_muusikatoan_ba_pa';
-import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261118_muusikatoan_ba_pa';
-import { renderSettingsScreen } from './screens/settings.js?v=20261118_muusikatoan_ba_pa';
+import { renderHomeScreen } from './screens/home.js?v=20261118_fix_desktop_drag';
+import { renderSignInScreen } from './screens/signin.js?v=20261118_fix_desktop_drag';
+import { renderStudyLanguagesScreen } from './screens/study-languages.js?v=20261118_fix_desktop_drag';
+import { renderDecksScreen } from './screens/decks.js?v=20261118_fix_desktop_drag';
+import { renderDeckWordsScreen } from './screens/deck-words.js?v=20261118_fix_desktop_drag';
+import { renderFlashcardsScreen } from './screens/flashcards.js?v=20261118_fix_desktop_drag';
+import { renderAboutScreen } from './screens/about.js?v=20261118_fix_desktop_drag';
+import { renderScriptsScreen } from './screens/scripts.js?v=20261118_fix_desktop_drag';
+import { renderJapaneseScriptsLandingScreen, renderScriptInfoScreen } from './screens/script-info.js?v=20261118_fix_desktop_drag';
+import { renderScriptPracticeScreen } from './screens/script-practice.js?v=20261118_fix_desktop_drag';
+import { renderSettingsScreen } from './screens/settings.js?v=20261118_fix_desktop_drag';
 
 const routeHistory = [];
 

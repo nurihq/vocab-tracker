@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js?v=20261118_muusikatoan_ba_pa';
-import { getI18nBaseLang } from './i18n.js?v=20261118_muusikatoan_ba_pa';
+import { CONFIG } from './config.js?v=20261118_fix_desktop_drag';
+import { getI18nBaseLang } from './i18n.js?v=20261118_fix_desktop_drag';
 
 const STORAGE_PREFIX = 'vocab_tracker_';
 const AUTH_TOKEN_KEY = `${STORAGE_PREFIX}auth_token`;

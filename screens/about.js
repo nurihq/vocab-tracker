@@ -1,7 +1,7 @@
-import { t, autoTranslateUi } from '../i18n.js?v=20261118_muusikatoan_ba_pa';
-import { Auth } from '../api.js?v=20261118_muusikatoan_ba_pa';
-import { trackEvent } from '../analytics.js?v=20261118_muusikatoan_ba_pa';
-import { navigate } from '../app.js?v=20261118_muusikatoan_ba_pa';
+import { t, autoTranslateUi } from '../i18n.js?v=20261118_fix_desktop_drag';
+import { Auth } from '../api.js?v=20261118_fix_desktop_drag';
+import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
+import { navigate } from '../app.js?v=20261118_fix_desktop_drag';
 
 export function renderAboutScreen(container) {
   const isAuthed = Auth.isAuthenticated();

@@ -1,8 +1,8 @@
-import { CONFIG } from '../config.js?v=20261118_muusikatoan_ba_pa';
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_muusikatoan_ba_pa';
-import { Auth, Api } from '../api.js?v=20261118_muusikatoan_ba_pa';
-import { trackEvent } from '../analytics.js?v=20261118_muusikatoan_ba_pa';
-import { navigate } from '../app.js?v=20261118_muusikatoan_ba_pa';
+import { CONFIG } from '../config.js?v=20261118_fix_desktop_drag';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_desktop_drag';
+import { Auth, Api } from '../api.js?v=20261118_fix_desktop_drag';
+import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
+import { navigate } from '../app.js?v=20261118_fix_desktop_drag';
 
 export function renderSignInScreen(container) {
   const currentBase = getI18nBaseLang();

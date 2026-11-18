@@ -1,6 +1,6 @@
-import { escapeHtml, formatStudyTextHtml, parseKhmerWordTokens } from '../languages.js?v=20261118_muusikatoan_ba_pa';
-import { copyToClipboard, showCopiedTooltip, speakKhmer } from '../api.js?v=20261118_muusikatoan_ba_pa';
-import { trackEvent } from '../analytics.js?v=20261118_muusikatoan_ba_pa';
+import { escapeHtml, formatStudyTextHtml, parseKhmerWordTokens } from '../languages.js?v=20261118_fix_desktop_drag';
+import { copyToClipboard, showCopiedTooltip, speakKhmer } from '../api.js?v=20261118_fix_desktop_drag';
+import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
 
 export function getKhmerTokenSpeakText(tok) {
   if (!tok) return '';

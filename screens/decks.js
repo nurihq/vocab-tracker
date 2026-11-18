@@ -1,10 +1,10 @@
-import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_muusikatoan_ba_pa';
-import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261118_muusikatoan_ba_pa';
-import { Api, getLocalStore } from '../api.js?v=20261118_muusikatoan_ba_pa';
-import { Modal } from '../components/modal.js?v=20261118_muusikatoan_ba_pa';
-import { trackEvent } from '../analytics.js?v=20261118_muusikatoan_ba_pa';
-import { navigate } from '../app.js?v=20261118_muusikatoan_ba_pa';
-import { setupDraggableList } from '../components/drag-controller.js?v=20261118_muusikatoan_ba_pa';
+import { t, getI18nBaseLang, autoTranslateUi } from '../i18n.js?v=20261118_fix_desktop_drag';
+import { getLanguageByCode, getLocalizedLanguageName } from '../languages.js?v=20261118_fix_desktop_drag';
+import { Api, getLocalStore } from '../api.js?v=20261118_fix_desktop_drag';
+import { Modal } from '../components/modal.js?v=20261118_fix_desktop_drag';
+import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
+import { navigate } from '../app.js?v=20261118_fix_desktop_drag';
+import { setupDraggableList } from '../components/drag-controller.js?v=20261118_fix_desktop_drag';
 
 export function renderDecksScreen(container, params = {}) {
   const langCode = params.code || 'ja';

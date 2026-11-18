@@ -1,10 +1,10 @@
-import { autoTranslateUi } from '../i18n.js?v=20261118_muusikatoan_ba_pa';
-import { trackEvent } from '../analytics.js?v=20261118_muusikatoan_ba_pa';
-import { navigate } from '../app.js?v=20261118_muusikatoan_ba_pa';
-import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261118_muusikatoan_ba_pa';
-import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261118_muusikatoan_ba_pa';
-import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261118_muusikatoan_ba_pa';
-import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261118_muusikatoan_ba_pa';
+import { autoTranslateUi } from '../i18n.js?v=20261118_fix_desktop_drag';
+import { trackEvent } from '../analytics.js?v=20261118_fix_desktop_drag';
+import { navigate } from '../app.js?v=20261118_fix_desktop_drag';
+import { notifyScriptProgressChange, syncScriptsProgress, speakKhmer } from '../api.js?v=20261118_fix_desktop_drag';
+import { HIRAGANA_SECTIONS } from '../scripts/data/hiragana-data.js?v=20261118_fix_desktop_drag';
+import { KATAKANA_SECTIONS } from '../scripts/data/katakana-data.js?v=20261118_fix_desktop_drag';
+import { KHMER_SECTIONS } from '../scripts/data/khmer-data.js?v=20261118_fix_desktop_drag';
 
 // ============================================================================
 // KHMER CHARACTER METADATA (Consonants + Subscripts + Dependent & Indep Vowels)

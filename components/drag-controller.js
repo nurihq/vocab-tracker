@@ -39,6 +39,38 @@ export function setupDraggableList({
   };
   container.addEventListener('click', clickInterceptor, true);
 
+  // Allow dropping anywhere inside the grid/list container (even in gaps between tiles)
+  const onContainerDragOver = (e) => {
+    if (!draggedItem) return;
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    lastTouchPos = { x: e.clientX, y: e.clientY };
+    handleAutoScrollCalculation(e.clientY);
+    updateDropTarget(e.clientX, e.clientY);
+  };
+
+  const onContainerDrop = (e) => {
+    if (!draggedItem) return;
+    e.preventDefault();
+    stopAutoScroll();
+    suppressClickUntil = Date.now() + 300;
+    items.forEach(it => it.classList.remove('drag-over'));
+
+    const fromIndex = parseInt(draggedItem.getAttribute('data-drag-index'), 10);
+    const toIndex = currentDropTarget
+      ? parseInt(currentDropTarget.getAttribute('data-drag-index'), 10)
+      : NaN;
+
+    if (!isNaN(fromIndex) && !isNaN(toIndex) && fromIndex !== toIndex) {
+      onReorder(fromIndex, toIndex);
+    }
+    draggedItem = null;
+    currentDropTarget = null;
+  };
+
+  container.addEventListener('dragover', onContainerDragOver);
+  container.addEventListener('drop', onContainerDrop);
+
   function updateDropTarget(x, y) {
     if (!x || !y || items.length === 0) return;
 
@@ -140,33 +172,47 @@ export function setupDraggableList({
     item.setAttribute('data-drag-index', index);
     item.setAttribute('draggable', 'true');
 
+    // Track pointer/mouse down target because in HTML5 dragstart, e.target is always the draggable item itself
+    let lastMouseDownTarget = null;
+    item.addEventListener('mousedown', (e) => {
+      lastMouseDownTarget = e.target;
+    });
+
     // ─── Desktop HTML5 Drag & Drop ──────────────────────────────────
     item.addEventListener('dragstart', (e) => {
-      if (handleSelector && !e.target.closest(handleSelector)) {
+      const originTarget = lastMouseDownTarget || e.target;
+
+      // Never start a drag from action buttons, inputs, or word text selection areas
+      if (originTarget && originTarget.closest && originTarget.closest('button, select, input, textarea, .tile-action-btn, .word-actions, .move-select, .word-study, .word-content, .card-text-main')) {
         e.preventDefault();
         return;
       }
-      if (e.target.closest('button, select, input, textarea, a, .tile-action-btn, .word-actions, .move-select, .word-study, .word-content, .card-text-main')) {
-        e.preventDefault();
-        return;
-      }
+
       draggedItem = item;
+      currentDropTarget = null;
       item.classList.add('is-dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      const key = getItemKey ? getItemKey(item) : item.getAttribute('data-id');
-      e.dataTransfer.setData('text/plain', key || '');
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+        const key = getItemKey ? getItemKey(item) : item.getAttribute('data-id');
+        try {
+          e.dataTransfer.setData('text/plain', key || '');
+        } catch (_) {}
+      }
     });
 
     item.addEventListener('dragend', () => {
       stopAutoScroll();
+      suppressClickUntil = Date.now() + 300;
       if (draggedItem) draggedItem.classList.remove('is-dragging');
       items.forEach(it => it.classList.remove('drag-over'));
       draggedItem = null;
+      currentDropTarget = null;
+      lastMouseDownTarget = null;
     });
 
     item.addEventListener('dragover', (e) => {
       e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
       lastTouchPos = { x: e.clientX, y: e.clientY };
       handleAutoScrollCalculation(e.clientY);
       updateDropTarget(e.clientX, e.clientY);
@@ -181,8 +227,9 @@ export function setupDraggableList({
     item.addEventListener('drop', (e) => {
       e.preventDefault();
       stopAutoScroll();
-      item.classList.remove('drag-over');
-      if (!draggedItem || draggedItem === item) return;
+      suppressClickUntil = Date.now() + 300;
+      items.forEach(it => it.classList.remove('drag-over'));
+      if (!draggedItem) return;
 
       const fromIndex = parseInt(draggedItem.getAttribute('data-drag-index'), 10);
       const toIndex = currentDropTarget 
@@ -194,6 +241,7 @@ export function setupDraggableList({
       }
       draggedItem = null;
       currentDropTarget = null;
+      lastMouseDownTarget = null;
     });
 
     // ─── Mobile Touch Hold-to-Drag ───────────────────────────────────
