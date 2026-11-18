@@ -978,6 +978,7 @@ body {
   width: 100%;
   height: clamp(260px, 46vh, 340px);
   perspective: 1200px;
+  -webkit-perspective: 1200px;
   margin-bottom: 1.5rem;
   cursor: pointer;
   touch-action: pan-y;
@@ -994,6 +995,7 @@ body {
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
   transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);

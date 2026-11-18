@@ -1,6 +1,6 @@
 import { t, getI18nBaseLang, getCachedWordMeaning, fetchWordMeaningTranslation, autoTranslateUi } from '../i18n.js?v=20261116_standardize_khmer_font';
 import { getLanguageByCode, getLocalizedLanguageName, formatStudyTextHtml, formatStudyPronunciationHtml } from '../languages.js?v=20261116_standardize_khmer_font';
-import { Api, getLocalStore } from '../api.js?v=20261118_fix_syntax_error';
+import { Api, getLocalStore } from '../api.js?v=20261118_fix_mobile_tap_flip';
 import { trackEvent } from '../analytics.js?v=20261116_standardize_khmer_font';
 import { navigate } from '../app.js?v=20261116_move_deck_fix';
 
@@ -155,6 +155,7 @@ export function renderFlashcardsScreen(container, params = {}) {
     const cardEl = container.querySelector('#active-flashcard');
     if (cardEl) {
       cardEl.style.transform = '';
+      cardEl.style.transition = '';
       if (isFlipped) cardEl.classList.add('flipped');
       else cardEl.classList.remove('flipped');
     }
@@ -388,8 +389,9 @@ export function renderFlashcardsScreen(container, params = {}) {
       let currentY = 0;
       let isTouching = false;
       let isHorizontalSwipe = false;
+      let isVerticalScroll = false;
       let touchStartTime = 0;
-      let justHandledTouch = false;
+      let lastTouchTapTime = 0;
 
       stage.addEventListener('touchstart', (e) => {
         if (e.touches.length !== 1) return;
@@ -401,6 +403,7 @@ export function renderFlashcardsScreen(container, params = {}) {
         touchStartTime = Date.now();
         isTouching = true;
         isHorizontalSwipe = false;
+        isVerticalScroll = false;
       }, { passive: true });
 
       stage.addEventListener('touchmove', (e) => {
@@ -411,10 +414,12 @@ export function renderFlashcardsScreen(container, params = {}) {
         const deltaX = currentX - startX;
         const deltaY = currentY - startY;
 
-        // Require at least 15px horizontal movement to begin swiping
-        if (!isHorizontalSwipe) {
-          if (Math.abs(deltaX) > 14 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+        // Disambiguate horizontal swipe vs vertical scroll
+        if (!isHorizontalSwipe && !isVerticalScroll) {
+          if (Math.abs(deltaX) > 12 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
             isHorizontalSwipe = true;
+          } else if (Math.abs(deltaY) > 12) {
+            isVerticalScroll = true;
           }
         }
 
@@ -430,11 +435,9 @@ export function renderFlashcardsScreen(container, params = {}) {
         }
       }, { passive: false });
 
-      stage.addEventListener('touchend', () => {
+      stage.addEventListener('touchend', (e) => {
         if (!isTouching) return;
         isTouching = false;
-        justHandledTouch = true;
-        setTimeout(() => { justHandledTouch = false; }, 350);
 
         const cardEl = container.querySelector('#active-flashcard');
         const deltaX = currentX - startX;
@@ -442,6 +445,7 @@ export function renderFlashcardsScreen(container, params = {}) {
         const elapsed = Date.now() - touchStartTime;
 
         if (isHorizontalSwipe && cardEl) {
+          lastTouchTapTime = Date.now();
           const threshold = 55;
           const isQuickFlick = elapsed < 280 && Math.abs(deltaX) > 35;
 
@@ -477,13 +481,14 @@ export function renderFlashcardsScreen(container, params = {}) {
             cardEl.style.transform = '';
           }
         } else if (cardEl) {
-          cardEl.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+          cardEl.style.transition = '';
           cardEl.style.transform = '';
         }
 
-        // Tap detected: If not a swipe and finger movement was minimal, trigger instant flip
-        if (!isHorizontalSwipe && Math.abs(deltaX) < 18 && Math.abs(deltaY) < 18) {
-          if (e.target && e.target.closest && e.target.closest('.khmer-cons-char')) return;
+        // Tap detected: If user didn't swipe horizontally or scroll vertically, and movement was minimal (< 22px)
+        if (!isHorizontalSwipe && !isVerticalScroll && Math.abs(deltaX) < 22 && Math.abs(deltaY) < 22) {
+          lastTouchTapTime = Date.now();
+          if (e && e.cancelable) e.preventDefault();
           flipCard();
         }
       });
@@ -491,18 +496,18 @@ export function renderFlashcardsScreen(container, params = {}) {
       stage.addEventListener('touchcancel', () => {
         isTouching = false;
         isHorizontalSwipe = false;
+        isVerticalScroll = false;
         const cardEl = container.querySelector('#active-flashcard');
         if (cardEl) {
-          cardEl.style.transition = 'transform 0.25s ease';
+          cardEl.style.transition = '';
           cardEl.style.transform = '';
         }
-        setTimeout(() => { justHandledTouch = false; }, 100);
       });
 
-      // Desktop click handler (ignored if handled via touchend)
-      stage.addEventListener('click', (e) => {
-        if (justHandledTouch) return;
-        if (e.target && e.target.closest && e.target.closest('.khmer-cons-char')) return;
+      // Desktop click handler (and fallback if touch was not consumed)
+      stage.addEventListener('click', () => {
+        // Prevent duplicate flip if this click is a synthetic event from a touch tap in the last 600ms
+        if (Date.now() - lastTouchTapTime < 600) return;
         flipCard();
       });
     }
